@@ -135,18 +135,18 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <StepCard
             icon={<FileUp className="w-12 h-12 text-blue-600" />}
-            title="1. Upload Document"
-            desc="PDF, DOCX, TXT… any spec you have"
+            title="1. Provide Input"
+            desc="Upload documents, paste URLs, or connect APIs"
           />
           <StepCard
             icon={<Bot className="w-12 h-12 text-purple-600" />}
-            title="2. AI Agent Generates Tests"
-            desc="Scenarios, test cases, Gherkin, automation"
+            title="2. AI Generates Tests"
+            desc="Comprehensive test scenarios, cases, and automation code"
           />
           <StepCard
             icon={<Download className="w-12 h-12 text-green-600" />}
-            title="3. Download & Copy"
-            desc="Export as JSON/TXT or copy sections"
+            title="3. Export & Use"
+            desc="Download in multiple formats or copy sections"
           />
         </div>
       </section>
