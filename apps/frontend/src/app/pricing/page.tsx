@@ -87,6 +87,27 @@ export default function PricingPage() {
               <Feature text="Priority generation speed" highlight />
               <Feature text="Email support" highlight />
             </ul>
+            
+            <div className="pt-4 border-t">
+              <p className="text-xs font-semibold text-purple-600 mb-2 flex items-center gap-1">
+                <Crown className="w-3 h-3" />
+                Coming Soon in Q1 2025:
+              </p>
+              <ul className="space-y-2 text-xs text-gray-600">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-3 h-3 text-purple-500 flex-shrink-0 mt-0.5" />
+                  <span>URL → Page Objects & E2E Tests</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-3 h-3 text-purple-500 flex-shrink-0 mt-0.5" />
+                  <span>Swagger → API Test Generation</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-3 h-3 text-purple-500 flex-shrink-0 mt-0.5" />
+                  <span>Performance Test Scripts</span>
+                </li>
+              </ul>
+            </div>
 
             <Button className="w-full" size="lg" onClick={() => setOpen(true)}>
               Upgrade to Pro

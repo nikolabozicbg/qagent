@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, FileUp, Bot, Download, CheckCircle2 } from "lucide-react";
+import { ArrowRight, FileUp, Bot, Download, CheckCircle2, Globe, Code2, Zap, Crown } from "lucide-react";
 import EmailWaitlist from "@/components/EmailWaitlist";
 
 export default function Home() {
@@ -187,6 +187,68 @@ export default function Home() {
         </div>
       </section>
 
+      {/* COMING SOON FEATURES */}
+      <section className="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 rounded-2xl p-12 space-y-8">
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
+            <Crown className="w-4 h-4" />
+            Coming Soon - Pro Features
+          </div>
+          <h2 className="text-4xl font-bold">Advanced Test Generation</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Powerful automation capabilities launching soon. Join the waitlist for early access and exclusive launch discount.
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+          <ComingSoonCard
+            icon={<Globe className="w-10 h-10 text-blue-600" />}
+            badge="Coming Q1 2025"
+            title="URL → Page Objects & E2E Tests"
+            description="Paste any web application URL and get automated Page Object Models"
+            features={[
+              "Playwright / Selenium / Cypress",
+              "Smart locator strategies",
+              "E2E test scaffolding",
+              "Multi-page flow detection"
+            ]}
+          />
+          
+          <ComingSoonCard
+            icon={<Code2 className="w-10 h-10 text-purple-600" />}
+            badge="Coming Q1 2025"
+            title="Swagger → API Tests"
+            description="Transform OpenAPI specs into comprehensive API test suites"
+            features={[
+              "Postman collections",
+              "REST Assured / pytest",
+              "Contract testing (Pact)",
+              "Request/response validation"
+            ]}
+          />
+          
+          <ComingSoonCard
+            icon={<Zap className="w-10 h-10 text-orange-600" />}
+            badge="Coming Q1 2025"
+            title="Performance Test Generation"
+            description="Generate load testing scripts from API specifications"
+            features={[
+              "JMeter / K6 / Locust",
+              "Stress testing scenarios",
+              "Load profile optimization",
+              "Bottleneck detection"
+            ]}
+          />
+        </div>
+        
+        <div className="text-center mt-8">
+          <p className="text-lg font-semibold text-gray-700 mb-4">
+            🎉 Get 50% off Pro when these features launch!
+          </p>
+          <EmailWaitlist variant="inline" />
+        </div>
+      </section>
+
       {/* TESTIMONIALS */}
       <section className="space-y-8">
         <h2 className="text-3xl font-bold text-center">Trusted by QA Engineers</h2>
@@ -286,6 +348,38 @@ function TestimonialCard({ quote, author, role, company, rating }: any) {
         <p className="text-sm text-gray-600">{role}</p>
         <p className="text-xs text-gray-500">{company}</p>
       </div>
+    </Card>
+  );
+}
+
+function ComingSoonCard({ icon, badge, title, description, features }: any) {
+  return (
+    <Card className="p-6 hover:shadow-2xl transition-all hover:-translate-y-1 border-2 border-purple-200 bg-white relative overflow-hidden">
+      {/* Badge */}
+      <div className="absolute top-4 right-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-xs px-3 py-1 rounded-full font-semibold">
+        {badge}
+      </div>
+      
+      {/* Icon */}
+      <div className="mb-4">
+        {icon}
+      </div>
+      
+      {/* Title */}
+      <h3 className="text-xl font-bold mb-2 pr-24">{title}</h3>
+      
+      {/* Description */}
+      <p className="text-gray-600 text-sm mb-4">{description}</p>
+      
+      {/* Features */}
+      <ul className="space-y-2">
+        {features.map((feature: string, i: number) => (
+          <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+            <CheckCircle2 className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
+            <span>{feature}</span>
+          </li>
+        ))}
+      </ul>
     </Card>
   );
 }
