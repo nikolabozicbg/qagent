@@ -1,7 +1,6 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,9 +13,9 @@ import QASuite from "@/components/qa-suite/QASuite";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { motion } from "framer-motion";
+import { refineSuite } from "@/lib/api";
 
-export default function ResultPage({ searchParams }: any) {
-  const { id } = searchParams;
+export default function ResultPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,19 +24,22 @@ export default function ResultPage({ searchParams }: any) {
   const { isPro } = useSubscription();
 
   useEffect(() => {
-    if (!id) return;
+    // Load result from sessionStorage
+    const stored = sessionStorage.getItem('qagent_result');
     
-    axios
-      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/result/${id}`)
-      .then((res) => {
-        setData(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, [id]);
+    if (stored) {
+      try {
+        const result = JSON.parse(stored);
+        setData(result);
+      } catch (err) {
+        setError('Failed to load result');
+      }
+    } else {
+      setError('No result data found');
+    }
+    
+    setLoading(false);
+  }, []);
 
   if (loading) {
     return (
@@ -83,14 +85,22 @@ export default function ResultPage({ searchParams }: any) {
     setRefining(true);
     toast.info("Refining test suite...");
 
-    // Mock refinement (replace with real API call)
-    setTimeout(() => {
-      setRefining(false);
+    try {
+      const refined = await refineSuite(data, refinePrompt);
+      setData(refined);
+      sessionStorage.setItem('qagent_result', JSON.stringify(refined));
+      
       toast.success("Test suite refined!", {
         description: "Your improvements have been applied"
       });
       setRefinePrompt("");
-    }, 2000);
+    } catch (err: any) {
+      toast.error("Refinement failed", {
+        description: err.message
+      });
+    } finally {
+      setRefining(false);
+    }
   };
 
   // Count items in sections
