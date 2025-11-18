@@ -5,7 +5,26 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { ShieldAlert, ListTree, Lock, Server, TestTube2 } from "lucide-react";
 
-export default function QASuite() {
+interface QASuiteProps {
+  data?: any;
+}
+
+export default function QASuite({ data }: QASuiteProps) {
+  // If no data provided, don't render anything
+  if (!data) return null;
+
+  // Extract QA data from backend response
+  const negatives = Array.isArray(data.negatives) ? data.negatives : [];
+  const security = Array.isArray(data.security) ? data.security : [];
+  const risk = Array.isArray(data.risk) ? data.risk : [];
+  const compatibility = Array.isArray(data.compatibility) ? data.compatibility : [];
+  const testData = data.testData || {};
+
+  // If no QA data, don't render
+  if (negatives.length === 0 && security.length === 0 && compatibility.length === 0) {
+    return null;
+  }
+
   return (
     <div className="mt-16 space-y-20">
       {/* Sticky Sidebar Navigation */}
@@ -69,50 +88,30 @@ export default function QASuite() {
       </motion.section>
 
       {/* Negative Tests */}
-      <motion.section 
-        id="negative" 
-        initial={{ opacity: 0, y: 20 }} 
-        animate={{ opacity: 1, y: 0 }} 
-        transition={{ duration: 0.4, delay: 0.1 }}
-        className="scroll-mt-20"
-      >
-        <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
-          <ShieldAlert className="w-7 h-7 text-red-600" /> 
-          Negative & Edge-Case Tests
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TestCard 
-            title="Invalid Email Format" 
-            desc="Test system behavior with malformed email addresses" 
-            severity="high"
-          />
-          <TestCard 
-            title="Missing Required Fields" 
-            desc="Ensure validation errors for empty mandatory fields" 
-            severity="high"
-          />
-          <TestCard 
-            title="SQL Injection Attempt" 
-            desc="Verify protection against malicious SQL payloads" 
-            severity="critical"
-          />
-          <TestCard 
-            title="Invalid Data Types" 
-            desc="Send wrong data types to test type validation" 
-            severity="medium"
-          />
-          <TestCard 
-            title="Extremely Long Inputs" 
-            desc="Test input length limits and buffer handling" 
-            severity="medium"
-          />
-          <TestCard 
-            title="Special Characters" 
-            desc="Validate handling of special chars and unicode" 
-            severity="low"
-          />
-        </div>
-      </motion.section>
+      {negatives.length > 0 && (
+        <motion.section 
+          id="negative" 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="scroll-mt-20"
+        >
+          <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
+            <ShieldAlert className="w-7 h-7 text-red-600" /> 
+            Negative & Edge-Case Tests
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {negatives.map((item: any, i: number) => (
+              <TestCard 
+                key={i}
+                title={item.test || item.title || `Test ${i + 1}`}
+                desc={item.description || item.desc || ''}
+                severity={item.severity || 'medium'}
+              />
+            ))}
+          </div>
+        </motion.section>
+      )}
 
       {/* BVA / EP */}
       <motion.section 
@@ -169,44 +168,27 @@ export default function QASuite() {
       </motion.section>
 
       {/* Security Tests */}
-      <motion.section 
-        id="security" 
-        initial={{ opacity: 0, y: 20 }} 
-        animate={{ opacity: 1, y: 0 }} 
-        transition={{ duration: 0.4, delay: 0.3 }}
-        className="scroll-mt-20"
-      >
-        <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
-          <Lock className="w-7 h-7 text-yellow-600" /> 
-          Security Test Recommendations
-        </h2>
-        <div className="space-y-3">
-          <SecurityItem 
-            title="Weak Password Policy" 
-            desc="Verify minimum password complexity requirements (uppercase, lowercase, numbers, special chars)" 
-          />
-          <SecurityItem 
-            title="Session Expiry" 
-            desc="Ensure automatic session timeout after period of inactivity" 
-          />
-          <SecurityItem 
-            title="Authorization Bypass" 
-            desc="Attempt to access restricted pages without required permissions" 
-          />
-          <SecurityItem 
-            title="XSS Prevention" 
-            desc="Test script injection in input fields and verify sanitization" 
-          />
-          <SecurityItem 
-            title="CSRF Protection" 
-            desc="Verify CSRF tokens are required for state-changing operations" 
-          />
-          <SecurityItem 
-            title="Rate Limiting" 
-            desc="Test that excessive requests are throttled or blocked" 
-          />
-        </div>
-      </motion.section>
+      {security.length > 0 && (
+        <motion.section 
+          id="security" 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.4, delay: 0.3 }}
+          className="scroll-mt-20"
+        >
+          <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
+            <Lock className="w-7 h-7 text-yellow-600" /> 
+            Security Test Recommendations
+          </h2>
+          <div className="space-y-3">
+            {security.map((item: any, i: number) => {
+              const title = typeof item === 'string' ? item : (item.title || item.test || `Security Test ${i + 1}`);
+              const desc = typeof item === 'string' ? '' : (item.description || item.desc || '');
+              return <SecurityItem key={i} title={title} desc={desc} />;
+            })}
+          </div>
+        </motion.section>
+      )}
 
       {/* API Suite */}
       <motion.section 

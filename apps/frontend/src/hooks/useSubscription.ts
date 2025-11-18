@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
  * Change isPro to true for demo mode.
  */
 export function useSubscription() {
-  const [isPro] = useState(false); // Change to true for Pro demo
+  const [isPro] = useState(true); // Change to true for Pro demo - ENABLED FOR TESTING
   return { isPro };
 }
 

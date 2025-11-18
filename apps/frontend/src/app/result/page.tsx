@@ -282,7 +282,7 @@ export default function ResultPage() {
 
       {/* QA Suite Section */}
       <div className="mt-16 pt-16 border-t">
-        <QASuite />
+        <QASuite data={data} />
       </div>
 
 {/*      /!* ===================== OUTPUT EXPANSION (Warp 2) ===================== *!/*/}
