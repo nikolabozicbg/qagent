@@ -24,9 +24,25 @@ export default function Home() {
           AI-powered test generation from documents, web apps, and API specs. Get comprehensive 
           test scenarios, cases, Gherkin, and automation code instantly.
         </p>
+        
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-6">
+          <div>
+            <p className="text-3xl font-bold text-blue-600">10x</p>
+            <p className="text-sm text-gray-600">Faster than manual</p>
+          </div>
+          <div>
+            <p className="text-3xl font-bold text-blue-600">50+</p>
+            <p className="text-sm text-gray-600">Test types covered</p>
+          </div>
+          <div>
+            <p className="text-3xl font-bold text-blue-600">100%</p>
+            <p className="text-sm text-gray-600">Requirements traced</p>
+          </div>
+        </div>
 
         {/* CTA Buttons */}
-        <div className="flex justify-center gap-4 pt-4">
+        <div className="flex justify-center gap-4 pt-8">
           <Link href="/upload">
             <Button size="lg" className="px-10 text-lg shadow-lg hover:shadow-xl transition-shadow">
               Start Free <ArrowRight className="w-5 h-5 ml-2" />
@@ -44,22 +60,6 @@ export default function Home() {
         <p className="text-sm text-gray-500">
           No credit card required • 3 free generations daily
         </p>
-        
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-8">
-          <div>
-            <p className="text-3xl font-bold text-blue-600">10x</p>
-            <p className="text-sm text-gray-600">Faster than manual</p>
-          </div>
-          <div>
-            <p className="text-3xl font-bold text-blue-600">50+</p>
-            <p className="text-sm text-gray-600">Test types covered</p>
-          </div>
-          <div>
-            <p className="text-3xl font-bold text-blue-600">100%</p>
-            <p className="text-sm text-gray-600">Requirements traced</p>
-          </div>
-        </div>
       </section>
 
       {/* DEMO VIDEO */}
@@ -106,21 +106,6 @@ export default function Home() {
           /> */}
         </div>
         
-        {/* Quick stats below video */}
-        <div className="grid grid-cols-3 gap-6 mt-8 text-center">
-          <div className="bg-white rounded-lg p-4 shadow-sm border">
-            <p className="text-2xl font-bold text-blue-600">~10s</p>
-            <p className="text-sm text-gray-600">Average generation time</p>
-          </div>
-          <div className="bg-white rounded-lg p-4 shadow-sm border">
-            <p className="text-2xl font-bold text-blue-600">8+</p>
-            <p className="text-sm text-gray-600">Output formats</p>
-          </div>
-          <div className="bg-white rounded-lg p-4 shadow-sm border">
-            <p className="text-2xl font-bold text-blue-600">Zero</p>
-            <p className="text-sm text-gray-600">Manual writing needed</p>
-          </div>
-        </div>
       </section>
 
       {/* HOW IT WORKS */}
@@ -172,7 +157,7 @@ export default function Home() {
 
       {/* BENEFITS */}
       <section className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-12">
-        <h2 className="text-3xl font-bold text-center mb-8">Why QAgent?</h2>
+        <h2 className="text-3xl font-bold text-center mb-8">Why QAgenAI?</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
           <BenefitItem text="Save hours of manual test writing" />
