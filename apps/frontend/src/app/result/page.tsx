@@ -135,13 +135,35 @@ export default function ResultPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold mb-2">Generated Test Suite</h1>
-          <p className="text-gray-600">AI-powered test generation complete</p>
+          <div className="flex items-center gap-3">
+            <p className="text-gray-600">AI-powered test generation complete</p>
+            {data._meta?.mode === 'openai' && (
+              <div className="flex items-center gap-2 text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full border border-green-300">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="font-semibold">Real AI Generated</span>
+              </div>
+            )}
+          </div>
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex gap-3">
+          <Button 
+            onClick={() => router.push('/')}
+            variant="outline"
+            size="lg"
+            className="gap-2"
+          >
+            <Sparkles className="w-4 h-4" />
+            Generate New Suite
+          </Button>
+          
           {data._meta?.mode === 'mock' && (
-            <div className="flex items-center gap-2 text-sm text-orange-600 bg-orange-50 px-4 py-2 rounded-lg border border-orange-200">
-              <span className="font-semibold">⚠️ Mock Data</span>
+            <div className="flex items-center gap-2 px-5 py-3 rounded-lg border-2 border-orange-400 bg-orange-100">
+              <div className="text-2xl">⚠️</div>
+              <div>
+                <p className="font-bold text-orange-900 text-sm">DEMO MODE</p>
+                <p className="text-orange-700 text-xs">Using sample data</p>
+              </div>
             </div>
           )}
           
@@ -158,16 +180,20 @@ export default function ResultPage() {
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <p className="text-sm text-gray-600 mb-1">Document</p>
-            <p className="font-semibold">demo-spec.pdf</p>
+            <p className="text-sm text-gray-600 mb-1">AI Model</p>
+            <p className="font-semibold">{data._meta?.model || 'gpt-3.5-turbo'}</p>
           </div>
           <div>
             <p className="text-sm text-gray-600 mb-1">Processing Time</p>
-            <p className="font-semibold">~8 seconds</p>
+            <p className="font-semibold">
+              {data._meta?.duration ? `${data._meta.duration.toFixed(2)}s` : 'N/A'}
+            </p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 mb-1">AI Confidence</p>
-            <p className="font-semibold text-green-600">87%</p>
+            <p className="text-sm text-gray-600 mb-1">Tokens Used</p>
+            <p className="font-semibold text-blue-600">
+              {data._meta?.tokens ? data._meta.tokens.toLocaleString() : 'N/A'}
+            </p>
           </div>
         </div>
         
@@ -179,53 +205,78 @@ export default function ResultPage() {
       </div>
 
       {/* Refine Prompt */}
-      <div className="bg-white border rounded-lg p-6">
+      <div className="bg-white border rounded-lg p-6 relative">
         <div className="flex items-center gap-2 mb-3">
           <Sparkles className="w-5 h-5 text-purple-600" />
           <h3 className="font-semibold text-lg">Refine Your Test Suite</h3>
+          {!isPro && <Crown className="w-5 h-5 text-amber-500 ml-2" />}
         </div>
         
-        <Textarea
-          placeholder="E.g., 'Add more edge cases for authentication' or 'Include performance test scenarios'"
-          value={refinePrompt}
-          onChange={(e) => setRefinePrompt(e.target.value)}
-          className="mb-3 min-h-[80px]"
-        />
-        
-        <Button 
-          onClick={handleRefine} 
-          disabled={refining || !refinePrompt.trim()}
-          className="gap-2"
-        >
-          {refining ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Refining...
-            </>
-          ) : (
-            <>
-              <Sparkles className="w-4 h-4" />
-              Regenerate with Changes
-            </>
-          )}
-        </Button>
+        {isPro ? (
+          <>
+            <Textarea
+              placeholder="E.g., 'Add more edge cases for authentication' or 'Include performance test scenarios'"
+              value={refinePrompt}
+              onChange={(e) => setRefinePrompt(e.target.value)}
+              className="mb-3 min-h-[80px]"
+            />
+            
+            <Button 
+              onClick={handleRefine} 
+              disabled={refining || !refinePrompt.trim()}
+              className="gap-2"
+            >
+              {refining ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Refining...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Regenerate with Changes
+                </>
+              )}
+            </Button>
+          </>
+        ) : (
+          <div className="bg-gradient-to-br from-purple-50 to-indigo-50 p-8 rounded-lg border-2 border-dashed border-purple-200 text-center">
+            <Crown className="w-12 h-12 text-purple-500 mx-auto mb-3" />
+            <p className="text-lg font-semibold mb-2">AI Refinement is a Pro Feature</p>
+            <p className="text-gray-600 mb-4">Upgrade to refine and improve your test suites with AI</p>
+            <ProFeature>
+              <Button className="gap-2">
+                <Crown className="w-4 h-4" />
+                Upgrade to Pro
+              </Button>
+            </ProFeature>
+          </div>
+        )}
       </div>
 
       {/* Export Buttons */}
-      <div className="flex gap-4">
-        <ProFeature onClick={handleExportJson}>
-          <Button variant="outline" disabled={!isPro}>
-            <FileJson className="w-4 h-4 mr-2" /> 
-            Export JSON {!isPro && "(Pro)"}
-          </Button>
-        </ProFeature>
+      <div className="bg-white border rounded-lg p-6">
+        <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Export Test Suite
+        </h3>
+        <div className="flex gap-4">
+          <ProFeature onClick={handleExportJson}>
+            <Button variant="outline" disabled={!isPro} size="lg" className="flex-1">
+              <FileJson className="w-5 h-5 mr-2" /> 
+              Export as JSON {!isPro && <Crown className="w-4 h-4 ml-2" />}
+            </Button>
+          </ProFeature>
 
-        <ProFeature onClick={handleExportTxt}>
-          <Button variant="outline" disabled={!isPro}>
-            <FileText className="w-4 h-4 mr-2" /> 
-            Export TXT {!isPro && "(Pro)"}
-          </Button>
-        </ProFeature>
+          <ProFeature onClick={handleExportTxt}>
+            <Button variant="outline" disabled={!isPro} size="lg" className="flex-1">
+              <FileText className="w-5 h-5 mr-2" /> 
+              Export as TXT {!isPro && <Crown className="w-4 h-4 ml-2" />}
+            </Button>
+          </ProFeature>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -250,7 +301,11 @@ export default function ResultPage() {
         </TabsList>
 
         <TabsContent value="scenarios">
-          <ContentBlock content={data.scenarios || "No scenarios generated"} isPro={isPro} />
+          {Array.isArray(data.scenarios) ? (
+            <ScenariosCards scenarios={data.scenarios} isPro={isPro} />
+          ) : (
+            <ContentBlock content={data.scenarios || "No scenarios generated"} isPro={isPro} />
+          )}
         </TabsContent>
 
         <TabsContent value="testcases">
@@ -513,6 +568,81 @@ function CodeBlock({ content, isPro }: any) {
         >
           {displayContent || "// No automation code generated"}
         </SyntaxHighlighter>
+      </div>
+    </div>
+  );
+}
+
+function ScenariosCards({ scenarios, isPro }: { scenarios: any[], isPro: boolean }) {
+  const handleCopyAll = () => {
+    const text = scenarios.map((s, i) => {
+      if (typeof s === 'string') return `${i + 1}. ${s}`;
+      const title = s.title || s.scenario || `Scenario ${i + 1}`;
+      const steps = s.steps ? `\nSteps:\n${s.steps.map((step: string, idx: number) => `  ${idx + 1}. ${step}`).join('\n')}` : '';
+      return `${i + 1}. ${title}${steps}`;
+    }).join('\n\n');
+    
+    copyToClipboard(text);
+    toast.success("All scenarios copied to clipboard!");
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center mb-4">
+        <p className="text-sm text-gray-600">{scenarios.length} test scenarios generated</p>
+        <ProFeature onClick={handleCopyAll}>
+          <Button 
+            size="sm" 
+            variant="secondary"
+            disabled={!isPro}
+          >
+            <ClipboardCopy className="w-4 h-4 mr-1" /> 
+            {isPro ? "Copy All" : "Copy All (Pro)"}
+          </Button>
+        </ProFeature>
+      </div>
+
+      <div className="grid gap-4">
+        {scenarios.map((scenario: any, index: number) => {
+          const isString = typeof scenario === 'string';
+          const title = isString ? scenario : (scenario.title || scenario.scenario || `Scenario ${index + 1}`);
+          const steps = !isString && scenario.steps ? scenario.steps : [];
+
+          return (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
+              className="bg-white border rounded-xl p-6 hover:shadow-md transition"
+            >
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-sm">
+                  {index + 1}
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-lg mb-2 flex items-center gap-2">
+                    <Lightbulb className="w-5 h-5 text-blue-600" />
+                    {title}
+                  </h4>
+                  {steps.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      <p className="text-xs font-semibold text-gray-500 uppercase">Steps:</p>
+                      <ol className="space-y-1.5">
+                        {steps.map((step: string, idx: number) => (
+                          <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+                            <span className="text-blue-600 font-mono text-xs mt-0.5">{idx + 1}.</span>
+                            <span>{step}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );

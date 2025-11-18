@@ -172,14 +172,27 @@ Please generate the following in JSON format:
   ],
   "compatibility": [
     { "platform": "Browser/OS name", "status": "✔ Supported | ⚠ Partial", "notes": "Notes" }
+  ],
+  "rtm": [
+    { "requirement_id": "RQ-001", "scenario": "Scenario description", "test_cases": "TC-001, TC-002", "coverage": "Full|Partial", "priority": "High|Medium|Low" }
+  ],
+  "bva": [
+    { "field": "Field name", "type": "String|Integer|Date", "min": "Min value", "max": "Max value", "invalid_examples": "Invalid examples", "notes": "Test notes" }
+  ],
+  "api_suite": [
+    { "endpoint": "/api/endpoint", "method": "GET|POST|PUT|DELETE", "auth": "Required|Optional", "scenarios": "Test scenarios", "status_codes": "200, 400, 401, 500" }
   ]
 }
 
 IMPORTANT:
-- negatives MUST be array of objects with test, desc, severity
-- security MUST be array of strings
-- Generate 4-6 negative test cases relevant to the input
-- Generate 4-6 security recommendations
+- negatives MUST be array of objects with test, desc, severity (4-6 items)
+- security MUST be array of strings (4-6 items)
+- rtm array (optional): objects with requirement_id, scenario, test_cases, coverage, priority
+- bva array (optional): objects with field, type, min, max, invalid_examples, notes
+- api_suite array (optional): objects with endpoint, method, auth, scenarios, status_codes
+- Include rtm if input contains requirements/user stories
+- Include bva if input involves form fields or data validation
+- Include api_suite if input involves API/backend testing
 - Focus on quality, completeness, and real-world scenarios.
 `;
   }

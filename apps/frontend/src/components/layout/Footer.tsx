@@ -44,9 +44,9 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold mb-3 text-sm">Legal</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li><a href="#" className="hover:text-blue-600">Privacy</a></li>
-              <li><a href="#" className="hover:text-blue-600">Terms</a></li>
-              <li><a href="#" className="hover:text-blue-600">Contact</a></li>
+              <li><Link href="/privacy" className="hover:text-blue-600">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="hover:text-blue-600">Terms of Service</Link></li>
+              <li><a href="mailto:support@qagent.com" className="hover:text-blue-600">Contact</a></li>
             </ul>
           </div>
         </div>

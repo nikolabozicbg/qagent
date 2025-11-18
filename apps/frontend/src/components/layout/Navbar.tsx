@@ -22,7 +22,18 @@ export default function Navbar() {
         <div className="flex items-center gap-6">
           <NavLink href="/" label="Home" current={path} />
           <NavLink href="/pricing" label="Pricing" current={path} />
-          <NavLink href="/demo" label="Demo" current={path} />
+          <a
+            href="/#demo"
+            onClick={(e) => {
+              if (path === '/') {
+                e.preventDefault();
+                document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className="text-sm font-medium text-gray-700 hover:text-blue-600 transition cursor-pointer"
+          >
+            Demo
+          </a>
 
           <Link href="/upload">
             <Button size="sm" className="px-6">

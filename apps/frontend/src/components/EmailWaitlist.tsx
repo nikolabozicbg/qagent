@@ -1,0 +1,129 @@
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { Mail, CheckCircle2 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+
+interface EmailWaitlistProps {
+  variant?: "hero" | "inline";
+  title?: string;
+  subtitle?: string;
+}
+
+export default function EmailWaitlist({ 
+  variant = "inline",
+  title = "Get 50% off Pro at launch",
+  subtitle = "Join the waitlist for early access and exclusive discount"
+}: EmailWaitlistProps) {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    console.log('🔍 Debug: handleSubmit called');
+    console.log('🔍 Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+    
+    if (!email || !email.includes("@")) {
+      toast.error("Please enter a valid email");
+      return;
+    }
+
+    setLoading(true);
+    console.log('🔍 Email:', email);
+
+    try {
+      // Insert email into Supabase
+      console.log('🔍 Calling Supabase insert...');
+      const { data, error } = await supabase
+        .from('waitlist')
+        .insert([{ email }])
+        .select();
+
+      if (error) {
+        // Check if email already exists
+        if (error.code === '23505') {
+          toast.info("You're already on the waitlist!", {
+            description: "We'll notify you when Pro launches."
+          });
+          setSubmitted(true);
+          return;
+        }
+        throw error;
+      }
+
+      setSubmitted(true);
+      toast.success("You're on the list!", {
+        description: "We'll notify you when Pro launches with your exclusive discount."
+      });
+    } catch (err: any) {
+      console.error('Supabase error:', err);
+      toast.error("Something went wrong", {
+        description: err.message || "Please try again later."
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div className={`flex items-center gap-3 ${
+        variant === "hero" ? "justify-center" : ""
+      }`}>
+        <div className="flex items-center gap-2 bg-green-50 text-green-700 px-4 py-3 rounded-lg border border-green-200">
+          <CheckCircle2 className="w-5 h-5" />
+          <span className="font-medium">You're on the waitlist!</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (variant === "hero") {
+    return (
+      <div className="max-w-md mx-auto">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+          <div className="flex items-center gap-2 mb-3">
+            <Mail className="w-5 h-5 text-blue-600" />
+            <h3 className="font-semibold text-lg">{title}</h3>
+          </div>
+          <p className="text-sm text-gray-600 mb-4">{subtitle}</p>
+          
+          <form onSubmit={handleSubmit} className="flex gap-2">
+            <Input
+              type="email"
+              placeholder="your@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="flex-1"
+              disabled={loading}
+            />
+            <Button type="submit" disabled={loading}>
+              {loading ? "Joining..." : "Notify Me"}
+            </Button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex gap-2 max-w-md">
+      <Input
+        type="email"
+        placeholder="your@email.com"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="flex-1"
+        disabled={loading}
+      />
+      <Button type="submit" disabled={loading} size="sm">
+        {loading ? "..." : "Join Waitlist"}
+      </Button>
+    </form>
+  );
+}

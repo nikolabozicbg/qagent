@@ -140,16 +140,47 @@ export default function PricingPage() {
               </tr>
             </thead>
             <tbody className="text-sm">
+              <tr className="bg-gray-100 font-semibold">
+                <td colSpan={4} className="py-2 px-4">Core Features</td>
+              </tr>
               <ComparisonRow feature="Generations per day" free="3" pro="Unlimited" enterprise="Unlimited" />
               <ComparisonRow feature="Test scenarios" free="✓" pro="✓" enterprise="✓" />
               <ComparisonRow feature="Test cases" free="✓" pro="✓" enterprise="✓" />
-              <ComparisonRow feature="Gherkin format" free="✓" pro="✓" enterprise="✓" />
-              <ComparisonRow feature="Automation code" free="—" pro="✓" enterprise="✓" />
+              <ComparisonRow feature="Gherkin/BDD format" free="✓" pro="✓" enterprise="✓" />
+              <ComparisonRow feature="Negative test cases" free="✓" pro="✓" enterprise="✓" />
+              <ComparisonRow feature="Security recommendations" free="✓" pro="✓" enterprise="✓" />
+              
+              <tr className="bg-gray-100 font-semibold">
+                <td colSpan={4} className="py-2 px-4">Advanced QA Features</td>
+              </tr>
+              <ComparisonRow feature="Requirements Traceability Matrix" free="✓" pro="✓" enterprise="✓" />
+              <ComparisonRow feature="Boundary Value Analysis" free="✓" pro="✓" enterprise="✓" />
+              <ComparisonRow feature="API test suite" free="✓" pro="✓" enterprise="✓" />
+              <ComparisonRow feature="Automation code (Playwright)" free="—" pro="✓" enterprise="✓" />
+              <ComparisonRow feature="AI refinement" free="—" pro="✓" enterprise="✓" />
+              
+              <tr className="bg-gray-100 font-semibold">
+                <td colSpan={4} className="py-2 px-4">Productivity</td>
+              </tr>
               <ComparisonRow feature="Copy to clipboard" free="—" pro="✓" enterprise="✓" />
-              <ComparisonRow feature="Export JSON/TXT" free="—" pro="✓" enterprise="✓" />
+              <ComparisonRow feature="Export JSON" free="—" pro="✓" enterprise="✓" />
+              <ComparisonRow feature="Export TXT" free="—" pro="✓" enterprise="✓" />
+              <ComparisonRow feature="Processing speed" free="Standard" pro="Priority" enterprise="Fastest" />
+              
+              <tr className="bg-gray-100 font-semibold">
+                <td colSpan={4} className="py-2 px-4">Team & Enterprise</td>
+              </tr>
               <ComparisonRow feature="Team accounts" free="—" pro="—" enterprise="✓" />
+              <ComparisonRow feature="Admin dashboard" free="—" pro="—" enterprise="✓" />
               <ComparisonRow feature="API access" free="—" pro="—" enterprise="✓" />
-              <ComparisonRow feature="Support" free="Community" pro="Email" enterprise="Priority SLA" />
+              <ComparisonRow feature="Custom model training" free="—" pro="—" enterprise="✓" />
+              <ComparisonRow feature="SSO/SAML" free="—" pro="—" enterprise="✓" />
+              
+              <tr className="bg-gray-100 font-semibold">
+                <td colSpan={4} className="py-2 px-4">Support</td>
+              </tr>
+              <ComparisonRow feature="Support" free="Community" pro="Email" enterprise="Priority + SLA" />
+              <ComparisonRow feature="Response time" free="—" pro="24-48h" enterprise="<4h" />
             </tbody>
           </table>
         </div>
