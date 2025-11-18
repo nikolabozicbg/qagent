@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import appConfig from './config/app.config';
@@ -9,6 +9,7 @@ import { UsersModule } from './modules/users/users.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { GenerationModule } from './modules/generation/generation.module';
 import { SystemModule } from './modules/system/system.module';
+import { RateLimitMiddleware } from './middleware/rate-limit.middleware';
 
 @Module({
   imports: [
@@ -23,4 +24,13 @@ import { SystemModule } from './modules/system/system.module';
     SystemModule,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(RateLimitMiddleware)
+      .forRoutes(
+        { path: 'generate/test-suite', method: RequestMethod.POST },
+        { path: 'generate/refine', method: RequestMethod.POST },
+      );
+  }
+}

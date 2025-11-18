@@ -111,9 +111,22 @@ export default function UploadBox() {
       sessionStorage.setItem('qagent_result_timestamp', Date.now().toString());
       router.push(`/result?t=${Date.now()}`);
     } catch (err: any) {
-      toast.error("Error", {
-        description: err.response?.data?.message || err.message
-      });
+      // Handle rate limit error (429)
+      if (err.response?.status === 429) {
+        const errorData = err.response.data;
+        toast.error(errorData.message || "Daily limit reached", {
+          description: errorData.error || "Upgrade to Pro for unlimited access.",
+          duration: 10000,
+          action: {
+            label: "Upgrade to Pro",
+            onClick: () => setShowProModal(true),
+          },
+        });
+      } else {
+        toast.error("Error", {
+          description: err.response?.data?.message || err.message
+        });
+      }
     } finally {
       setLoading(false);
       setStep("");

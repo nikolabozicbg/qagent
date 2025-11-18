@@ -5,6 +5,15 @@ const api = axios.create({
   timeout: 30000,
 });
 
+// Add admin key header if available (for testing/development)
+api.interceptors.request.use((config) => {
+  const adminKey = process.env.NEXT_PUBLIC_ADMIN_KEY;
+  if (adminKey) {
+    config.headers['x-admin-key'] = adminKey;
+  }
+  return config;
+});
+
 export const uploadFile = async (file: File): Promise<string> => {
   const form = new FormData();
   form.append("file", file);
