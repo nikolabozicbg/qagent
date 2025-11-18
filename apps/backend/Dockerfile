@@ -3,14 +3,16 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy backend package files only
+COPY apps/backend/package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy source code
-COPY . .
+# Copy backend source code
+COPY apps/backend/src ./src
+COPY apps/backend/tsconfig*.json ./
+COPY apps/backend/nest-cli.json ./
 
 # Build
 RUN npm run build
@@ -21,7 +23,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY apps/backend/package*.json ./
 
 # Install only production dependencies
 RUN npm install --omit=dev
