@@ -159,13 +159,28 @@ Please generate the following in JSON format:
   "stepdefs": "Step definitions for BDD",
   "api": "API test cases",
   "testData": "Test data dictionary",
-  "negatives": "Negative and edge case tests",
-  "security": "Security test recommendations",
-  "risk": "Risk and coverage analysis",
-  "compatibility": "Browser/platform compatibility matrix"
+  "negatives": [
+    { "test": "Test name", "desc": "Description", "severity": "high|medium|low|critical" }
+  ],
+  "security": [
+    "Security recommendation 1",
+    "Security recommendation 2"
+  ],
+  "risk": [
+    "Risk item 1",
+    "Risk item 2"
+  ],
+  "compatibility": [
+    { "platform": "Browser/OS name", "status": "✔ Supported | ⚠ Partial", "notes": "Notes" }
+  ]
 }
 
-Focus on quality, completeness, and real-world scenarios.
+IMPORTANT:
+- negatives MUST be array of objects with test, desc, severity
+- security MUST be array of strings
+- Generate 4-6 negative test cases relevant to the input
+- Generate 4-6 security recommendations
+- Focus on quality, completeness, and real-world scenarios.
 `;
   }
 
