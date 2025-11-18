@@ -178,33 +178,6 @@ export default function ResultPage() {
         </div>
       </div>
 
-      {/* Metadata Card */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <div>
-            <p className="text-sm text-gray-600 mb-1">AI Model</p>
-            <p className="font-semibold">{data._meta?.model || 'gpt-3.5-turbo'}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600 mb-1">Processing Time</p>
-            <p className="font-semibold">
-              {data._meta?.duration ? `${data._meta.duration.toFixed(2)}s` : 'N/A'}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600 mb-1">Tokens Used</p>
-            <p className="font-semibold text-blue-600">
-              {data._meta?.tokens ? data._meta.tokens.toLocaleString() : 'N/A'}
-            </p>
-          </div>
-        </div>
-        
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-          <p className="text-sm text-yellow-800">
-            💡 <strong>Tip:</strong> Add edge cases or negative test paths for more comprehensive coverage
-          </p>
-        </div>
-      </div>
 
       {/* Refine Prompt */}
       <div className="bg-white border rounded-lg p-6 relative">

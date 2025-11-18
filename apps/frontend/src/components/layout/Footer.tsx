@@ -46,7 +46,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-gray-600">
               <li><Link href="/privacy" className="hover:text-blue-600">Privacy Policy</Link></li>
               <li><Link href="/terms" className="hover:text-blue-600">Terms of Service</Link></li>
-              <li><a href="mailto:support@qagent.com" className="hover:text-blue-600">Contact</a></li>
+              <li><a href="mailto:support@qagenai.com" className="hover:text-blue-600">Contact</a></li>
             </ul>
           </div>
         </div>
