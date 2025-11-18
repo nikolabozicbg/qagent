@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, FileUp, Bot, Download, CheckCircle2, Globe, Code2, Zap, Crown } from "lucide-react";
+import { ArrowRight, FileUp, Bot, Download, CheckCircle2, Globe, Code2, Zap, Crown, FileText, TestTube2, FileCode, Link as LinkIcon, BarChart3, Plug, AlertTriangle, Shield } from "lucide-react";
 import EmailWaitlist from "@/components/EmailWaitlist";
 
 export default function Home() {
@@ -131,73 +131,52 @@ export default function Home() {
         </div>
       </section>
 
-      {/* WHAT YOU GET */}
-      <section className="space-y-8">
-        <div className="text-center space-y-3">
-          <h2 className="text-3xl font-bold">Complete Test Coverage</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Everything you need for comprehensive QA documentation
+      {/* COMBINED: WHY + WHAT YOU GET */}
+      <section className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-12">
+        <div className="text-center space-y-3 mb-12">
+          <h2 className="text-4xl font-bold">Why QAgenAI?</h2>
+          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            AI-powered test generation delivering complete coverage in seconds
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <FeatureCard 
-            icon="📋"
-            title="Test Scenarios" 
-            desc="High-level scenarios covering all requirements" 
-          />
-          <FeatureCard 
-            icon="🧪"
-            title="Test Cases" 
-            desc="Detailed test cases with steps and expected results" 
-          />
-          <FeatureCard 
-            icon="🥒"
-            title="Gherkin/BDD Format" 
-            desc="BDD-style scenarios ready for automation" 
-          />
-          <FeatureCard 
-            icon="💻"
-            title="Automation Code" 
-            desc="Playwright/Selenium code snippets" 
-          />
-          <FeatureCard 
-            icon="🔗"
-            title="Requirements Traceability" 
-            desc="Complete RTM mapping requirements to tests" 
-          />
-          <FeatureCard 
-            icon="📊"
-            title="Boundary Value Analysis" 
-            desc="Edge case and boundary testing scenarios" 
-          />
-          <FeatureCard 
-            icon="🔌"
-            title="API Test Suite" 
-            desc="API validation and integration test cases" 
-          />
-          <FeatureCard 
-            icon="⚠️"
-            title="Negative Testing" 
-            desc="Error handling and edge case scenarios" 
-          />
-          <FeatureCard 
-            icon="🔒"
-            title="Security Checks" 
-            desc="Vulnerability detection and security tests" 
-          />
-        </div>
-      </section>
-
-      {/* BENEFITS */}
-      <section className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-12">
-        <h2 className="text-3xl font-bold text-center mb-8">Why QAgenAI?</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-          <BenefitItem text="Save hours of manual test writing" />
-          <BenefitItem text="Consistent test coverage" />
-          <BenefitItem text="AI-powered quality assurance" />
-          <BenefitItem text="Export in multiple formats" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+          {/* LEFT: Benefits */}
+          <div className="space-y-6">
+            <h3 className="text-2xl font-bold mb-6">Key Benefits</h3>
+            <BenefitItem 
+              icon={<Zap className="w-6 h-6" />}
+              text="10x faster than manual test writing" 
+            />
+            <BenefitItem 
+              icon={<CheckCircle2 className="w-6 h-6" />}
+              text="Consistent test coverage across all requirements" 
+            />
+            <BenefitItem 
+              icon={<Bot className="w-6 h-6" />}
+              text="AI-powered quality assurance and validation" 
+            />
+            <BenefitItem 
+              icon={<Download className="w-6 h-6" />}
+              text="Export in multiple formats (JSON, TXT, copy)" 
+            />
+          </div>
+          
+          {/* RIGHT: Features */}
+          <div className="space-y-6">
+            <h3 className="text-2xl font-bold mb-6">What You Get</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <OutputFeature icon={<FileText className="w-5 h-5" />} text="Test Scenarios" />
+              <OutputFeature icon={<TestTube2 className="w-5 h-5" />} text="Test Cases" />
+              <OutputFeature icon={<FileCode className="w-5 h-5" />} text="Gherkin/BDD" />
+              <OutputFeature icon={<Code2 className="w-5 h-5" />} text="Automation Code" />
+              <OutputFeature icon={<LinkIcon className="w-5 h-5" />} text="Requirements RTM" />
+              <OutputFeature icon={<BarChart3 className="w-5 h-5" />} text="Boundary Analysis" />
+              <OutputFeature icon={<Plug className="w-5 h-5" />} text="API Test Suite" />
+              <OutputFeature icon={<AlertTriangle className="w-5 h-5" />} text="Negative Tests" />
+              <OutputFeature icon={<Shield className="w-5 h-5" />} text="Security Checks" />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -333,11 +312,20 @@ function FeatureCard({ icon, title, desc }: any) {
   );
 }
 
-function BenefitItem({ text }: { text: string }) {
+function BenefitItem({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <div className="flex items-center gap-3">
-      <CheckCircle2 className="w-6 h-6 text-blue-600 flex-shrink-0" />
-      <span className="text-gray-700">{text}</span>
+    <div className="flex items-start gap-4 p-4 bg-white rounded-lg hover:shadow-md transition-shadow">
+      <div className="text-blue-600 flex-shrink-0 mt-0.5">{icon}</div>
+      <span className="text-gray-700 font-medium">{text}</span>
+    </div>
+  );
+}
+
+function OutputFeature({ icon, text }: { icon: React.ReactNode; text: string }) {
+  return (
+    <div className="flex items-center gap-3 p-3 bg-white rounded-lg hover:shadow-md transition-shadow">
+      <div className="text-indigo-600 flex-shrink-0">{icon}</div>
+      <span className="text-gray-700 text-sm font-medium">{text}</span>
     </div>
   );
 }
