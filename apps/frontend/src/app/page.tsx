@@ -133,24 +133,58 @@ export default function Home() {
 
       {/* WHAT YOU GET */}
       <section className="space-y-8">
-        <h2 className="text-3xl font-bold text-center">What You Get</h2>
+        <div className="text-center space-y-3">
+          <h2 className="text-3xl font-bold">Complete Test Coverage</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Everything you need for comprehensive QA documentation
+          </p>
+        </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <FeatureCard 
+            icon="📋"
             title="Test Scenarios" 
-            desc="High-level test scenarios covering all requirements" 
+            desc="High-level scenarios covering all requirements" 
           />
           <FeatureCard 
+            icon="🧪"
             title="Test Cases" 
             desc="Detailed test cases with steps and expected results" 
           />
           <FeatureCard 
-            title="Gherkin Format" 
-            desc="BDD-style scenarios ready for automation frameworks" 
+            icon="🥒"
+            title="Gherkin/BDD Format" 
+            desc="BDD-style scenarios ready for automation" 
           />
           <FeatureCard 
+            icon="💻"
             title="Automation Code" 
-            desc="Ready-to-use automation code snippets" 
+            desc="Playwright/Selenium code snippets" 
+          />
+          <FeatureCard 
+            icon="🔗"
+            title="Requirements Traceability" 
+            desc="Complete RTM mapping requirements to tests" 
+          />
+          <FeatureCard 
+            icon="📊"
+            title="Boundary Value Analysis" 
+            desc="Edge case and boundary testing scenarios" 
+          />
+          <FeatureCard 
+            icon="🔌"
+            title="API Test Suite" 
+            desc="API validation and integration test cases" 
+          />
+          <FeatureCard 
+            icon="⚠️"
+            title="Negative Testing" 
+            desc="Error handling and edge case scenarios" 
+          />
+          <FeatureCard 
+            icon="🔒"
+            title="Security Checks" 
+            desc="Vulnerability detection and security tests" 
           />
         </div>
       </section>
@@ -289,11 +323,12 @@ function StepCard({ icon, title, desc }: any) {
   );
 }
 
-function FeatureCard({ title, desc }: any) {
+function FeatureCard({ icon, title, desc }: any) {
   return (
-    <Card className="p-6 hover:shadow-lg transition-shadow">
+    <Card className="p-6 hover:shadow-xl transition-all hover:-translate-y-1 border-2 hover:border-blue-200">
+      <div className="text-4xl mb-3">{icon}</div>
       <h3 className="font-semibold text-lg mb-2">{title}</h3>
-      <p className="text-gray-600 text-sm">{desc}</p>
+      <p className="text-gray-600 text-sm leading-relaxed">{desc}</p>
     </Card>
   );
 }
