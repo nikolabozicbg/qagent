@@ -45,11 +45,6 @@ export default function Home() {
           No credit card required • 3 free generations daily
         </p>
         
-        {/* Email Waitlist */}
-        <div className="pt-8">
-          <EmailWaitlist variant="hero" />
-        </div>
-        
         {/* Stats */}
         <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-8">
           <div>
