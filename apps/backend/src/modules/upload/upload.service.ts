@@ -23,6 +23,7 @@ export class UploadService {
           throw new BadRequestException(`Unsupported file type: ${ext}`);
       }
     } catch (error) {
+      console.error('❌ Text extraction error:', error.message);
       throw new BadRequestException(`Failed to extract text: ${error.message}`);
     }
   }

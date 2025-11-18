@@ -7,7 +7,12 @@ export class SystemController {
 
   @Get('health')
   async health() {
-    return { status: 'ok', timestamp: new Date().toISOString() };
+    console.log(`💚 Health check requested`);
+    return { 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      mode: process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'sk-your-api-key-here' ? 'production' : 'mock'
+    };
   }
 
   @Post('feedback')

@@ -31,6 +31,18 @@ export default function ResultPage() {
       try {
         const result = JSON.parse(stored);
         setData(result);
+        
+        // Show warning if mock mode
+        if (result._meta?.mode === 'mock') {
+          const reason = result._meta.reason === 'openai_error' 
+            ? `OpenAI API Error: ${result._meta.error}` 
+            : 'No OpenAI API key configured';
+          
+          toast.warning('Mock Mode Active', {
+            description: `${reason}. Showing sample data.`,
+            duration: 10000,
+          });
+        }
       } catch (err) {
         setError('Failed to load result');
       }
@@ -117,12 +129,20 @@ export default function ResultPage() {
           <p className="text-gray-600">AI-powered test generation complete</p>
         </div>
         
-        {!isPro && (
-          <div className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 px-4 py-2 rounded-lg">
-            <Crown className="w-4 h-4" />
-            <span className="font-semibold">Free Version</span>
-          </div>
-        )}
+        <div className="flex gap-2">
+          {data._meta?.mode === 'mock' && (
+            <div className="flex items-center gap-2 text-sm text-orange-600 bg-orange-50 px-4 py-2 rounded-lg border border-orange-200">
+              <span className="font-semibold">⚠️ Mock Data</span>
+            </div>
+          )}
+          
+          {!isPro && (
+            <div className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 px-4 py-2 rounded-lg">
+              <Crown className="w-4 h-4" />
+              <span className="font-semibold">Free Version</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Metadata Card */}

@@ -12,7 +12,15 @@ async function bootstrap() {
   const port = process.env.PORT || 3001;
   await app.listen(port);
 
-  console.log(`🚀 QAgent Backend running at http://localhost:${port}`);
-  console.log(`📡 Health check: http://localhost:${port}/system/health`);
+  const hasOpenAIKey = !!process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'sk-your-api-key-here';
+
+  console.log('\n' + '='.repeat(60));
+  console.log('🚀 QAgent Backend Started');
+  console.log('='.repeat(60));
+  console.log(`📍 Server: http://localhost:${port}`);
+  console.log(`📡 Health: http://localhost:${port}/system/health`);
+  console.log(`🔑 OpenAI: ${hasOpenAIKey ? '✅ Configured' : '⚠️  Mock Mode (no API key)'}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log('='.repeat(60) + '\n');
 }
 bootstrap();

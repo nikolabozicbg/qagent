@@ -19,18 +19,35 @@ export class GenerationService {
   }
 
   async generateSuite({ input, url = '', outputTypes = [] }: { input: string; url?: string; outputTypes?: string[] }) {
+    console.log(`🤖 Generation request received`);
+    console.log(`📝 Input length: ${input.length} characters`);
+    if (url) console.log(`🌐 URL: ${url}`);
+    
     const apiKey = this.configService.get<string>('openai.apiKey');
+    const hasValidKey = apiKey && apiKey !== 'sk-your-api-key-here';
     
     // If no API key, return mock data
-    if (!apiKey) {
-      return this.getMockSuite();
+    if (!hasValidKey) {
+      console.log(`⚠️  Using mock mode (no valid OpenAI API key)`);
+      const mockData = this.getMockSuite();
+      return {
+        ...mockData,
+        _meta: {
+          mode: 'mock',
+          reason: 'no_api_key'
+        }
+      };
     }
+    
+    const model = this.configService.get<string>('openai.model') || 'gpt-3.5-turbo';
+    console.log(`🔑 Using OpenAI API (${model})`);
+    const startTime = Date.now();
 
     const prompt = this.buildPrompt(input, url, outputTypes);
 
     try {
       const response = await this.client.chat.completions.create({
-        model: 'gpt-4-turbo-preview',
+        model: model,
         messages: [
           {
             role: 'system',
@@ -45,24 +62,54 @@ export class GenerationService {
         temperature: 0.7,
       });
 
+      const elapsed = Date.now() - startTime;
+      console.log(`✅ Generation completed in ${(elapsed / 1000).toFixed(2)}s`);
+      console.log(`📊 Tokens used: ${response.usage?.total_tokens || 'N/A'}`);
+
       const result = JSON.parse(response.choices[0].message.content);
-      return result;
+      return {
+        ...result,
+        _meta: {
+          mode: 'openai',
+          model: model,
+          duration: elapsed / 1000,
+          tokens: response.usage?.total_tokens || 0
+        }
+      };
     } catch (error) {
-      console.error('OpenAI API error:', error);
-      return this.getMockSuite();
+      console.error('❌ OpenAI API error:', error.message);
+      console.log('⚠️  Falling back to mock mode');
+      const mockData = this.getMockSuite();
+      return {
+        ...mockData,
+        _meta: {
+          mode: 'mock',
+          reason: 'openai_error',
+          error: error.message
+        }
+      };
     }
   }
 
   async refineOutput({ existingOutput, refinementPrompt }) {
-    const apiKey = this.configService.get<string>('openai.apiKey');
+    console.log(`🔄 Refine request received`);
+    console.log(`💬 Prompt: "${refinementPrompt.substring(0, 100)}..."`);
     
-    if (!apiKey) {
+    const apiKey = this.configService.get<string>('openai.apiKey');
+    const hasValidKey = apiKey && apiKey !== 'sk-your-api-key-here';
+    
+    if (!hasValidKey) {
+      console.log(`⚠️  Mock mode: returning unchanged output`);
       return existingOutput; // Return unchanged in mock mode
     }
+    
+    const model = this.configService.get<string>('openai.model') || 'gpt-3.5-turbo';
+    console.log(`🔑 Using OpenAI API for refinement (${model})`);
+    const startTime = Date.now();
 
     try {
       const response = await this.client.chat.completions.create({
-        model: 'gpt-4-turbo-preview',
+        model: model,
         messages: [
           {
             role: 'system',
@@ -77,9 +124,14 @@ export class GenerationService {
         temperature: 0.7,
       });
 
+      const elapsed = Date.now() - startTime;
+      console.log(`✅ Refinement completed in ${(elapsed / 1000).toFixed(2)}s`);
+      console.log(`📊 Tokens used: ${response.usage?.total_tokens || 'N/A'}`);
+
       return JSON.parse(response.choices[0].message.content);
     } catch (error) {
-      console.error('OpenAI API error:', error);
+      console.error('❌ Refinement error:', error.message);
+      console.log('⚠️  Returning original output');
       return existingOutput;
     }
   }
