@@ -21,8 +21,8 @@ export default function Home() {
         </h1>
         
         <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-          Upload any specification and let AI generate comprehensive test scenarios, cases, 
-          Gherkin, automation code, and QA analysis instantly.
+          AI-powered test generation from documents, web apps, and API specs. Get comprehensive 
+          test scenarios, cases, Gherkin, and automation code instantly.
         </p>
 
         {/* CTA Buttons */}
@@ -249,16 +249,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
-      <section className="space-y-8">
+      {/* TESTIMONIALS - Commented out until we have real reviews */}
+      {/* <section className="space-y-8">
         <h2 className="text-3xl font-bold text-center">Trusted by QA Engineers</h2>
         <p className="text-gray-600 text-center max-w-2xl mx-auto">
-          See what testing professionals are saying about QAgent
+          See what testing professionals are saying about QAgenAI
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <TestimonialCard
-            quote="QAgent saved me 10+ hours on test documentation. The AI-generated scenarios are incredibly accurate."
+            quote="QAgenAI saved me 10+ hours on test documentation. The AI-generated scenarios are incredibly accurate."
             author="Sarah Mitchell"
             role="Senior QA Engineer"
             company="TechCorp"
@@ -279,7 +279,7 @@ export default function Home() {
             rating={5}
           />
         </div>
-      </section>
+      </section> */}
 
       {/* FINAL CTA */}
       <section className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-12 text-center text-white">

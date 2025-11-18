@@ -12,8 +12,8 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <img src="/logo.svg" className="w-8 h-8" alt="QAgent" />
-              <span className="font-bold text-lg">QAgent</span>
+              <img src="/logo.svg" className="w-8 h-8" alt="QAgenAI" />
+              <span className="font-bold text-lg">QAgenAI</span>
             </div>
             <p className="text-sm text-gray-600">
               AI-powered test generation for QA teams
@@ -54,7 +54,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-gray-600">
-            © 2025 QAgent. All rights reserved.
+            © 2025 QAgenAI. All rights reserved.
           </p>
 
           {/* Social Links */}
