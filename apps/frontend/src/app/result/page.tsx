@@ -115,10 +115,19 @@ export default function ResultPage() {
     }
   };
 
-  // Count items in sections
-  const scenarioCount = data.scenarios?.split('\n\n').filter((s: string) => s.trim()).length || 0;
-  const testCaseCount = data.test_cases?.split('\n\n').filter((s: string) => s.trim()).length || 0;
-  const gherkinCount = data.gherkin?.split('Scenario:').length - 1 || 0;
+  // Count items in sections - handle both string and object formats
+  const getCount = (field: any, delimiter: string) => {
+    if (!field) return 0;
+    if (typeof field === 'string') {
+      return field.split(delimiter).filter((s: string) => s.trim()).length;
+    }
+    if (Array.isArray(field)) return field.length;
+    return 1;
+  };
+
+  const scenarioCount = getCount(data.scenarios, '\n\n');
+  const testCaseCount = getCount(data.test_cases, '\n\n');
+  const gherkinCount = typeof data.gherkin === 'string' ? data.gherkin.split('Scenario:').length - 1 : 0;
 
   return (
     <div className="max-w-6xl mx-auto p-10 space-y-6">
@@ -434,8 +443,13 @@ export default function ResultPage() {
 }
 
 function ContentBlock({ content, isPro, language }: any) {
+  // Handle different content formats
+  const displayContent = typeof content === 'string' 
+    ? content 
+    : JSON.stringify(content, null, 2);
+
   const handleCopy = () => {
-    copyToClipboard(content);
+    copyToClipboard(displayContent);
     toast.success("Copied to clipboard!");
   };
 
@@ -454,15 +468,20 @@ function ContentBlock({ content, isPro, language }: any) {
       </ProFeature>
 
       <pre className="bg-gray-50 p-6 rounded-lg whitespace-pre-wrap text-sm border pt-12 font-mono">
-        {content}
+        {displayContent}
       </pre>
     </div>
   );
 }
 
 function CodeBlock({ content, isPro }: any) {
+  // Handle different content formats
+  const displayContent = typeof content === 'string' 
+    ? content 
+    : JSON.stringify(content, null, 2);
+
   const handleCopy = () => {
-    copyToClipboard(content);
+    copyToClipboard(displayContent);
     toast.success("Copied to clipboard!");
   };
 
@@ -492,7 +511,7 @@ function CodeBlock({ content, isPro }: any) {
           }}
           showLineNumbers
         >
-          {content || "// No automation code generated"}
+          {displayContent || "// No automation code generated"}
         </SyntaxHighlighter>
       </div>
     </div>

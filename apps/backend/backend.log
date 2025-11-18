@@ -1,0 +1,55 @@
+
+> backend@0.0.1 start:dev
+> nest start --watch
+
+[2J[3J[H[[90m8:20:21 AM[0m] Starting compilation in watch mode...
+
+[[90m8:20:22 AM[0m] Found 0 errors. Watching for file changes.
+
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +5ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMulterModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUsersModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mSystemModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUploadModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mGenerationModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/auth}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/login, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/register, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUsersController {/user}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/user/me, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/user/usage, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUploadController {/upload}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/upload/extract, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mGenerationController {/generate}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/generate/test-suite, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/generate/refine, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mSystemController {/system}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/system/health, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/system/feedback, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +0ms[39m
+[31m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [31m  ERROR[39m [38;5;3m[NestApplication] [39m[31mError: listen EADDRINUSE: address already in use :::3001[39m[38;5;3m +1ms[39m
+node:net:1939
+    const ex = new UVExceptionWithHostPort(err, 'listen', address, port);
+               ^
+
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
+    at listenInCluster (node:net:1996:12)
+    at Server.listen (node:net:2101:7)
+    at ExpressAdapter.listen (/Users/nikolabozic/Projects/qagent/node_modules/@nestjs/platform-express/adapters/express-adapter.js:95:32)
+    at /Users/nikolabozic/Projects/qagent/node_modules/@nestjs/core/nest-application.js:183:30
+    at new Promise (<anonymous>)
+    at NestApplication.listen (/Users/nikolabozic/Projects/qagent/node_modules/@nestjs/core/nest-application.js:173:16)
+    at async bootstrap (/Users/nikolabozic/Projects/qagent/apps/backend/src/main.ts:13:3) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '::',
+  port: 3001
+}
+
+Node.js v22.15.0
