@@ -1,146 +1,18 @@
-E-COMMERCE CHECKOUT REQUIREMENTS
+───────────────────────────────────────
+Feature: User Login System
 
-RQ-001: Shopping Cart
-User can add, remove, and update product quantities in cart
-- Min quantity: 1
-- Max quantity: 99 per item
-- Cart persists across sessions
+Requirements:
+1. Users must be able to log in with email and password
+2. System must validate email format (RFC 5322 compliant)
+3. Password must be at least 8 characters long
+4. System must show clear error message for invalid credentials
+5. Maximum 5 login attempts before 15-minute lockout
+6. Users must be logged out after 30 minutes of inactivity
+7. System must support "Remember me" functionality (30-day session)
+8. Password reset via email must be available
+9. System must log all login attempts for security audit
 
-RQ-002: Shipping Information
-User must provide shipping details:
-- Full Name: 2-100 characters, letters and spaces only
-- Email: Valid email format, max 255 characters
-- Phone: 10-15 digits, international format supported
-- Address Line 1: Required, max 200 characters
-- Address Line 2: Optional, max 200 characters
-- City: Required, 2-50 characters
-- Zip Code: 5 digits for US, 6 alphanumeric for Canada
-- Country: Dropdown selection
-
-RQ-003: Discount Codes
-User can apply promotional discount codes:
-- Code format: 6-12 alphanumeric characters (case-insensitive)
-- Discount range: 5%-50% off subtotal
-- Single use per order
-- Expiration date validation
-- Invalid code shows error message
-
-RQ-004: Shipping Method
-User selects shipping speed:
-- Standard (3-5 business days): $5.99
-- Express (1-2 business days): $12.99
-- Overnight: $24.99
-- Free shipping on orders over $100
-
-RQ-005: Payment Information
-User enters credit/debit card details:
-- Card Number: 16 digits (Visa, Mastercard, Amex)
-- Cardholder Name: 2-50 characters
-- Expiry Date: MM/YY format, must be future date
-- CVV: 3 digits (Visa/MC) or 4 digits (Amex)
-- Billing Address: Same as shipping or different
-
-RQ-006: Order Review
-Display order summary before confirmation:
-- Line items with quantities and prices
-- Subtotal calculation
-- Discount applied (if any)
-- Shipping cost
-- Tax calculation (based on destination)
-- Grand total
-
-RQ-007: Payment Processing
-Process payment via Stripe API:
-- Validate card with Stripe
-- Authorize payment amount
-- Handle declined cards with error message
-- Support 3D Secure authentication
-- Timeout after 30 seconds
-- Retry logic for network failures
-
-RQ-008: Order Confirmation
-Upon successful payment:
-- Generate unique order ID
-- Send confirmation email with order details
-- Display success page with order number
-- Provide tracking link (when available)
-- Update inventory quantities
-- Store order in database
-
-USER FLOW:
-1. User views cart (RQ-001)
-2. User clicks "Proceed to Checkout"
-3. System displays shipping form (RQ-002)
-4. User enters shipping information
-5. User optionally applies discount code (RQ-003)
-6. User selects shipping method (RQ-004)
-7. User enters payment details (RQ-005)
-8. System displays order review (RQ-006)
-9. User confirms order
-10. System processes payment via Stripe (RQ-007)
-11. System displays order confirmation (RQ-008)
-12. System sends confirmation email
-
-API ENDPOINTS:
-
-POST /api/cart/add
-Add item to shopping cart
-Request: { "productId": "123", "quantity": 2 }
-Response 200: { "cartId": "abc", "itemCount": 5, "subtotal": 49.99 }
-Response 400: Invalid product or quantity
-
-GET /api/cart/:cartId
-Retrieve cart contents
-Response 200: { "items": [...], "subtotal": 49.99 }
-Response 404: Cart not found
-
-PUT /api/cart/:cartId/items/:itemId
-Update item quantity
-Request: { "quantity": 3 }
-Response 200: Updated cart
-Response 400: Invalid quantity
-
-POST /api/checkout/validate
-Validate discount code
-Request: { "code": "SAVE20" }
-Response 200: { "valid": true, "discount": 20 }
-Response 400: Invalid or expired code
-
-POST /api/payment/process
-Process payment via Stripe
-Request: { "cartId": "abc", "cardToken": "tok_...", "shippingId": "ship_123" }
-Response 200: { "orderId": "ORD-12345", "status": "completed" }
-Response 402: Payment declined
-Response 500: Processing error
-
-GET /api/order/:orderId
-Get order details
-Response 200: Order information
-Response 404: Order not found
-
-ERROR SCENARIOS:
-- Empty cart at checkout
-- Invalid shipping information
-- Expired discount code
-- Declined payment card
-- Network timeout during payment
-- Insufficient inventory
-- Email delivery failure
-- Invalid CVV
-- Card expired
-- Payment gateway downtime
-
-PERFORMANCE REQUIREMENTS:
-- Checkout page load: < 2 seconds
-- Payment processing: < 5 seconds
-- Email delivery: < 30 seconds
-- Support 100 concurrent checkouts
-
-SECURITY REQUIREMENTS:
-- HTTPS required for all checkout pages
-- PCI DSS compliance for card data
-- Card numbers never stored in database
-- Stripe tokenization for payment
-- CSRF protection on forms
-- Rate limiting on API endpoints
-- Session timeout after 30 minutes inactivity
+Acceptance Criteria:
+- Login response time < 2 seconds
+- Error messages are user-friendly (no technical jargon)
+- Works on mobile and desktop browsers

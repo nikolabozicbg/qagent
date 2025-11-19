@@ -14,8 +14,8 @@ export default function Navbar() {
         
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition">
-          <Image src="/logo.svg" alt="QAgent" width={32} height={32} />
-          <span className="font-bold text-xl tracking-tight">QAgent</span>
+          <Image src="/logo.svg" alt="QAgenAI" width={32} height={32} />
+          <span className="font-bold text-xl tracking-tight">QAgenAI</span>
         </Link>
 
         {/* Links */}
