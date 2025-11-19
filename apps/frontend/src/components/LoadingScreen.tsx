@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Loader2, Sparkles, CheckCircle2 } from "lucide-react";
+import { Loader2, Sparkles, CheckCircle2, Lightbulb } from "lucide-react";
 
 const TIPS = [
   "🧪 QAgent analyzes your requirements to generate comprehensive test scenarios",
@@ -109,7 +109,7 @@ export default function LoadingScreen({ step }: LoadingScreenProps) {
         >
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-              <span className="text-sm">💡</span>
+              <Lightbulb className="w-4 h-4 text-blue-600" />
             </div>
             <div>
               <p className="text-sm font-semibold text-gray-900 mb-1">Did you know?</p>
