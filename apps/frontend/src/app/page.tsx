@@ -15,7 +15,7 @@ export default function Home() {
         </div>
         
         <h1 className="text-6xl md:text-7xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-          Generate Test Suites
+          AI-Powered Test Generation
           <br />
           in Seconds
         </h1>
