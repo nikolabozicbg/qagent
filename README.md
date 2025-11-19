@@ -1,11 +1,11 @@
-# QAgent
+# QAGenAI
 
 Turborepo monorepo with Next.js frontend and NestJS backend.
 
 ## Structure
 
 ```
-qagent/
+qagenai/
 ├── apps/
 │   ├── frontend/     (Next.js 14)
 │   └── backend/      (NestJS)

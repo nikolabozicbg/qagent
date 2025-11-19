@@ -8,7 +8,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">1. Information We Collect</h2>
           <p className="text-gray-700 leading-relaxed mb-4">
-            QAgent collects the following information to provide and improve our services:
+            QAGenAI collects the following information to provide and improve our services:
           </p>
           <ul className="list-disc pl-6 space-y-2 text-gray-700">
             <li><strong>Documents you upload:</strong> PDF, DOCX, TXT, and MD files containing specifications</li>
@@ -34,7 +34,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">3. Third-Party Services</h2>
           <p className="text-gray-700 leading-relaxed mb-4">
-            QAgent uses the following third-party services:
+            QAGenAI uses the following third-party services:
           </p>
           <ul className="list-disc pl-6 space-y-2 text-gray-700">
             <li><strong>OpenAI:</strong> Your uploaded content is processed by OpenAI's API to generate test suites. See <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener" className="text-blue-600 hover:underline">OpenAI Privacy Policy</a></li>
@@ -64,14 +64,14 @@ export default function PrivacyPage() {
             <li>Data portability</li>
           </ul>
           <p className="text-gray-700 leading-relaxed mt-4">
-            To exercise these rights, contact us at <a href="mailto:privacy@qagent.com" className="text-blue-600 hover:underline">privacy@qagent.com</a>
+            To exercise these rights, contact us at <a href="mailto:privacy@qagenai.com" className="text-blue-600 hover:underline">privacy@qagenai.com</a>
           </p>
         </section>
 
         <section>
           <h2 className="text-2xl font-semibold mb-4">6. Cookies</h2>
           <p className="text-gray-700 leading-relaxed">
-            QAgent uses localStorage to track usage limits and preferences. We do not use tracking cookies 
+            QAGenAI uses localStorage to track usage limits and preferences. We do not use tracking cookies
             for advertising. Analytics cookies (if enabled) are used solely to improve our service.
           </p>
         </section>
@@ -88,7 +88,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">8. Children's Privacy</h2>
           <p className="text-gray-700 leading-relaxed">
-            QAgent is not intended for users under 13 years of age. We do not knowingly collect 
+            QAGenAI is not intended for users under 13 years of age. We do not knowingly collect
             information from children.
           </p>
         </section>
@@ -107,7 +107,7 @@ export default function PrivacyPage() {
             For privacy-related questions, contact us at:
           </p>
           <p className="text-gray-700 mt-2">
-            Email: <a href="mailto:privacy@qagent.com" className="text-blue-600 hover:underline">privacy@qagent.com</a>
+            Email: <a href="mailto:privacy@qagenai.com" className="text-blue-600 hover:underline">privacy@qagenai.com</a>
           </p>
         </section>
       </div>

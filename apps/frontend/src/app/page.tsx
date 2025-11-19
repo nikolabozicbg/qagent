@@ -71,39 +71,16 @@ export default function Home() {
           </p>
         </div>
         
-        <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-gray-200 bg-gradient-to-br from-gray-900 to-gray-800">
-          {/* Video placeholder - replace with actual video */}
-          <div className="aspect-video flex flex-col items-center justify-center text-white p-12 space-y-6">
-            <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center">
-              <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-            </div>
-            {/*<div className="text-center">*/}
-              <p className="text-xl font-semibold mb-2">Demo Video Coming Soon</p>
-            {/*  <p className="text-gray-400 text-sm max-w-md">*/}
-            {/*    A step-by-step walkthrough showing: Upload → AI Generation → Test Suite Export*/}
-            {/*  </p>*/}
-            {/*</div>*/}
-            <div className="flex gap-4 text-sm text-gray-400">
-              {/*<span>📄 Upload spec</span>*/}
-              {/*<span>→</span>*/}
-              {/*<span>🤖 AI analyzes</span>*/}
-              {/*<span>→</span>*/}
-              {/*<span>✅ Tests generated</span>*/}
-              {/*<span>→</span>*/}
-              {/*<span>📥 Export ready</span>*/}
-            </div>
-          </div>
-          
-          {/* Alternative: Embed YouTube/Loom video */}
-          {/* <iframe 
+        <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-gray-200 bg-black">
+          <video 
             className="w-full aspect-video"
-            src="https://www.youtube.com/embed/YOUR_VIDEO_ID"
-            title="QAgent Demo"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          /> */}
+            controls
+            preload="metadata"
+            poster="/demo-thumbnail.png"
+          >
+            <source src="/demo-video.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
         </div>
         
       </section>

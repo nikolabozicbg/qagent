@@ -107,8 +107,8 @@ export default function UploadBox() {
       
       // Clear old cache and store fresh result
       sessionStorage.clear();
-      sessionStorage.setItem('qagent_result', JSON.stringify(result));
-      sessionStorage.setItem('qagent_result_timestamp', Date.now().toString());
+      sessionStorage.setItem('qagenai_result', JSON.stringify(result));
+      sessionStorage.setItem('qagenai_result_timestamp', Date.now().toString());
       router.push(`/result?t=${Date.now()}`);
     } catch (err: any) {
       // Handle rate limit error (429)

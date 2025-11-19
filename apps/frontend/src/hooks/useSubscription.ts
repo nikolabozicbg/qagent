@@ -17,7 +17,7 @@ export function useSubscription() {
  */
 export function useUsageLimit() {
   const MAX_FREE = 3;
-  const KEY = "qagent_usage";
+  const KEY = "qagenai_usage";
 
   const [count, setCount] = useState(0);
   const [isClient, setIsClient] = useState(false);

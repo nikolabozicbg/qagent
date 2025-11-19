@@ -27,7 +27,7 @@ export default function ResultPage() {
 
   useEffect(() => {
     // Load result from sessionStorage
-    const stored = sessionStorage.getItem('qagent_result');
+    const stored = sessionStorage.getItem('qagenai_result');
     
     if (stored) {
       try {
@@ -72,7 +72,7 @@ export default function ResultPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "qagent-output.json";
+    a.download = "qagenai-output.json";
     a.click();
     toast.success("Exported as JSON");
   };
@@ -85,7 +85,7 @@ export default function ResultPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "qagent-output.txt";
+    a.download = "qagenai-output.txt";
     a.click();
     toast.success("Exported as TXT");
   };
@@ -102,7 +102,7 @@ export default function ResultPage() {
     try {
       const refined = await refineSuite(data, refinePrompt);
       setData(refined);
-      sessionStorage.setItem('qagent_result', JSON.stringify(refined));
+      sessionStorage.setItem('qagenai_result', JSON.stringify(refined));
       
       toast.success("Test suite refined!", {
         description: "Your improvements have been applied"

@@ -88,7 +88,7 @@ test.describe('User Authentication', () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "qagent-demo-output.json";
+    a.download = "qagenai-demo-output.json";
     a.click();
     toast.success("Exported as JSON");
   };
@@ -101,7 +101,7 @@ test.describe('User Authentication', () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "qagent-demo-output.txt";
+    a.download = "qagenai-demo-output.txt";
     a.click();
     toast.success("Exported as TXT");
   };

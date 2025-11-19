@@ -8,14 +8,14 @@ export default function TermsPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
           <p className="text-gray-700 leading-relaxed">
-            By using QAgent, you agree to these Terms of Service. If you do not agree, do not use the service.
+            By using QAGenAI, you agree to these Terms of Service. If you do not agree, do not use the service.
           </p>
         </section>
 
         <section>
           <h2 className="text-2xl font-semibold mb-4">2. Service Description</h2>
           <p className="text-gray-700 leading-relaxed">
-            QAgent is an AI-powered platform that generates QA test suites based on user-provided specifications.
+            QAGenAI is an AI-powered platform that generates QA test suites based on user-provided specifications.
             We do not guarantee the accuracy or suitability of generated output for any specific purpose.
           </p>
         </section>
@@ -32,7 +32,7 @@ export default function TermsPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">4. Intellectual Property</h2>
           <p className="text-gray-700 leading-relaxed">
-            QAgent owns all rights to the platform and its content. You retain ownership of your uploaded content 
+            QAGenAI owns all rights to the platform and its content. You retain ownership of your uploaded content
             and may use generated output for your own projects without restriction.
           </p>
         </section>
@@ -48,7 +48,7 @@ export default function TermsPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">6. Limitation of Liability</h2>
           <p className="text-gray-700 leading-relaxed">
-            QAgent is provided "as is" without warranties of any kind. We are not liable for any damages arising from 
+            QAGenAI is provided "as is" without warranties of any kind. We are not liable for any damages arising from
             the use of the service, to the maximum extent permitted by law.
           </p>
         </section>
@@ -70,7 +70,7 @@ export default function TermsPage() {
         <section>
           <h2 className="text-2xl font-semibold mb-4">9. Contact</h2>
           <p className="text-gray-700 leading-relaxed">
-            For questions about these Terms, contact us at: <a href="mailto:legal@qagent.com" className="text-blue-600 hover:underline">legal@qagent.com</a>
+            For questions about these Terms, contact us at: <a href="mailto:legal@qagenai.com" className="text-blue-600 hover:underline">legal@qagenai.com</a>
           </p>
         </section>
       </div>

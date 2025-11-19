@@ -1,6 +1,6 @@
 export default () => ({
   app: {
-    name: 'qagent-backend',
+    name: 'qagenai-backend',
     port: parseInt(process.env.PORT, 10) || 3001,
   },
 });
