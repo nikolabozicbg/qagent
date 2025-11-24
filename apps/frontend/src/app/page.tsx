@@ -16,7 +16,7 @@ export default function Home() {
           <div className="text-left space-y-6">
             <div className="inline-flex items-center gap-2 bg-purple-900/20 border border-purple-500/30 px-4 py-2 rounded-full text-sm">
               <Sparkles className="w-4 h-4 text-purple-400" />
-              <span className="text-purple-300">Early Access • Launching Soon</span>
+              <span className="text-purple-300">Early Access • Launching Q1 2025</span>
             </div>
             
             <h1 className="text-5xl md:text-6xl font-bold leading-tight">
@@ -25,7 +25,7 @@ export default function Home() {
             </h1>
             
             <p className="text-xl text-slate-400 leading-relaxed">
-              Specialized QA agent that will generate tests in seconds, self-heal when code changes, and get you to 100% coverage—not just another generic AI assistant.
+              AI agent that detects coverage gaps and generates self-healing tests automatically. Not just another generic AI assistant.
             </p>
             
             {/* Waitlist CTA */}

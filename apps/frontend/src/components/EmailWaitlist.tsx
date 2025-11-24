@@ -28,7 +28,8 @@ export default function EmailWaitlist({
     console.log('🔍 Debug: handleSubmit called');
     console.log('🔍 Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
     
-    if (!email || !email.includes("@")) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
       toast.error("Please enter a valid email");
       return;
     }
@@ -48,7 +49,7 @@ export default function EmailWaitlist({
         // Check if email already exists
         if (error.code === '23505') {
           toast.info("You're already on the waitlist!", {
-            description: "We'll notify you when Pro launches."
+            description: "We'll notify you when QAgenAI launches."
           });
           setSubmitted(true);
           return;
@@ -58,7 +59,7 @@ export default function EmailWaitlist({
 
       setSubmitted(true);
       toast.success("You're on the list!", {
-        description: "We'll notify you when Pro launches with your exclusive discount."
+        description: "We'll notify you the moment QAgenAI launches. No spam, ever."
       });
     } catch (err: any) {
       console.error('Supabase error:', err);
