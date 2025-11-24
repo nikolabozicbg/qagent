@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Bot, Download, CheckCircle2, Globe, Code2, Zap, TestTube2, BarChart3, Boxes } from "lucide-react";
+import { ArrowRight, Bot, Download, CheckCircle2, Globe, Code2, Zap, TestTube2, BarChart3, Boxes, Sparkles } from "lucide-react";
 import FAQAccordion from "@/components/FAQAccordion";
+import EmailWaitlist from "@/components/EmailWaitlist";
 
 export default function Home() {
   return (
@@ -13,9 +14,9 @@ export default function Home() {
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
           {/* Left: Content */}
           <div className="text-left space-y-6">
-            <div className="inline-flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-full text-sm">
-              <Zap className="w-4 h-4 text-purple-400" />
-              <span className="text-slate-300">AI-Powered Test Generation</span>
+            <div className="inline-flex items-center gap-2 bg-purple-900/20 border border-purple-500/30 px-4 py-2 rounded-full text-sm">
+              <Sparkles className="w-4 h-4 text-purple-400" />
+              <span className="text-purple-300">Early Access • Launching Soon</span>
             </div>
             
             <h1 className="text-5xl md:text-6xl font-bold leading-tight">
@@ -24,41 +25,21 @@ export default function Home() {
             </h1>
             
             <p className="text-xl text-slate-400 leading-relaxed">
-              Specialized QA agent that generates tests in seconds, self-heals when code changes, and hits 100% coverage—not just another generic AI assistant.
+              Specialized QA agent that will generate tests in seconds, self-heal when code changes, and get you to 100% coverage—not just another generic AI assistant.
             </p>
             
-            {/* Benchmark stats */}
-            <div className="flex flex-wrap items-center gap-3 text-sm">
-              <div className="flex items-center gap-2 text-slate-400">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span><strong className="text-white">85% faster</strong> than manual testing</span>
-              </div>
-              <span className="text-slate-700 hidden sm:inline">•</span>
-              <div className="flex items-center gap-2 text-slate-400">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span><strong className="text-white">12 tests</strong> in 30 seconds</span>
-              </div>
-            </div>
-            
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Link href="#setup">
-                <Button size="lg" className="w-full sm:w-auto px-8 py-6 text-lg bg-purple-600 hover:bg-purple-500 transition-colors">
-                  Get Started Free
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              </Link>
+            {/* Waitlist CTA */}
+            <div className="space-y-4">
+              <EmailWaitlist 
+                variant="hero"
+                title="Join the Waitlist"
+                subtitle="Get early access and be the first to know when we launch"
+              />
               
-              <Link href="https://github.com/qagenai/vscode-extension" target="_blank">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto px-8 py-6 text-lg border-slate-700 hover:border-slate-600 hover:bg-slate-800/50">
-                  View Docs
-                </Button>
-              </Link>
+              <p className="text-xs text-slate-500 text-center">
+                Will be available as VS Code Extension + MCP Server for Cursor/Windsurf
+              </p>
             </div>
-            
-            <p className="text-xs text-slate-500">
-              Available as VS Code Extension or MCP Server for Cursor/Windsurf
-            </p>
           </div>
           
           {/* Right: Product Screenshot */}
@@ -175,19 +156,22 @@ export default function Home() {
       </section>
 
 
-      {/* TWO WAYS TO USE */}
-      <section id="setup" className="border border-slate-800 rounded-lg p-8 bg-slate-900/30">
+      {/* TWO WAYS TO USE - Coming Soon */}
+      <section id="setup" className="border border-slate-700 rounded-lg p-8 bg-slate-800/30">
         <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 bg-purple-600/20 border border-purple-500/50 px-3 py-1.5 rounded-full text-xs font-semibold text-purple-300 mb-4">
+            In Development
+          </div>
           <h2 className="text-2xl font-semibold mb-3">Two Ways to Use QAgenAI</h2>
           <p className="text-slate-400 text-sm">Choose the setup that works best for your workflow</p>
         </div>
         
         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {/* VS Code Extension */}
-          <div className="border border-slate-700 rounded-lg p-6 bg-slate-800/30">
+          <div className="border border-slate-600 rounded-lg p-6 bg-slate-900/50 relative overflow-hidden hover:border-purple-500/50 transition-colors">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <Code2 className="w-6 h-6 text-blue-400" />
+              <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                <Code2 className="w-6 h-6 text-purple-400" />
               </div>
               <div>
                 <h3 className="font-semibold">VS Code Extension</h3>
@@ -208,15 +192,16 @@ export default function Home() {
                 <span>Requires your AI API key (OpenAI/Claude)</span>
               </li>
             </ul>
-            <Link href="https://marketplace.visualstudio.com/items?itemName=qagenai" target="_blank" className="mt-4 inline-block">
-              <Button variant="outline" size="sm" className="text-xs">
-                Install Extension
-              </Button>
-            </Link>
+            <div className="mt-4 pt-4 border-t border-slate-700">
+              <div className="inline-flex items-center gap-1.5 bg-purple-600/10 border border-purple-500/30 px-2.5 py-1 rounded text-xs font-medium text-purple-300">
+                <Sparkles className="w-3 h-3" />
+                Coming Soon
+              </div>
+            </div>
           </div>
           
           {/* MCP Server */}
-          <div className="border border-slate-700 rounded-lg p-6 bg-slate-800/30">
+          <div className="border border-slate-600 rounded-lg p-6 bg-slate-900/50 relative overflow-hidden hover:border-purple-500/50 transition-colors">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
                 <Boxes className="w-6 h-6 text-purple-400" />
@@ -240,20 +225,22 @@ export default function Home() {
                 <span>Uses your IDE's AI (no extra API key needed)</span>
               </li>
             </ul>
-            <Link href="https://github.com/qagenai/vscode-extension" target="_blank" className="mt-4 inline-block">
-              <Button variant="outline" size="sm" className="text-xs">
-                Setup Guide
-              </Button>
-            </Link>
+            <div className="mt-4 pt-4 border-t border-slate-700">
+              <div className="inline-flex items-center gap-1.5 bg-purple-600/10 border border-purple-500/30 px-2.5 py-1 rounded text-xs font-medium text-purple-300">
+                <Sparkles className="w-3 h-3" />
+                Coming Soon
+              </div>
+            </div>
           </div>
         </div>
+        
       </section>
 
-      {/* HOW IT WORKS - Simplified */}
+      {/* HOW IT WILL WORK */}
       <section>
         <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">How It Works</h2>
-          <p className="text-slate-400 max-w-2xl mx-auto">Simple 3-step workflow, regardless of setup</p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-3">How It Will Work</h2>
+          <p className="text-slate-400 max-w-2xl mx-auto">Simple 3-step workflow when we launch</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -261,19 +248,19 @@ export default function Home() {
             step="1"
             icon={<Download className="w-10 h-10 text-purple-400" />}
             title="Install & Configure"
-            desc="Choose extension or MCP setup. Configuration takes 2 minutes."
+            desc="Choose VS Code Extension or MCP Server. Setup takes 2 minutes."
           />
           <StepCard
             step="2"
             icon={<Bot className="w-10 h-10 text-purple-400" />}
             title="Generate Tests"
-            desc="Right-click file or chat with agent. Tests appear in seconds."
+            desc="Right-click any file or chat with the agent. Tests appear in seconds."
           />
           <StepCard
             step="3"
             icon={<CheckCircle2 className="w-10 h-10 text-purple-400" />}
-            title="Review & Run"
-            desc="Agent-generated tests in your test files. Run to verify coverage."
+            title="Review & Ship"
+            desc="Agent-generated tests land in your test files. Review and commit."
           />
         </div>
       </section>
@@ -281,42 +268,42 @@ export default function Home() {
       {/* COMBINED: WHY + WHAT YOU GET */}
       <section className="border border-slate-800 rounded-lg p-8 md:p-12 bg-slate-900/30">
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">Why QAgenAI?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-3">What to Expect</h2>
           <p className="text-slate-400 max-w-2xl mx-auto">
-            Your AI pair programmer for quality assurance
+            Your AI pair programmer for quality assurance, coming soon
           </p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-5xl mx-auto">
           {/* LEFT: Benefits */}
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold mb-4">Key Benefits</h3>
+            <h3 className="text-xl font-semibold mb-4">Planned Features</h3>
             <BenefitItem 
               icon={<Zap className="w-5 h-5" />}
               text="Generate tests 10x faster than writing manually" 
             />
             <BenefitItem 
               icon={<CheckCircle2 className="w-5 h-5" />}
-              text="Self-healing tests adapt automatically when code changes" 
+              text="Self-healing tests that adapt when code changes" 
             />
             <BenefitItem 
               icon={<BarChart3 className="w-5 h-5" />}
-              text="Hit 100% coverage with intelligent gap detection" 
+              text="Intelligent coverage gap detection and suggestions" 
             />
             <BenefitItem 
               icon={<Boxes className="w-5 h-5" />}
-              text="Two setup options: VS Code Extension or MCP Server" 
+              text="Flexible setup: VS Code Extension or MCP Server" 
             />
           </div>
           
-          {/* RIGHT: Features */}
+          {/* RIGHT: Test Types */}
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold mb-4">What You Get</h3>
+            <h3 className="text-xl font-semibold mb-4">Test Types Supported</h3>
             <div className="grid grid-cols-2 gap-3">
               <OutputFeature icon={<TestTube2 className="w-4 h-4" />} text="Unit Tests" />
               <OutputFeature icon={<Globe className="w-4 h-4" />} text="E2E Tests" />
               <OutputFeature icon={<Code2 className="w-4 h-4" />} text="Integration Tests" />
-              <OutputFeature icon={<Zap className="w-4 h-4" />} text="Auto-Fix" />
-              <OutputFeature icon={<BarChart3 className="w-4 h-4" />} text="Coverage Analysis" />
+              <OutputFeature icon={<Zap className="w-4 h-4" />} text="Snapshot Tests" />
+              <OutputFeature icon={<BarChart3 className="w-4 h-4" />} text="Coverage Reports" />
               <OutputFeature icon={<CheckCircle2 className="w-4 h-4" />} text="Edge Cases" />
             </div>
           </div>
@@ -365,31 +352,21 @@ export default function Home() {
         />
       </section>
 
-      {/* FINAL CTA - Clean & Focused */}
+      {/* FINAL CTA - Waitlist */}
       <section className="text-center py-12">
-        <h2 className="text-3xl font-bold mb-4">Start Writing Better Tests Today</h2>
-        <p className="text-slate-400 text-lg mb-6 max-w-xl mx-auto">
-          Free forever. No credit card. Setup takes 2 minutes.
+        <h2 className="text-3xl font-bold mb-4">Be First to Know When We Launch</h2>
+        <p className="text-slate-400 text-lg mb-8 max-w-xl mx-auto">
+          Join the waitlist for early access to QAgenAI.
         </p>
         
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Link href="https://marketplace.visualstudio.com/items?itemName=qagenai" target="_blank">
-            <Button size="lg" className="bg-purple-600 hover:bg-purple-500 text-white px-8 py-4">
-              <Code2 className="w-5 h-5 mr-2" />
-              VS Code Extension
-            </Button>
-          </Link>
-          
-          <Link href="https://github.com/qagenai/vscode-extension#mcp-setup" target="_blank">
-            <Button size="lg" variant="outline" className="border-slate-700 hover:border-slate-600 hover:bg-slate-800/50 px-8 py-4">
-              <Boxes className="w-5 h-5 mr-2" />
-              MCP Server Setup
-            </Button>
-          </Link>
-        </div>
+        <EmailWaitlist 
+          variant="hero"
+          title="Get Early Access"
+          subtitle="We'll notify you the moment QAgenAI is ready. No spam, ever."
+        />
         
         <p className="text-slate-500 text-xs mt-6">
-          Supports Jest, Vitest, Playwright, Cypress, pytest, JUnit + 10 more
+          Will support Jest, Vitest, Playwright, Cypress, pytest, JUnit + 10 more
         </p>
       </section>
     </main>

@@ -84,12 +84,12 @@ export default function EmailWaitlist({
   if (variant === "hero") {
     return (
       <div className="max-w-md mx-auto">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+        <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6">
           <div className="flex items-center gap-2 mb-3">
-            <Mail className="w-5 h-5 text-blue-600" />
-            <h3 className="font-semibold text-lg">{title}</h3>
+            <Mail className="w-5 h-5 text-purple-400" />
+            <h3 className="font-semibold text-lg text-white">{title}</h3>
           </div>
-          <p className="text-sm text-gray-600 mb-4">{subtitle}</p>
+          <p className="text-sm text-slate-400 mb-4">{subtitle}</p>
           
           <form onSubmit={handleSubmit} className="flex gap-2">
             <Input
@@ -97,10 +97,10 @@ export default function EmailWaitlist({
               placeholder="your@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="flex-1"
+              className="flex-1 bg-slate-900 border-slate-600 text-white placeholder:text-slate-500 focus:border-purple-500"
               disabled={loading}
             />
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="bg-purple-600 hover:bg-purple-500">
               {loading ? "Joining..." : "Notify Me"}
             </Button>
           </form>
