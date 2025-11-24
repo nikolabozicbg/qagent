@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/sonner";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import FeedbackButton from "@/components/FeedbackButton";
 
 export const metadata: Metadata = {
   title: 'QAgent - AI Test Generation',
@@ -22,6 +23,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <FeedbackButton />
         <Toaster />
       </body>
     </html>
