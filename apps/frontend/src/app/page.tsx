@@ -345,6 +345,10 @@ export default function Home() {
               answer: "It depends on your setup. VS Code Extension: Yes, you need your own OpenAI or Claude API key. MCP Server (Cursor/Windsurf): No, it uses your IDE's built-in AI—no extra API key needed."
             },
             {
+              question: "How much does it cost?",
+              answer: "QAgenAI will be free for individual developers with a fair-use limit. Team plans with advanced features will be available later. Join the waitlist for early access pricing and exclusive launch discounts."
+            },
+            {
               question: "Can I use QAgenAI with existing tests?",
               answer: "Yes! QAgenAI analyzes your existing test coverage and fills in gaps. It won't duplicate tests you already have—it focuses on uncovered code paths and edge cases you might have missed."
             }

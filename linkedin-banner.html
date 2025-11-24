@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    }
+    .banner {
+      width: 1128px;
+      height: 191px;
+      background: #0f172a;
+      display: flex;
+      align-items: center;
+      padding: 0 60px;
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;
+    }
+    .left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex: 1;
+    }
+    .logo {
+      width: 80px;
+      height: 80px;
+    }
+    .text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .title {
+      font-size: 48px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      font-size: 18px;
+      font-weight: 500;
+      color: #94a3b8;
+    }
+    .badge {
+      background: #1e293b;
+      border: 1px solid #a855f7;
+      border-radius: 12px;
+      padding: 14px 28px;
+      color: #a855f7;
+      font-size: 16px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .gradient {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, #a855f7 0%, #ec4899 100%);
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    <div class="gradient"></div>
+    <div class="left">
+      <svg class="logo" width="80" height="80" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="110" cy="110" r="80" stroke="#a855f7" stroke-width="18"/>
+        <circle cx="110" cy="110" r="40" fill="#a855f7"/>
+        <path d="M150 150 L190 190" stroke="#ec4899" stroke-width="18" stroke-linecap="round"/>
+      </svg>
+      <div class="text">
+        <div class="title">QAgenAI</div>
+        <div class="subtitle">AI Agent for Test Generation</div>
+      </div>
+    </div>
+    <div class="badge">VS Code Extension + MCP Server</div>
+  </div>
+</body>
+</html>
