@@ -72,12 +72,10 @@ export default function EmailWaitlist({
 
   if (submitted) {
     return (
-      <div className={`flex items-center gap-3 ${
-        variant === "hero" ? "justify-center" : ""
-      }`}>
-        <div className="flex items-center gap-2 bg-green-50 text-green-700 px-4 py-3 rounded-lg border border-green-200">
-          <CheckCircle2 className="w-5 h-5" />
-          <span className="font-medium">You're on the waitlist!</span>
+      <div className="flex items-center justify-center">
+        <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-lg border border-emerald-500/20">
+          <CheckCircle2 className="w-4 h-4" />
+          <span className="text-sm font-medium">You're on the waitlist!</span>
         </div>
       </div>
     );
@@ -112,17 +110,21 @@ export default function EmailWaitlist({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 max-w-md">
+    <form onSubmit={handleSubmit} className="flex gap-2 max-w-sm mx-auto">
       <Input
         type="email"
         placeholder="your@email.com"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        className="flex-1"
+        className="flex-1 bg-slate-800 border-slate-700 focus:border-purple-500 text-sm"
         disabled={loading}
       />
-      <Button type="submit" disabled={loading} size="sm">
-        {loading ? "..." : "Join Waitlist"}
+      <Button 
+        type="submit" 
+        disabled={loading} 
+        className="bg-purple-600 hover:bg-purple-500 text-white"
+      >
+        {loading ? "..." : "Join"}
       </Button>
     </form>
   );

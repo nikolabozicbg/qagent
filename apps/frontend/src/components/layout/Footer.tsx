@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Github, Twitter, Linkedin } from "lucide-react";
+import EmailWaitlist from "@/components/EmailWaitlist";
 
 export default function Footer() {
   return (
-    <footer className="border-t mt-20 bg-gray-50">
+    <footer className="border-t border-white/10 mt-20 bg-black">
       <div className="max-w-6xl mx-auto px-6 py-12">
         
         {/* Main Footer Content */}
@@ -15,57 +16,63 @@ export default function Footer() {
               <img src="/logo.svg" className="w-8 h-8" alt="QAgenAI" />
               <span className="font-bold text-lg">QAgenAI</span>
             </div>
-            <p className="text-sm text-gray-600">
-              AI-powered test generation for QA teams
+            <p className="text-sm text-gray-500">
+              AI QA Agent that lives in your IDE
             </p>
           </div>
 
           {/* Product */}
           <div>
             <h3 className="font-semibold mb-3 text-sm">Product</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
-              <li><Link href="/pricing" className="hover:text-blue-600">Pricing</Link></li>
-              <li><Link href="/demo" className="hover:text-blue-600">Demo</Link></li>
-              <li><Link href="/upload" className="hover:text-blue-600">Try Free</Link></li>
+            <ul className="space-y-2 text-sm text-gray-500">
+              <li><Link href="/pricing" className="hover:text-purple-400 transition">Pricing</Link></li>
+              <li><Link href="https://github.com/qagenai/vscode-extension" target="_blank" className="hover:text-purple-400 transition">Documentation</Link></li>
+              <li><Link href="https://marketplace.visualstudio.com/items?itemName=qagenai" target="_blank" className="hover:text-purple-400 transition">Install Extension</Link></li>
             </ul>
           </div>
 
           {/* Company */}
           <div>
             <h3 className="font-semibold mb-3 text-sm">Company</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
-              <li><a href="#" className="hover:text-blue-600">About</a></li>
-              <li><a href="#" className="hover:text-blue-600">Blog</a></li>
-              <li><a href="#" className="hover:text-blue-600">Careers</a></li>
+            <ul className="space-y-2 text-sm text-gray-500">
+              <li><a href="#" className="hover:text-purple-400 transition">About</a></li>
+              <li><a href="#" className="hover:text-purple-400 transition">Blog</a></li>
+              <li><a href="#" className="hover:text-purple-400 transition">Careers</a></li>
             </ul>
           </div>
 
-          {/* Legal */}
+          {/* Newsletter */}
           <div>
-            <h3 className="font-semibold mb-3 text-sm">Legal</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
-              <li><Link href="/privacy" className="hover:text-blue-600">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="hover:text-blue-600">Terms of Service</Link></li>
-              <li><a href="mailto:support@qagenai.com" className="hover:text-blue-600">Contact</a></li>
-            </ul>
+            <h3 className="font-semibold mb-3 text-sm">Stay Updated</h3>
+            <p className="text-xs text-gray-500 mb-3">
+              Get notified about new features and Pro launch
+            </p>
+            <EmailWaitlist variant="inline" />
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-gray-600">
-            © 2025 QAgenAI. All rights reserved.
-          </p>
+        <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex flex-col md:flex-row items-center gap-4 text-sm text-gray-500">
+            <p>© 2025 QAgenAI. All rights reserved.</p>
+            <div className="flex gap-3 text-xs">
+              <Link href="/privacy" className="hover:text-purple-400 transition">Privacy</Link>
+              <span>•</span>
+              <Link href="/terms" className="hover:text-purple-400 transition">Terms</Link>
+              <span>•</span>
+              <a href="mailto:support@qagenai.com" className="hover:text-purple-400 transition">Contact</a>
+            </div>
+          </div>
 
           {/* Social Links */}
           <div className="flex gap-4">
-            <a href="#" className="text-gray-400 hover:text-blue-600 transition">
+            <a href="#" className="text-gray-500 hover:text-purple-400 transition">
               <Twitter className="w-5 h-5" />
             </a>
-            <a href="#" className="text-gray-400 hover:text-blue-600 transition">
+            <a href="https://github.com/qagenai" target="_blank" className="text-gray-500 hover:text-purple-400 transition">
               <Github className="w-5 h-5" />
             </a>
-            <a href="#" className="text-gray-400 hover:text-blue-600 transition">
+            <a href="#" className="text-gray-500 hover:text-purple-400 transition">
               <Linkedin className="w-5 h-5" />
             </a>
           </div>

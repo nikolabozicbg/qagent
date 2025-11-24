@@ -9,7 +9,7 @@ export default function Navbar() {
   const path = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur bg-white/80 border-b shadow-sm">
+    <header className="sticky top-0 z-50 backdrop-blur-xl bg-black/80 border-b border-white/10">
       <nav className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         
         {/* Logo */}
@@ -23,21 +23,25 @@ export default function Navbar() {
           <NavLink href="/" label="Home" current={path} />
           <NavLink href="/pricing" label="Pricing" current={path} />
           <a
-            href="/#demo"
-            onClick={(e) => {
-              if (path === '/') {
-                e.preventDefault();
-                document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
-            className="text-sm font-medium text-gray-700 hover:text-blue-600 transition cursor-pointer"
+            href="https://github.com/qagenai/vscode-extension"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium text-gray-400 hover:text-purple-400 transition"
           >
-            Demo
+            Documentation
+          </a>
+          <a
+            href="https://github.com/qagenai/vscode-extension"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium text-gray-400 hover:text-purple-400 transition"
+          >
+            GitHub
           </a>
 
-          <Link href="/upload">
-            <Button size="sm" className="px-6">
-              Try Free
+          <Link href="https://marketplace.visualstudio.com/items?itemName=qagenai" target="_blank">
+            <Button size="sm" className="px-6 bg-purple-600 hover:bg-purple-700">
+              Install Extension
             </Button>
           </Link>
         </div>
@@ -51,8 +55,8 @@ function NavLink({ href, label, current }: any) {
   return (
     <Link
       href={href}
-      className={`text-sm font-medium hover:text-blue-600 transition ${
-        active ? "text-blue-600 font-semibold" : "text-gray-700"
+      className={`text-sm font-medium hover:text-purple-400 transition ${
+        active ? "text-purple-400 font-semibold" : "text-gray-400"
       }`}
     >
       {label}
