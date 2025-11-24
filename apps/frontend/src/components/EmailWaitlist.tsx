@@ -91,7 +91,7 @@ export default function EmailWaitlist({
           </div>
           <p className="text-sm text-slate-400 mb-4">{subtitle}</p>
           
-          <form onSubmit={handleSubmit} className="flex gap-2">
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
             <Input
               type="email"
               placeholder="your@email.com"
@@ -100,7 +100,7 @@ export default function EmailWaitlist({
               className="flex-1 bg-slate-900 border-slate-600 text-white placeholder:text-slate-500 focus:border-purple-500"
               disabled={loading}
             />
-            <Button type="submit" disabled={loading} className="bg-purple-600 hover:bg-purple-500">
+            <Button type="submit" disabled={loading} className="bg-purple-600 hover:bg-purple-500 w-full sm:w-auto">
               {loading ? "Joining..." : "Notify Me"}
             </Button>
           </form>
