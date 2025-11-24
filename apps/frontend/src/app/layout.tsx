@@ -7,8 +7,30 @@ import Footer from "@/components/layout/Footer";
 import FeedbackButton from "@/components/FeedbackButton";
 
 export const metadata: Metadata = {
-  title: 'QAgent - AI Test Generation',
-  description: 'Autonomous AI Agent for QA - Generate test suites in seconds',
+  title: 'QAgenAI - AI Agent for Test Generation',
+  description: 'Generate tests 10x faster with AI. Coverage gap detection, self-healing tests. Available as VS Code Extension or MCP Server.',
+  openGraph: {
+    title: 'QAgenAI - AI Agent for Test Generation',
+    description: 'Generate tests 10x faster with AI. Coverage gap detection, self-healing tests.',
+    url: 'https://qagenai.com',
+    siteName: 'QAgenAI',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'QAgenAI - AI Agent for Test Generation',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'QAgenAI - AI Agent for Test Generation',
+    description: 'Generate tests 10x faster with AI',
+    images: ['/og-image.png'],
+  },
 };
 
 export default function RootLayout({
