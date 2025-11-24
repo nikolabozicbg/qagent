@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import './globals.css';
 import { Toaster } from "@/components/ui/sonner";
 import Navbar from "@/components/layout/Navbar";
@@ -17,6 +18,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/* Plausible Analytics */}
+        <Script
+          async
+          src="https://plausible.io/js/pa-ugJ_gS0d8XBcybgan-XqW.js"
+          strategy="afterInteractive"
+        />
+        <Script id="plausible-init" strategy="afterInteractive">
+          {`
+            window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+            plausible.init()
+          `}
+        </Script>
+      </head>
       <body>
         <Navbar />
         <main className="min-h-screen">
