@@ -1,10 +1,13 @@
+"use client";
+
 import { Search, Zap, RefreshCw } from "lucide-react";
+import TiltCard from "@/components/ui/TiltCard";
 
 export default function CoreValuesSection() {
   return (
     <section>
       <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-6">
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/90 to-slate-900/50 p-7 card-depth stagger-1 gpu-accelerated hover:border-purple-500/40 transition-all duration-500">
+        <TiltCard className="group relative overflow-hidden rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/90 to-slate-900/50 p-7 card-depth stagger-1 gpu-accelerated hover:border-purple-500/40 transition-all duration-500" maxTilt={8}>
           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(168,85,247,0.1),transparent_50%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="relative space-y-4">
@@ -23,9 +26,9 @@ export default function CoreValuesSection() {
               </div>
             </div>
           </div>
-        </div>
+        </TiltCard>
         
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/90 to-slate-900/50 p-7 card-depth stagger-2 gpu-accelerated hover:border-emerald-500/40 transition-all duration-500">
+        <TiltCard className="group relative overflow-hidden rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/90 to-slate-900/50 p-7 card-depth stagger-2 gpu-accelerated hover:border-emerald-500/40 transition-all duration-500" maxTilt={8}>
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(52,211,153,0.1),transparent_50%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="relative space-y-4">
@@ -44,9 +47,9 @@ export default function CoreValuesSection() {
               </div>
             </div>
           </div>
-        </div>
+        </TiltCard>
         
-        <div className="group relative overflow-hidden rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/90 to-slate-900/50 p-7 card-depth stagger-3 gpu-accelerated hover:border-pink-500/40 transition-all duration-500">
+        <TiltCard className="group relative overflow-hidden rounded-2xl border border-slate-800/80 bg-gradient-to-br from-slate-900/90 to-slate-900/50 p-7 card-depth stagger-3 gpu-accelerated hover:border-pink-500/40 transition-all duration-500" maxTilt={8}>
           <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 via-pink-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(244,114,182,0.1),transparent_50%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="relative space-y-4">
@@ -65,7 +68,7 @@ export default function CoreValuesSection() {
               </div>
             </div>
           </div>
-        </div>
+        </TiltCard>
       </div>
     </section>
   );

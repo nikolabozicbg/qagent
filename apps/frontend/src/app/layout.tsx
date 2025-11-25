@@ -6,7 +6,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import FeedbackButton from "@/components/FeedbackButton";
 import FloatingWaitlistButton from "@/components/FloatingWaitlistButton";
-import ScrollProgressBar from "@/components/ScrollProgressBar";
+import ScrollProgress from "@/components/ui/ScrollProgress";
 
 export const metadata: Metadata = {
   title: 'QAgenAI - AI Agent for Test Generation',
@@ -64,7 +64,7 @@ export default function RootLayout({
         <Footer />
         <FeedbackButton />
         <FloatingWaitlistButton />
-        <ScrollProgressBar />
+        <ScrollProgress />
         <Toaster />
       </body>
     </html>

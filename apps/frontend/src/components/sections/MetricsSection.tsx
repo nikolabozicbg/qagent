@@ -1,3 +1,5 @@
+import AnimatedCounter from "@/components/ui/AnimatedCounter";
+
 export default function MetricsSection() {
   return (
     <section>
@@ -19,7 +21,9 @@ export default function MetricsSection() {
                 <div className="relative inline-block">
                   <div className="absolute inset-0 bg-emerald-400/20 blur-2xl group-hover:blur-3xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                   <div className="relative text-[80px] font-bold leading-none tracking-[-0.03em]">
-                    <span className="bg-gradient-to-br from-emerald-400 via-emerald-400 to-emerald-600 bg-clip-text text-transparent group-hover:from-emerald-300 group-hover:via-emerald-400 group-hover:to-emerald-500 transition-all duration-500">10×</span>
+                  <span className="bg-gradient-to-br from-emerald-400 via-emerald-400 to-emerald-600 bg-clip-text text-transparent group-hover:from-emerald-300 group-hover:via-emerald-400 group-hover:to-emerald-500 transition-all duration-500">
+                    <AnimatedCounter end={10} duration={2} />×
+                  </span>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -32,7 +36,9 @@ export default function MetricsSection() {
                 <div className="relative inline-block">
                   <div className="absolute inset-0 bg-purple-400/20 blur-2xl group-hover:blur-3xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                   <div className="relative text-[80px] font-bold leading-none tracking-[-0.03em]">
-                    <span className="bg-gradient-to-br from-purple-400 via-purple-400 to-purple-600 bg-clip-text text-transparent group-hover:from-purple-300 group-hover:via-purple-400 group-hover:to-purple-500 transition-all duration-500">100%</span>
+                  <span className="bg-gradient-to-br from-purple-400 via-purple-400 to-purple-600 bg-clip-text text-transparent group-hover:from-purple-300 group-hover:via-purple-400 group-hover:to-purple-500 transition-all duration-500">
+                    <AnimatedCounter end={100} duration={2.2} />%
+                  </span>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -45,7 +51,9 @@ export default function MetricsSection() {
                 <div className="relative inline-block">
                   <div className="absolute inset-0 bg-pink-400/20 blur-2xl group-hover:blur-3xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
                   <div className="relative text-[80px] font-bold leading-none tracking-[-0.03em]">
-                    <span className="bg-gradient-to-br from-pink-400 via-pink-400 to-pink-600 bg-clip-text text-transparent group-hover:from-pink-300 group-hover:via-pink-400 group-hover:to-pink-500 transition-all duration-500">0h</span>
+                  <span className="bg-gradient-to-br from-pink-400 via-pink-400 to-pink-600 bg-clip-text text-transparent group-hover:from-pink-300 group-hover:via-pink-400 group-hover:to-pink-500 transition-all duration-500">
+                    <AnimatedCounter end={0} duration={1.5} />h
+                  </span>
                   </div>
                 </div>
                 <div className="space-y-2">
