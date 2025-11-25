@@ -187,6 +187,51 @@ html {
   transition: width 0.3s ease;
 }
 
+/* Animated gradient glow (not blur - shadow based) */
+.glow-purple {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0);
+  transition: box-shadow 0.3s ease;
+}
+
+.glow-purple:hover {
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.4), 0 0 60px rgba(168, 85, 247, 0.2);
+}
+
+.glow-pink {
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0);
+  transition: box-shadow 0.3s ease;
+}
+
+.glow-pink:hover {
+  box-shadow: 0 0 30px rgba(236, 72, 153, 0.4), 0 0 60px rgba(236, 72, 153, 0.2);
+}
+
+/* Rotating gradient border */
+.gradient-border {
+  position: relative;
+  background: linear-gradient(90deg, #a855f7, #ec4899, #8b5cf6);
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+  padding: 2px;
+  border-radius: 12px;
+}
+
+.gradient-border-content {
+  background: #0f172a;
+  border-radius: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
 /* Toast slide-up animation */
 @keyframes slideUp {
   from {

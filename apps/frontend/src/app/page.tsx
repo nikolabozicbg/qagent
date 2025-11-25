@@ -5,6 +5,7 @@ import { ArrowRight, Bot, Download, CheckCircle2, Globe, Code2, Zap, TestTube2, 
 import FAQAccordion from "@/components/FAQAccordion";
 import EmailWaitlist from "@/components/EmailWaitlist";
 import AnimatedCounter from "@/components/AnimatedCounter";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 export default function Home() {
   return (
@@ -119,7 +120,8 @@ export default function Home() {
       </section>
       
       {/* BEFORE/AFTER COMPARISON */}
-      <section className="bg-gradient-to-br from-slate-900/80 to-slate-800/50 border border-slate-700 rounded-xl p-8 md:p-12 animate-on-scroll">
+      <ScrollReveal delay={100}>
+        <section className="bg-gradient-to-br from-slate-900/80 to-slate-800/50 border border-slate-700 rounded-xl p-8 md:p-12">
         <div className="text-center mb-10">
           <h2 className="text-4xl font-bold mb-3">The Difference Is Clear</h2>
           <p className="text-slate-400">See how QAgenAI transforms your testing workflow</p>
@@ -209,10 +211,12 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+        </section>
+      </ScrollReveal>
       
       {/* HOW IT WILL WORK */}
-      <section className="animate-on-scroll">
+      <ScrollReveal delay={200}>
+        <section>
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-3">How It Will Work</h2>
           <p className="text-slate-400 max-w-2xl mx-auto">Simple 3-step workflow when we launch</p>
@@ -244,10 +248,12 @@ export default function Home() {
             desc="Agent-generated tests land in your test files. Review and commit."
           />
         </div>
-      </section>
+        </section>
+      </ScrollReveal>
 
       {/* COMPARE PLANS TABLE */}
-      <section className="animate-on-scroll">
+      <ScrollReveal delay={100}>
+        <section>
         <div className="text-center mb-10">
           <h2 className="text-4xl font-bold mb-3">How We Compare</h2>
           <p className="text-slate-400">See why QAgenAI is built specifically for testing</p>
@@ -299,7 +305,8 @@ export default function Home() {
             </table>
           </div>
         </div>
-      </section>
+        </section>
+      </ScrollReveal>
 
       {/* WHY NOT CURSOR/COPILOT - MOVED HERE */}
       <section className="bg-gradient-to-br from-slate-900/50 to-slate-800/30 border border-slate-800 p-8 rounded-lg animate-on-scroll">

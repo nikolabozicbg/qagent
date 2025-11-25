@@ -156,7 +156,7 @@ export default function EmailWaitlist({
             <Button 
               type="submit" 
               disabled={loading || !email} 
-              className="w-full bg-purple-600 hover:bg-purple-500 disabled:bg-slate-700 disabled:cursor-not-allowed h-12 text-base font-semibold shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-all"
+              className="w-full bg-purple-600 hover:bg-purple-500 disabled:bg-slate-700 disabled:cursor-not-allowed h-12 text-base font-semibold glow-purple transition-all"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
