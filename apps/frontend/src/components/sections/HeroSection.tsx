@@ -3,7 +3,7 @@ import EmailWaitlist from "@/components/EmailWaitlist";
 
 export default function HeroSection() {
   return (
-    <section className="relative">
+    <section className="relative px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
           {/* Left: Content */}
