@@ -274,6 +274,256 @@ html {
   }
 }
 
+/* ============================================ */
+/* AWARD-WINNING UI/UX ENHANCEMENTS */
+/* ============================================ */
+
+/* 1. ENHANCED CARD EFFECTS */
+/* Multi-layered shadow depth */
+.card-depth {
+  box-shadow: 
+    0 1px 2px 0 rgba(0, 0, 0, 0.3),
+    0 2px 6px -1px rgba(0, 0, 0, 0.25),
+    0 4px 12px -2px rgba(0, 0, 0, 0.2),
+    0 8px 24px -4px rgba(0, 0, 0, 0.15);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-depth:hover {
+  box-shadow:
+    0 2px 4px 0 rgba(168, 85, 247, 0.1),
+    0 4px 12px -1px rgba(168, 85, 247, 0.15),
+    0 8px 24px -2px rgba(168, 85, 247, 0.2),
+    0 16px 48px -4px rgba(168, 85, 247, 0.25);
+  transform: translateY(-2px) scale(1.01);
+}
+
+/* Animated glow pulse */
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(168, 85, 247, 0.8), 0 0 60px rgba(168, 85, 247, 0.4);
+  }
+}
+
+.glow-pulse {
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+/* Staggered reveal animation */
+@keyframes staggerReveal {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.stagger-1 { animation: staggerReveal 0.6s ease-out 0.1s both; }
+.stagger-2 { animation: staggerReveal 0.6s ease-out 0.2s both; }
+.stagger-3 { animation: staggerReveal 0.6s ease-out 0.3s both; }
+.stagger-4 { animation: staggerReveal 0.6s ease-out 0.4s both; }
+
+/* 2. ADVANCED BUTTON EFFECTS */
+/* Magnetic hover effect (subtle) */
+.magnetic-button {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+/* Enhanced shine sweep */
+@keyframes shineSweep {
+  0% {
+    transform: translateX(-100%) skewX(-15deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-15deg);
+  }
+}
+
+.button-enhanced {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.button-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%) skewX(-15deg);
+}
+
+.button-enhanced:hover::before {
+  animation: shineSweep 0.8s ease-out;
+}
+
+.button-enhanced:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 4px 12px rgba(168, 85, 247, 0.3),
+    0 8px 24px rgba(168, 85, 247, 0.2);
+}
+
+.button-enhanced:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(168, 85, 247, 0.2);
+}
+
+/* 3. GRADIENT TEXT ENHANCEMENTS */
+/* Smooth shimmer animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.animate-shimmer {
+  background-size: 200% auto;
+  animation: shimmer 4s linear infinite;
+}
+
+/* Text reveal animation */
+@keyframes textReveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.text-reveal {
+  animation: textReveal 1s ease-out forwards;
+}
+
+/* 4. GLASSMORPHISM 2.0 */
+.glass {
+  background: rgba(15, 18, 25, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-strong {
+  background: rgba(15, 18, 25, 0.85);
+  backdrop-filter: blur(30px) saturate(200%);
+  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* 5. MICRO-INTERACTIONS */
+/* Scale on hover */
+.hover-scale {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Rotate on hover */
+.hover-rotate {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-rotate:hover {
+  transform: rotate(5deg);
+}
+
+/* Bounce animation */
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.bounce-on-hover:hover {
+  animation: bounce-subtle 0.6s ease-in-out;
+}
+
+/* 6. LOADING & SUCCESS STATES */
+/* Spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* Success checkmark bounce */
+@keyframes checkmarkBounce {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.success-bounce {
+  animation: checkmarkBounce 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 7. SCROLL PROGRESS INDICATOR */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #a855f7, #ec4899, #8b5cf6);
+  transform-origin: 0%;
+  z-index: 9999;
+}
+
+/* 8. PERFORMANCE OPTIMIZATIONS */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* GPU acceleration hints */
+.gpu-accelerated {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
 @layer base {
   :root {
     /* Modern Dark Theme - Improved Contrast */

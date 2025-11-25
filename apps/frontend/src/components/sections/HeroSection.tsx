@@ -24,7 +24,7 @@ export default function HeroSection() {
               <h1 className="text-[56px] md:text-[72px] font-bold leading-[0.95] tracking-[-0.02em]">
                 <span className="block text-white/95 mb-2">Tests that</span>
                 <span className="block relative inline-block">
-                  <span className="relative z-10 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-shimmer">write themselves</span>
+                  <span className="relative z-10 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent animate-shimmer">write themselves</span>
                   <span className="absolute -inset-x-6 -inset-y-3 bg-gradient-to-r from-purple-500/20 via-pink-500/30 to-purple-500/20 blur-3xl -z-10 animate-pulse-slow"></span>
                   <span className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-purple-400/50 to-transparent blur-sm"></span>
                 </span>
