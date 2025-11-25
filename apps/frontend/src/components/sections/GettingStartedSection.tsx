@@ -16,7 +16,7 @@ function StepCard({ icon, title, desc }: { icon: React.ReactNode; title: string;
 export default function GettingStartedSection() {
   return (
     <ScrollReveal delay={200}>
-      <section className="px-4 sm:px-6 lg:px-8">
+      <section>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 text-xs font-medium text-slate-500 mb-3">

@@ -2,7 +2,7 @@ import EmailWaitlist from "@/components/EmailWaitlist";
 
 export default function CTASection() {
   return (
-    <section className="px-4 sm:px-6 lg:px-8">
+    <section>
       <div className="max-w-7xl mx-auto">
         <div className="relative py-16 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-transparent to-pink-500/10"></div>

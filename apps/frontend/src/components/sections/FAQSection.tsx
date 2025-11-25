@@ -2,7 +2,7 @@ import FAQAccordion from "@/components/FAQAccordion";
 
 export default function FAQSection() {
   return (
-    <section className="px-4 sm:px-6 lg:px-8">
+    <section>
       <div className="max-w-7xl mx-auto">
         <div className="border border-slate-800 rounded-lg p-8 bg-slate-900/20 animate-on-scroll">
           <div className="text-center mb-10">

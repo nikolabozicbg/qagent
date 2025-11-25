@@ -12,8 +12,9 @@ import CTASection from "@/components/sections/CTASection";
 
 export default function Home() {
   return (
-    <main className="overflow-x-hidden">
-      <div className="container mx-auto max-w-[1400px] py-12 md:py-16 space-y-20 md:space-y-24">
+      <main className="pt-24 md:pt-32">
+        <div className="mx-auto max-w-[1200px] px-6 sm:px-10 lg:px-16 py-12 md:py-16 space-y-20 md:space-y-24">
+
         <HeroSection />
         <CoreValuesSection />
         <MetricsSection />

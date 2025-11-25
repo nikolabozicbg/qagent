@@ -2,7 +2,7 @@ import { CheckCircle2 } from "lucide-react";
 
 export default function VsGenericAISection() {
   return (
-    <section className="px-4 sm:px-6 lg:px-8">
+    <section>
       <div className="max-w-7xl mx-auto">
         <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-10">
           <div className="text-center mb-10">

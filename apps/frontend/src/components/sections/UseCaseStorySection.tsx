@@ -1,6 +1,6 @@
 export default function UseCaseStorySection() {
   return (
-    <section className="px-4 sm:px-6 lg:px-8">
+    <section>
       <div className="max-w-7xl mx-auto">
         <div className="relative overflow-hidden border border-slate-800 bg-slate-900/30 rounded-xl p-10">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-purple-500/5"></div>

@@ -2,7 +2,7 @@ import { Code2, Boxes, CheckCircle2, Sparkles } from "lucide-react";
 
 export default function InstallationSection() {
   return (
-    <section id="setup" className="px-4 sm:px-6 lg:px-8">
+    <section id="setup">
       <div className="max-w-7xl mx-auto">
         <div className="border border-slate-700 rounded-lg p-8 bg-slate-800/30 animate-on-scroll">
           <div className="text-center mb-10">

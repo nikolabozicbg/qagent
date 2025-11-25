@@ -3,7 +3,7 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 
 export default function BeforeAfterSection() {
   return (
-    <section className="px-4 sm:px-6 lg:px-8">
+    <section>
       <div className="max-w-7xl mx-auto">
         <ScrollReveal delay={100}>
           <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/50 border border-slate-700 rounded-xl p-8 lg:p-12">
