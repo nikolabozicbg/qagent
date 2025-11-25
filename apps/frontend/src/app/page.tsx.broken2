@@ -10,10 +10,10 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 export default function Home() {
   return (
     <main className="overflow-x-hidden">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1400px] py-12 md:py-16 space-y-20 md:space-y-24">
+      <div className="py-16 md:py-20 space-y-20 md:space-y-28">
       
       {/* HERO */}
-      <section className="relative pt-24 pb-16 px-6">
+      <section className="relative px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
           {/* Left: Content */}
@@ -352,7 +352,6 @@ export default function Home() {
             </div>
             </div>
           </div>
-        </div>
         </div>
       </section>
       
