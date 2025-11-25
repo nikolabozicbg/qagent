@@ -9,7 +9,7 @@ export default function Navbar() {
   const path = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-xl bg-black/80 border-b border-white/10">
+    <header className="sticky top-0 z-50 backdrop-blur-xl bg-black/80 border-b border-white/10 transition-all duration-300">
       <nav className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         
         {/* Logo */}
