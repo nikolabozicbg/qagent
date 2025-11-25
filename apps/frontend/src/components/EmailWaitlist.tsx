@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Mail, CheckCircle2, Users } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { Skeleton } from "@/components/Skeleton";
 
 interface EmailWaitlistProps {
   variant?: "hero" | "inline";
@@ -115,7 +116,7 @@ export default function EmailWaitlist({
   if (variant === "hero") {
     return (
       <div className="max-w-md mx-auto">
-        <div className="relative glass rounded-xl p-6 shadow-xl hover:border-purple-500/50 transition-all duration-300 card-tilt">
+        <div className="relative bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl hover:border-purple-500/50 transition-all duration-300 card-tilt">
           
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -170,7 +171,13 @@ export default function EmailWaitlist({
           </form>
           
           {/* Social proof + Progress - BELOW form */}
-          {waitlistCount !== null && waitlistCount > 10 && (
+          {waitlistCount === null ? (
+            <div className="mt-4 pt-4 border-t border-slate-700 space-y-3">
+              <div className="flex items-center justify-center gap-2">
+                <Skeleton className="h-4 w-48" />
+              </div>
+            </div>
+          ) : waitlistCount > 10 ? (
             <div className="mt-4 pt-4 border-t border-slate-700 space-y-3">
               <div className="flex items-center justify-center gap-2 text-sm">
                 <Users className="w-4 h-4 text-purple-400" />
@@ -198,7 +205,7 @@ export default function EmailWaitlist({
                 </div>
               )}
             </div>
-          )}
+          ) : null}
           
           {/* Urgency (optional - only show if count is high) */}
           {waitlistCount !== null && waitlistCount < 500 && waitlistCount > 50 && (

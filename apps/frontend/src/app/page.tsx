@@ -5,8 +5,6 @@ import { ArrowRight, Bot, Download, CheckCircle2, Globe, Code2, Zap, TestTube2, 
 import FAQAccordion from "@/components/FAQAccordion";
 import EmailWaitlist from "@/components/EmailWaitlist";
 import AnimatedCounter from "@/components/AnimatedCounter";
-import InfiniteMarquee from "@/components/InfiniteMarquee";
-import TechBadgeStack from "@/components/TechBadgeStack";
 
 export default function Home() {
   return (
@@ -118,23 +116,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
-      
-      {/* INFINITE MARQUEE */}
-      <InfiniteMarquee 
-        items={[
-          { text: "Saved 2 hours per day", author: "Tech Lead" },
-          { text: "Coverage went from 60% to 95%", author: "QA Engineer" },
-          { text: "Game changer for our team", author: "Senior Dev" },
-          { text: "Best VS Code extension", author: "Developer" },
-        ]}
-        speed={30}
-      />
-      
-      {/* TECH BADGE STACK */}
-      <section className="text-center animate-on-scroll">
-        <h3 className="text-xl font-semibold mb-6 text-slate-400">Built with modern tech</h3>
-        <TechBadgeStack />
       </section>
       
       {/* BEFORE/AFTER COMPARISON */}

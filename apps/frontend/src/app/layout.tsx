@@ -6,9 +6,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import FeedbackButton from "@/components/FeedbackButton";
 import FloatingWaitlistButton from "@/components/FloatingWaitlistButton";
-import CursorSpotlight from "@/components/CursorSpotlight";
 import ScrollProgressBar from "@/components/ScrollProgressBar";
-import SocialProofTicker from "@/components/SocialProofTicker";
 
 export const metadata: Metadata = {
   title: 'QAgenAI - AI Agent for Test Generation',
@@ -58,7 +56,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className="noise-bg">
+      <body>
         <Navbar />
         <main className="min-h-screen">
           {children}
@@ -66,9 +64,7 @@ export default function RootLayout({
         <Footer />
         <FeedbackButton />
         <FloatingWaitlistButton />
-        <CursorSpotlight />
         <ScrollProgressBar />
-        <SocialProofTicker />
         <Toaster />
       </body>
     </html>
