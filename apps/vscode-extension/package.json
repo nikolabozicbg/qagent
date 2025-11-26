@@ -1,0 +1,74 @@
+{
+  "name": "qagenai",
+  "displayName": "QAgenAI - AI Test Generation",
+  "description": "AI-powered test generation and self-healing for your code",
+  "version": "0.0.1",
+  "publisher": "qagenai",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Testing",
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:qagenai.generateTests"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "qagenai.generateTests",
+        "title": "Generate Tests with QAgenAI"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "qagenai.generateTests",
+          "group": "navigation",
+          "when": "resourceExtname =~ /\\.(ts|js|py|tsx|jsx)$/"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "qagenai.generateTests",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "QAgenAI",
+      "properties": {
+        "qagenai.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Claude API key for QAgenAI"
+        },
+        "qagenai.apiUrl": {
+          "type": "string",
+          "default": "http://localhost:3001",
+          "description": "QAgenAI backend API URL"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "typescript": "^5.3.2"
+  },
+  "dependencies": {
+    "axios": "^1.6.2"
+  }
+}
