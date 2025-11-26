@@ -7,7 +7,6 @@ import Footer from "@/components/layout/Footer";
 import FeedbackButton from "@/components/FeedbackButton";
 import FloatingWaitlistButton from "@/components/FloatingWaitlistButton";
 import ScrollProgress from "@/components/ui/ScrollProgress";
-
 export const metadata: Metadata = {
   title: 'QAgenAI - AI Agent for Test Generation',
   description: 'Generate tests 10x faster with AI. Coverage gap detection, self-healing tests. Available as VS Code Extension or MCP Server.',
