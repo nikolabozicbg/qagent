@@ -22,9 +22,9 @@ export default function HeroSection() {
                 <div className="text-[10px] font-bold text-purple-400/90 tracking-[0.25em] uppercase">Automated Testing</div>
               </div>
               <h1 className="text-[56px] md:text-[72px] font-bold leading-[0.95] tracking-[-0.02em]">
-                <span className="block text-white/95 mb-2">Tests that</span>
+                <span className="block text-white/95 mb-2">Stop writing tests.</span>
                 <span className="block relative inline-block">
-                  <span className="relative z-10 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent animate-shimmer">write themselves</span>
+                  <span className="relative z-10 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent animate-shimmer">Start shipping.</span>
                   <span className="absolute -inset-x-6 -inset-y-3 bg-gradient-to-r from-purple-500/20 via-pink-500/30 to-purple-500/20 blur-3xl -z-10 animate-pulse-slow"></span>
                   <span className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-purple-400/50 to-transparent blur-sm"></span>
                 </span>
@@ -32,7 +32,7 @@ export default function HeroSection() {
             </div>
             
             <p className="text-[18px] text-slate-400/90 leading-[1.7] max-w-[560px] mb-10 font-light">
-              Your AI testing copilot. <span className="text-slate-300">Watches code</span>, detects gaps, generates tests, and <span className="text-slate-300">auto-heals on refactor</span>. Ship with confidence, every time.
+              AI that <span className="text-slate-300 font-medium">generates</span>, <span className="text-slate-300 font-medium">maintains</span>, and <span className="text-slate-300 font-medium">auto-heals</span> your entire test suite. <span className="text-emerald-400/90 font-semibold">Complete coverage</span>. <span className="text-purple-400/90 font-semibold">Zero maintenance</span>.
             </p>
             
             <div className="flex flex-wrap gap-3 mb-10">
