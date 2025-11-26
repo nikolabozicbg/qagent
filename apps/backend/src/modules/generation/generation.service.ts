@@ -440,22 +440,31 @@ Response 401:
 
     const framework = frameworkMap[language.toLowerCase()] || 'appropriate testing framework';
 
-    return `Generate comprehensive unit tests for the following ${language} code from file "${fileName}".
+    return `You are an expert test engineer. Generate comprehensive unit tests for the following ${language} code.
 
-USE ${framework} framework.
+SOURCE FILE: ${fileName}
 
-CODE:
+SOURCE CODE:
 \`\`\`${language}
 ${code}
 \`\`\`
 
-GENERATE:
-- Unit tests covering all functions/methods
-- Edge cases and boundary conditions
-- Error handling scenarios
-- Mock external dependencies if needed
+REQUIREMENTS:
+1. Analyze the ACTUAL code structure (classes, functions, exports)
+2. Use ${framework} framework with correct syntax
+3. Import from the correct file path (use ./ for relative imports)
+4. Test ONLY the functions/methods that exist in the code
+5. Include edge cases, error handling, and boundary conditions
+6. Mock external dependencies (DB, API calls, file system)
+7. Use proper TypeScript types if applicable
 
-OUTPUT ONLY the complete test file code, no explanations or markdown.`;
+IMPORTANT:
+- Base imports on the ACTUAL exports from the source code
+- Do NOT assume methods that don't exist
+- Match the actual function signatures
+- Use realistic test data based on the code logic
+
+OUTPUT ONLY the complete test file code, no markdown code fences, no explanations.`;
   }
 
   private getMockTests(language: string): string {
