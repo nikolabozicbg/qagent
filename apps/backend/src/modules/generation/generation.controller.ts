@@ -31,4 +31,18 @@ export class GenerationController {
   }) {
     return this.generation.generateTestsFromCode(body);
   }
+
+  // Chat endpoint for conversational test generation
+  @Post('chat')
+  async chat(@Body() body: {
+    message: string;
+    context?: {
+      code?: string;
+      fileName?: string;
+      language?: string;
+    };
+    history?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  }) {
+    return this.generation.chatWithAI(body);
+  }
 }

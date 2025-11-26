@@ -12,7 +12,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:qagenai.generateTests"
+    "onCommand:qagenai.generateTests",
+    "onView:qagenai.chatView"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -20,6 +21,10 @@
       {
         "command": "qagenai.generateTests",
         "title": "Generate Tests with QAgenAI"
+      },
+      {
+        "command": "qagenai.openChat",
+        "title": "Open QAgenAI Chat"
       }
     ],
     "menus": {
@@ -34,6 +39,24 @@
         {
           "command": "qagenai.generateTests",
           "group": "navigation"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "qagenai",
+          "title": "QAgenAI",
+          "icon": "$(beaker)"
+        }
+      ]
+    },
+    "views": {
+      "qagenai": [
+        {
+          "type": "webview",
+          "id": "qagenai.chatView",
+          "name": "Chat"
         }
       ]
     },

@@ -481,6 +481,101 @@ OUTPUT ONLY the complete test file code, no markdown code fences, no explanation
     return code.trim();
   }
 
+  // Chat method for conversational interaction
+  async chatWithAI({ message, context, history = [] }: {
+    message: string;
+    context?: { code?: string; fileName?: string; language?: string };
+    history?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  }) {
+    console.log(`💬 Chat request received: "${message.substring(0, 100)}..."`);
+    if (context?.fileName) console.log(`📄 Context: ${context.fileName}`);
+    
+    const apiKey = this.configService.get<string>('openai.apiKey');
+    const hasValidKey = apiKey && apiKey !== 'sk-your-api-key-here';
+    
+    if (!hasValidKey) {
+      console.log(`⚠️  Using mock mode (no valid OpenAI API key)`);
+      return {
+        reply: "I'm a test assistant. To enable full AI capabilities, please configure your OpenAI API key in the backend .env file.",
+        _meta: { mode: 'mock', reason: 'no_api_key' }
+      };
+    }
+    
+    const model = this.configService.get<string>('openai.model') || 'gpt-3.5-turbo';
+    console.log(`🔑 Using OpenAI API (${model})`);
+    const startTime = Date.now();
+
+    // Build system prompt with context awareness
+    let systemPrompt = `You are QAgenAI, an expert test generation assistant embedded in VS Code. You help developers write better tests through conversational interaction.
+
+Key capabilities:
+- Generate comprehensive unit tests for any code
+- Explain test strategies and best practices
+- Suggest edge cases and boundary conditions
+- Help debug failing tests
+- Recommend testing frameworks and patterns
+
+IMPORTANT FORMATTING RULES:
+- Always wrap code in markdown code blocks with language identifier
+- Use \`\`\`typescript for TypeScript code
+- Use \`\`\`javascript for JavaScript code
+- Use \`\`\`python for Python code
+- Include the complete, ready-to-use code
+- Be concise but always format code properly
+
+Example:
+\`\`\`typescript
+// Your code here
+\`\`\`
+
+Be concise, practical, and code-focused.`;
+
+    if (context?.code) {
+      systemPrompt += `\n\nCurrent context:\nFile: ${context.fileName}\nLanguage: ${context.language}\n\nSource code:\n\`\`\`${context.language}\n${context.code}\n\`\`\``;
+    }
+
+    // Build messages array with history
+    const messages: any[] = [
+      { role: 'system', content: systemPrompt },
+      ...history,
+      { role: 'user', content: message }
+    ];
+
+    try {
+      const response = await this.client.chat.completions.create({
+        model: model,
+        messages,
+        temperature: 0.7,
+        max_tokens: 1500,
+      });
+
+      const elapsed = Date.now() - startTime;
+      console.log(`✅ Chat completed in ${(elapsed / 1000).toFixed(2)}s`);
+      console.log(`📊 Tokens used: ${response.usage?.total_tokens || 'N/A'}`);
+
+      const reply = response.choices[0].message.content.trim();
+
+      return {
+        reply,
+        _meta: {
+          mode: 'openai',
+          model: model,
+          duration: elapsed / 1000,
+          tokens: response.usage?.total_tokens || 0
+        }
+      };
+    } catch (error) {
+      console.error('❌ OpenAI API error:', error.message);
+      return {
+        reply: `Sorry, I encountered an error: ${error.message}. Please try again.`,
+        _meta: {
+          mode: 'error',
+          error: error.message
+        }
+      };
+    }
+  }
+
   private getMockTests(language: string): string {
     const mockTemplates = {
       'typescript': `import { describe, it, expect } from '@jest/globals';
