@@ -1,9 +1,6 @@
 import HeroSection from "@/components/sections/HeroSection";
 import CoreValuesSection from "@/components/sections/CoreValuesSection";
 import MetricsSection from "@/components/sections/MetricsSection";
-import BeforeAfterSection from "@/components/sections/BeforeAfterSection";
-import VsGenericAISection from "@/components/sections/VsGenericAISection";
-import UseCaseStorySection from "@/components/sections/UseCaseStorySection";
 import GettingStartedSection from "@/components/sections/GettingStartedSection";
 import InstallationSection from "@/components/sections/InstallationSection";
 import CapabilitiesSection from "@/components/sections/CapabilitiesSection";
@@ -16,11 +13,8 @@ export default function Home() {
         <div className="mx-auto max-w-[1200px] px-6 sm:px-10 lg:px-16 py-12 md:py-16 space-y-20 md:space-y-24">
 
         <HeroSection />
-        <CoreValuesSection />
         <MetricsSection />
-        <BeforeAfterSection />
-        <VsGenericAISection />
-        <UseCaseStorySection />
+        <CoreValuesSection />
         <GettingStartedSection />
         <InstallationSection />
         <CapabilitiesSection />
