@@ -138,7 +138,10 @@ export class GenerationService {
       console.log(`✅ Test generation completed in ${(elapsed / 1000).toFixed(2)}s`);
       console.log(`📊 Tokens used: ${response.usage?.total_tokens || 'N/A'}`);
 
-      const generatedTests = response.choices[0].message.content.trim();
+      let generatedTests = response.choices[0].message.content.trim();
+      
+      // Strip markdown code fences if present
+      generatedTests = this.stripMarkdownFences(generatedTests);
       
       return {
         tests: generatedTests,
@@ -465,6 +468,17 @@ IMPORTANT:
 - Use realistic test data based on the code logic
 
 OUTPUT ONLY the complete test file code, no markdown code fences, no explanations.`;
+  }
+
+  // Strip markdown code fences from generated code
+  private stripMarkdownFences(code: string): string {
+    // Remove ```language at the start
+    code = code.replace(/^```\w*\n/, '');
+    // Remove ``` at the end
+    code = code.replace(/\n```$/, '');
+    // Remove ``` at the end without newline
+    code = code.replace(/```$/, '');
+    return code.trim();
   }
 
   private getMockTests(language: string): string {
