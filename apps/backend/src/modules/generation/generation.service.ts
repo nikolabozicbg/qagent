@@ -91,6 +91,78 @@ export class GenerationService {
     }
   }
 
+  // New method for VS Code extension: generate tests from code
+  async generateTestsFromCode({ code, fileName, language }: { code: string; fileName: string; language: string }) {
+    console.log(`🧪 Test generation request for ${fileName} (${language})`);
+    console.log(`📝 Code length: ${code.length} characters`);
+    
+    const apiKey = this.configService.get<string>('openai.apiKey');
+    const hasValidKey = apiKey && apiKey !== 'sk-your-api-key-here';
+    
+    // If no API key, return mock
+    if (!hasValidKey) {
+      console.log(`⚠️  Using mock mode (no valid OpenAI API key)`);
+      return {
+        tests: this.getMockTests(language),
+        _meta: {
+          mode: 'mock',
+          reason: 'no_api_key'
+        }
+      };
+    }
+    
+    const model = this.configService.get<string>('openai.model') || 'gpt-3.5-turbo';
+    console.log(`🔑 Using OpenAI API (${model})`);
+    const startTime = Date.now();
+
+    const prompt = this.buildTestGenerationPrompt(code, fileName, language);
+
+    try {
+      const response = await this.client.chat.completions.create({
+        model: model,
+        messages: [
+          {
+            role: 'system',
+            content: `You are QAgenAI, an expert test generation assistant. Generate comprehensive unit tests for the provided code. Output ONLY the test code, no explanations.`,
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 2000,
+      });
+
+      const elapsed = Date.now() - startTime;
+      console.log(`✅ Test generation completed in ${(elapsed / 1000).toFixed(2)}s`);
+      console.log(`📊 Tokens used: ${response.usage?.total_tokens || 'N/A'}`);
+
+      const generatedTests = response.choices[0].message.content.trim();
+      
+      return {
+        tests: generatedTests,
+        _meta: {
+          mode: 'openai',
+          model: model,
+          duration: elapsed / 1000,
+          tokens: response.usage?.total_tokens || 0
+        }
+      };
+    } catch (error) {
+      console.error('❌ OpenAI API error:', error.message);
+      console.log('⚠️  Falling back to mock mode');
+      return {
+        tests: this.getMockTests(language),
+        _meta: {
+          mode: 'mock',
+          reason: 'openai_error',
+          error: error.message
+        }
+      };
+    }
+  }
+
   async refineOutput({ existingOutput, refinementPrompt }) {
     console.log(`🔄 Refine request received`);
     console.log(`💬 Prompt: "${refinementPrompt.substring(0, 100)}..."`);
@@ -351,5 +423,98 @@ Response 401:
         { platform: 'Firefox', status: '✔ Supported', notes: 'Recommended' },
       ],
     };
+  }
+
+  // Helper for VS Code extension
+  private buildTestGenerationPrompt(code: string, fileName: string, language: string): string {
+    const frameworkMap = {
+      'typescript': 'Jest',
+      'javascript': 'Jest',
+      'python': 'pytest',
+      'go': 'Go testing package',
+      'java': 'JUnit 5',
+      'ruby': 'RSpec',
+      'php': 'PHPUnit',
+      'csharp': 'xUnit',
+    };
+
+    const framework = frameworkMap[language.toLowerCase()] || 'appropriate testing framework';
+
+    return `Generate comprehensive unit tests for the following ${language} code from file "${fileName}".
+
+USE ${framework} framework.
+
+CODE:
+\`\`\`${language}
+${code}
+\`\`\`
+
+GENERATE:
+- Unit tests covering all functions/methods
+- Edge cases and boundary conditions
+- Error handling scenarios
+- Mock external dependencies if needed
+
+OUTPUT ONLY the complete test file code, no explanations or markdown.`;
+  }
+
+  private getMockTests(language: string): string {
+    const mockTemplates = {
+      'typescript': `import { describe, it, expect } from '@jest/globals';
+import { add, multiply } from './calculator';
+
+describe('Calculator', () => {
+  describe('add', () => {
+    it('should add two positive numbers', () => {
+      expect(add(2, 3)).toBe(5);
+    });
+
+    it('should add negative numbers', () => {
+      expect(add(-1, -1)).toBe(-2);
+    });
+
+    it('should handle zero', () => {
+      expect(add(0, 5)).toBe(5);
+    });
+  });
+
+  describe('multiply', () => {
+    it('should multiply two numbers', () => {
+      expect(multiply(3, 4)).toBe(12);
+    });
+
+    it('should handle zero', () => {
+      expect(multiply(5, 0)).toBe(0);
+    });
+  });
+});`,
+      'javascript': `const { describe, it, expect } = require('@jest/globals');
+const { add, multiply } = require('./calculator');
+
+describe('Calculator', () => {
+  describe('add', () => {
+    it('should add two positive numbers', () => {
+      expect(add(2, 3)).toBe(5);
+    });
+  });
+});`,
+      'python': `import pytest
+from calculator import add, multiply
+
+class TestCalculator:
+    def test_add_positive_numbers(self):
+        assert add(2, 3) == 5
+    
+    def test_add_negative_numbers(self):
+        assert add(-1, -1) == -2
+    
+    def test_multiply(self):
+        assert multiply(3, 4) == 12
+    
+    def test_multiply_by_zero(self):
+        assert multiply(5, 0) == 0`,
+    };
+
+    return mockTemplates[language.toLowerCase()] || mockTemplates['typescript'];
   }
 }

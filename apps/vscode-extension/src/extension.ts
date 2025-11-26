@@ -31,24 +31,17 @@ export function activate(context: vscode.ExtensionContext) {
 
                 // Get configuration
                 const config = vscode.workspace.getConfiguration('qagenai');
-                const apiKey = config.get<string>('apiKey');
                 const apiUrl = config.get<string>('apiUrl') || 'http://localhost:3001';
-
-                if (!apiKey) {
-                    vscode.window.showErrorMessage('Please set your Claude API key in settings');
-                    return;
-                }
 
                 progress.report({ increment: 30, message: 'Calling AI...' });
 
                 // Call backend API
-                const response = await axios.post(`${apiUrl}/api/generate-tests`, {
+                const response = await axios.post(`${apiUrl}/generate/tests`, {
                     code: fileContent,
                     fileName: fileName,
                     language: detectLanguage(fileExtension)
                 }, {
                     headers: {
-                        'Authorization': `Bearer ${apiKey}`,
                         'Content-Type': 'application/json'
                     },
                     timeout: 60000 // 60 seconds

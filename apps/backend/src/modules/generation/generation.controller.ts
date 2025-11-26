@@ -21,4 +21,14 @@ export class GenerationController {
   }) {
     return this.generation.refineOutput(body);
   }
+
+  // New endpoint for VS Code extension
+  @Post('tests')
+  async generateTests(@Body() body: {
+    code: string;
+    fileName: string;
+    language: string;
+  }) {
+    return this.generation.generateTestsFromCode(body);
+  }
 }
