@@ -9,6 +9,8 @@ import { UsersModule } from './modules/users/users.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { GenerationModule } from './modules/generation/generation.module';
 import { SystemModule } from './modules/system/system.module';
+import { AnalysisModule } from './modules/analysis/analysis.module';
+import { TestExecutionModule } from './modules/test-execution/test-execution.module';
 import { RateLimitMiddleware } from './middleware/rate-limit.middleware';
 
 @Module({
@@ -22,6 +24,8 @@ import { RateLimitMiddleware } from './middleware/rate-limit.middleware';
     UploadModule,
     GenerationModule,
     SystemModule,
+    AnalysisModule,
+    TestExecutionModule,
   ],
 })
 export class AppModule implements NestModule {

@@ -1,21 +1,38 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
+import { AgentService } from './agent.service';
+import { TestEnforcementService } from './test-enforcement.service';
+import { AIProviderService } from '../../services/ai-provider.service';
 
 @Injectable()
 export class GenerationService {
   private client: OpenAI;
 
-  constructor(private configService: ConfigService) {
-    const apiKey = this.configService.get<string>('openai.apiKey');
-    
-    if (!apiKey) {
-      console.warn('⚠️  OPENAI_API_KEY not set. Using mock responses.');
+  constructor(
+    private configService: ConfigService,
+    private agentService: AgentService,
+    private enforcementService: TestEnforcementService,
+    private aiProvider: AIProviderService
+  ) {
+    // Log which AI provider is being used
+    const providerInfo = this.aiProvider.getProviderInfo();
+    console.log(`🤖 AI Provider: ${providerInfo.provider} (${providerInfo.model})`);
+  }
+
+  private getClient(): OpenAI {
+    if (!this.client) {
+      const apiKey = this.configService.get<string>('openai.apiKey');
+      
+      if (!apiKey) {
+        console.warn('⚠️  OPENAI_API_KEY not set. Using mock responses.');
+      }
+      
+      this.client = new OpenAI({
+        apiKey: apiKey || 'sk-mock',
+      });
     }
-    
-    this.client = new OpenAI({
-      apiKey: apiKey || 'sk-mock',
-    });
+    return this.client;
   }
 
   async generateSuite({ input, url = '', outputTypes = [] }: { input: string; url?: string; outputTypes?: string[] }) {
@@ -46,7 +63,8 @@ export class GenerationService {
     const prompt = this.buildPrompt(input, url, outputTypes);
 
     try {
-      const response = await this.client.chat.completions.create({
+      const client = this.getClient();
+      const response = await client.chat.completions.create({
         model: model,
         messages: [
           {
@@ -92,16 +110,14 @@ export class GenerationService {
   }
 
   // New method for VS Code extension: generate tests from code
+  // Now supports both OpenAI and Claude via AIProviderService
   async generateTestsFromCode({ code, fileName, language }: { code: string; fileName: string; language: string }) {
     console.log(`🧪 Test generation request for ${fileName} (${language})`);
     console.log(`📝 Code length: ${code.length} characters`);
     
-    const apiKey = this.configService.get<string>('openai.apiKey');
-    const hasValidKey = apiKey && apiKey !== 'sk-your-api-key-here';
-    
-    // If no API key, return mock
-    if (!hasValidKey) {
-      console.log(`⚠️  Using mock mode (no valid OpenAI API key)`);
+    // Check if AI provider is configured
+    if (!this.aiProvider.isConfigured()) {
+      console.log(`⚠️  Using mock mode (no AI provider configured)`);
       return {
         tests: this.getMockTests(language),
         _meta: {
@@ -111,15 +127,15 @@ export class GenerationService {
       };
     }
     
-    const model = this.configService.get<string>('openai.model') || 'gpt-3.5-turbo';
-    console.log(`🔑 Using OpenAI API (${model})`);
+    const providerInfo = this.aiProvider.getProviderInfo();
+    console.log(`🔑 Using ${providerInfo.provider} (${providerInfo.model})`);
     const startTime = Date.now();
 
     const prompt = this.buildTestGenerationPrompt(code, fileName, language);
 
     try {
-      const response = await this.client.chat.completions.create({
-        model: model,
+      // Use unified AI provider instead of direct OpenAI call
+      const response = await this.aiProvider.createCompletion({
         messages: [
           {
             role: 'system',
@@ -131,35 +147,56 @@ export class GenerationService {
           },
         ],
         temperature: 0.7,
-        max_tokens: 2000,
+        maxTokens: 4000,
       });
 
       const elapsed = Date.now() - startTime;
       console.log(`✅ Test generation completed in ${(elapsed / 1000).toFixed(2)}s`);
-      console.log(`📊 Tokens used: ${response.usage?.total_tokens || 'N/A'}`);
+      console.log(`📊 Tokens used: ${response.usage.totalTokens}`);
 
-      let generatedTests = response.choices[0].message.content.trim();
+      let generatedTests = response.content.trim();
       
       // Strip markdown code fences if present
       generatedTests = this.stripMarkdownFences(generatedTests);
       
+      // ENFORCEMENT LAYER: Auto-correct generated tests based on detected framework
+      const framework = this.detectFrameworkFromFileName(fileName, language);
+      if (framework) {
+        console.log(`🛡️  Applying enforcement for ${framework}...`);
+        const enforcement = this.enforcementService.enforce(
+          generatedTests,
+          framework,
+          fileName
+        );
+        
+        if (enforcement.enforcementApplied) {
+          console.log(`⚠️  ENFORCEMENT APPLIED:`, enforcement.violations);
+          console.log(`   Original preview (first 150 chars):`, generatedTests.substring(0, 150));
+          console.log(`   Corrected preview (first 150 chars):`, enforcement.correctedCode.substring(0, 150));
+          generatedTests = enforcement.correctedCode;
+        } else {
+          console.log(`✅ Generated code already valid for ${framework}`);
+        }
+      }
+      
       return {
         tests: generatedTests,
         _meta: {
-          mode: 'openai',
-          model: model,
+          mode: response.provider,
+          model: response.model,
           duration: elapsed / 1000,
-          tokens: response.usage?.total_tokens || 0
+          tokens: response.usage.totalTokens,
+          enforcementApplied: framework ? true : false
         }
       };
     } catch (error) {
-      console.error('❌ OpenAI API error:', error.message);
+      console.error('❌ AI API error:', error.message);
       console.log('⚠️  Falling back to mock mode');
       return {
         tests: this.getMockTests(language),
         _meta: {
           mode: 'mock',
-          reason: 'openai_error',
+          reason: 'api_error',
           error: error.message
         }
       };
@@ -183,7 +220,8 @@ export class GenerationService {
     const startTime = Date.now();
 
     try {
-      const response = await this.client.chat.completions.create({
+      const client = this.getClient();
+      const response = await client.chat.completions.create({
         model: model,
         messages: [
           {
@@ -490,90 +528,41 @@ OUTPUT ONLY the complete test file code, no markdown code fences, no explanation
     console.log(`💬 Chat request received: "${message.substring(0, 100)}..."`);
     if (context?.fileName) console.log(`📄 Context: ${context.fileName}`);
     
-    const apiKey = this.configService.get<string>('openai.apiKey');
-    const hasValidKey = apiKey && apiKey !== 'sk-your-api-key-here';
+    // USE AGENT SYSTEM instead of old chat
+    console.log(`🔄 Routing to agent system...`);
     
-    if (!hasValidKey) {
-      console.log(`⚠️  Using mock mode (no valid OpenAI API key)`);
+    const agentResult = await this.agentService.executeAgentLoop({
+      userQuery: message,
+      context: {
+        currentFile: context?.fileName,
+        code: context?.code,
+        language: context?.language
+      },
+      maxIterations: 10
+    });
+    
+    // Convert agent response to chat format for backward compatibility
+    if (!agentResult.success && agentResult.error) {
       return {
-        reply: "I'm a test assistant. To enable full AI capabilities, please configure your OpenAI API key in the backend .env file.",
-        _meta: { mode: 'mock', reason: 'no_api_key' }
+        reply: `Error: ${agentResult.error}`,
+        _meta: { mode: 'error', error: agentResult.error }
       };
     }
     
-    const model = this.configService.get<string>('openai.model') || 'gpt-3.5-turbo';
-    console.log(`🔑 Using OpenAI API (${model})`);
-    const startTime = Date.now();
-
-    // Build system prompt with context awareness
-    let systemPrompt = `You are QAgenAI, an expert test generation assistant embedded in VS Code. You help developers write better tests through conversational interaction.
-
-Key capabilities:
-- Generate comprehensive unit tests for any code
-- Explain test strategies and best practices
-- Suggest edge cases and boundary conditions
-- Help debug failing tests
-- Recommend testing frameworks and patterns
-
-IMPORTANT FORMATTING RULES:
-- Always wrap code in markdown code blocks with language identifier
-- Use \`\`\`typescript for TypeScript code
-- Use \`\`\`javascript for JavaScript code
-- Use \`\`\`python for Python code
-- Include the complete, ready-to-use code
-- Be concise but always format code properly
-
-Example:
-\`\`\`typescript
-// Your code here
-\`\`\`
-
-Be concise, practical, and code-focused.`;
-
-    if (context?.code) {
-      systemPrompt += `\n\nCurrent context:\nFile: ${context.fileName}\nLanguage: ${context.language}\n\nSource code:\n\`\`\`${context.language}\n${context.code}\n\`\`\``;
-    }
-
-    // Build messages array with history
-    const messages: any[] = [
-      { role: 'system', content: systemPrompt },
-      ...history,
-      { role: 'user', content: message }
-    ];
-
-    try {
-      const response = await this.client.chat.completions.create({
-        model: model,
-        messages,
-        temperature: 0.7,
-        max_tokens: 1500,
-      });
-
-      const elapsed = Date.now() - startTime;
-      console.log(`✅ Chat completed in ${(elapsed / 1000).toFixed(2)}s`);
-      console.log(`📊 Tokens used: ${response.usage?.total_tokens || 'N/A'}`);
-
-      const reply = response.choices[0].message.content.trim();
-
-      return {
-        reply,
-        _meta: {
-          mode: 'openai',
-          model: model,
-          duration: elapsed / 1000,
-          tokens: response.usage?.total_tokens || 0
-        }
-      };
-    } catch (error) {
-      console.error('❌ OpenAI API error:', error.message);
-      return {
-        reply: `Sorry, I encountered an error: ${error.message}. Please try again.`,
-        _meta: {
-          mode: 'error',
-          error: error.message
-        }
-      };
-    }
+    // Extract reply from agent messages
+    const lastAssistantMsg = agentResult.messages
+      ?.filter((m: any) => m.role === 'assistant')
+      ?.pop();
+    
+    return {
+      reply: lastAssistantMsg?.content || 'Task completed',
+      actions: agentResult.actions,
+      _meta: {
+        mode: 'agent',
+        iterations: agentResult.iterations,
+        success: agentResult.success
+      }
+    };
   }
 
   private getMockTests(language: string): string {
@@ -634,5 +623,91 @@ class TestCalculator:
     };
 
     return mockTemplates[language.toLowerCase()] || mockTemplates['typescript'];
+  }
+  
+  // Agent execution method
+  async executeAgent({ query, context, maxIterations }: {
+    query: string;
+    context?: any;
+    maxIterations?: number;
+  }) {
+    console.log(`🤖 Executing agent for: "${query}"`);
+    
+    const result = await this.agentService.executeAgentLoop({
+      userQuery: query,
+      context,
+      maxIterations
+    });
+    
+    return result;
+  }
+
+  /**
+   * Detect framework from file name and language
+   * Used by enforcement layer to determine which rules to apply
+   */
+  private detectFrameworkFromFileName(fileName: string, language: string): string | null {
+    const lowerFileName = fileName.toLowerCase();
+    const lowerLanguage = language.toLowerCase();
+    
+    // Detect E2E tests from Next.js App Router patterns
+    // Next.js App Router files: page.tsx, layout.tsx, template.tsx, error.tsx in /app/ directory
+    const isNextAppRouterFile = (
+      lowerFileName.includes('/app/') && (
+        lowerFileName.endsWith('page.tsx') || 
+        lowerFileName.endsWith('page.ts') ||
+        lowerFileName.endsWith('page.jsx') ||
+        lowerFileName.endsWith('page.js') ||
+        lowerFileName.endsWith('layout.tsx') ||
+        lowerFileName.endsWith('layout.ts') ||
+        lowerFileName.endsWith('layout.jsx') ||
+        lowerFileName.endsWith('layout.js') ||
+        lowerFileName.endsWith('template.tsx') ||
+        lowerFileName.endsWith('error.tsx')
+      )
+    );
+    
+    // Detect E2E tests from other page patterns
+    const isPageFile = (
+      lowerFileName.includes('page.') || 
+      lowerFileName.includes('/pages/') ||
+      lowerFileName.includes('route.tsx') || // Next.js API routes
+      isNextAppRouterFile
+    );
+    
+    if (isPageFile) {
+      // Page/Layout/Template files should use E2E framework
+      if (lowerLanguage === 'typescript' || lowerLanguage === 'javascript') {
+        return 'playwright';
+      }
+    }
+    
+    // Detect from file extension patterns
+    if (lowerFileName.includes('.spec.')) {
+      // .spec. typically means E2E (Playwright) or component tests (Vitest)
+      if (lowerLanguage === 'typescript' || lowerLanguage === 'javascript') {
+        return 'playwright'; // Assume Playwright for .spec files
+      }
+    }
+    
+    if (lowerFileName.includes('.test.')) {
+      // .test. typically means unit tests
+      if (lowerLanguage === 'typescript' || lowerLanguage === 'javascript') {
+        return 'jest';
+      }
+    }
+    
+    // Language-specific defaults
+    if (lowerLanguage === 'python') return 'pytest';
+    if (lowerLanguage === 'go') return 'go_testing';
+    if (lowerLanguage === 'java') return 'junit';
+    if (lowerLanguage === 'csharp') return 'xunit';
+    
+    // Default for JS/TS: Jest
+    if (lowerLanguage === 'typescript' || lowerLanguage === 'javascript') {
+      return 'jest';
+    }
+    
+    return null;
   }
 }

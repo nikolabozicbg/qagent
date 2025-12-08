@@ -1,703 +1,672 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
-import axios from 'axios';
+import { CoverageTreeProvider } from './coverageTreeProvider';
+import { CoverageWebviewProvider } from './webviews/coverage.webview';
+import { ChatPanelProvider } from './providers/chat-panel.provider';
+import { CoverageCodeLensProvider, TestCodeLensProvider } from './providers';
+import { registerTestCodeLensCommands } from './commands/testCodeLens.commands';
+import { StatusBarService } from './services/statusBar.service';
+import { TestQualityAnalyzerService, TestQualityReport } from './services/test-quality-analyzer.service';
+import { registerCommands } from './commands';
+import { AppLauncherService } from './services/app-launcher.service';
+import { RouteCrawlerService } from './services/route-crawler.service';
+import { UserFlowGeneratorService } from './services/user-flow-generator.service';
+import { OpenAPIParserService } from './services/openapi-parser.service';
+import { TestPreviewWebviewProvider, PreviewAction } from './webviews/test-preview.webview';
+import { FlowStateService } from './services/flow-state.service';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('QAgenAI extension is now active!');
 
-    // Chat panel provider
-    const chatProvider = new ChatPanelProvider(context.extensionUri);
-
-    // Register chat panel view
-    context.subscriptions.push(
-        vscode.window.registerWebviewViewProvider('qagenai.chatView', chatProvider)
-    );
-
-    // Command to open chat
-    let chatCommand = vscode.commands.registerCommand('qagenai.openChat', () => {
-        vscode.commands.executeCommand('qagenai.chatView.focus');
+    // Coverage TreeView provider (kept for backwards compatibility and data source)
+    const coverageProvider = new CoverageTreeProvider();
+    
+    // Coverage WebView provider (modern UI)
+    const coverageWebviewProvider = new CoverageWebviewProvider(context.extensionUri);
+    
+    // Test Quality Analyzer service
+    const testQualityAnalyzer = new TestQualityAnalyzerService();
+    let lastQualityReport: TestQualityReport | undefined;
+    
+    // Dynamic Analysis services
+    const appLauncher = new AppLauncherService();
+    const routeCrawler = new RouteCrawlerService();
+    const flowGenerator = new UserFlowGeneratorService();
+    const openApiParser = new OpenAPIParserService();
+    const testPreviewProvider = new TestPreviewWebviewProvider(context.extensionUri);
+    const flowStateService = new FlowStateService(context);
+    
+    // Store last flow analysis globally for generate commands
+    let lastFlowAnalysis: any = null;
+    
+    // Subscribe to app status changes
+    appLauncher.onStatusChange((status) => {
+        coverageWebviewProvider.updateAppStatus(status);
     });
-
-    context.subscriptions.push(chatCommand);
-
-    let disposable = vscode.commands.registerCommand('qagenai.generateTests', async (uri: vscode.Uri) => {
-        try {
-            // Get the file path
-            const filePath = uri?.fsPath || vscode.window.activeTextEditor?.document.uri.fsPath;
-            
-            if (!filePath) {
-                vscode.window.showErrorMessage('No file selected');
+    
+    // Register coverage webview
+    context.subscriptions.push(
+        vscode.window.registerWebviewViewProvider(
+            CoverageWebviewProvider.viewType,
+            coverageWebviewProvider
+        )
+    );
+    
+    // Connect coverage provider data to webview
+    coverageProvider.onDidChangeData((stacks) => {
+        coverageWebviewProvider.updateData(stacks, lastQualityReport);
+    });
+    
+    // When webview becomes visible, sync existing data
+    const syncExistingData = () => {
+        const stacks = coverageProvider.getStacks();
+        if (stacks.length > 0) {
+            coverageWebviewProvider.updateData(stacks, lastQualityReport);
+        }
+    };
+    // Call sync after a short delay to allow webview to initialize
+    setTimeout(syncExistingData, 3000);
+    
+    // Register Test Quality commands
+    context.subscriptions.push(
+        vscode.commands.registerCommand('qagenai.analyzeTestQuality', async () => {
+            const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+            if (!workspaceFolder) {
+                vscode.window.showWarningMessage('No workspace folder open');
                 return;
             }
-
-            // Read file content
-            const fileContent = fs.readFileSync(filePath, 'utf-8');
-            const fileName = path.basename(filePath);
-            const fileExtension = path.extname(filePath);
-
-            // Show progress
-            await vscode.window.withProgress({
-                location: vscode.ProgressLocation.Notification,
-                title: 'QAgenAI: Generating tests...',
-                cancellable: false
-            }, async (progress) => {
-                progress.report({ increment: 0, message: 'Analyzing code...' });
-
-                // Get configuration
-                const config = vscode.workspace.getConfiguration('qagenai');
-                const apiUrl = config.get<string>('apiUrl') || 'http://localhost:3001';
-
-                progress.report({ increment: 30, message: 'Calling AI...' });
-
-                // Call backend API
-                const response = await axios.post(`${apiUrl}/generate/tests`, {
-                    code: fileContent,
-                    fileName: fileName,
-                    language: detectLanguage(fileExtension)
-                }, {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    timeout: 60000 // 60 seconds
-                });
-
-                progress.report({ increment: 60, message: 'Creating test file...' });
-
-                const generatedTests = response.data.tests;
-
-                // Determine test file name
-                const testFileName = getTestFileName(fileName, fileExtension);
-                const testFilePath = path.join(path.dirname(filePath), testFileName);
-
-                // Write test file
-                fs.writeFileSync(testFilePath, generatedTests, 'utf-8');
-
-                progress.report({ increment: 100, message: 'Done!' });
-
-                // Open the test file
-                const doc = await vscode.workspace.openTextDocument(testFilePath);
-                await vscode.window.showTextDocument(doc);
-
-                vscode.window.showInformationMessage(`✅ Tests generated: ${testFileName}`);
+            
+            vscode.window.withProgress(
+                {
+                    location: vscode.ProgressLocation.Notification,
+                    title: 'Analyzing test quality...',
+                    cancellable: false
+                },
+                async () => {
+                    try {
+                        lastQualityReport = await testQualityAnalyzer.analyzeWorkspace(workspaceFolder.uri.fsPath);
+                        coverageWebviewProvider.updateQualityReport(lastQualityReport);
+                        
+                        const scoreEmoji = lastQualityReport.overallScore >= 80 ? '🟢' : 
+                                          lastQualityReport.overallScore >= 60 ? '🟡' : '🔴';
+                        vscode.window.showInformationMessage(
+                            `Test Quality: ${lastQualityReport.overallScore}% ${scoreEmoji} | ` +
+                            `${lastQualityReport.totalTests} tests analyzed`
+                        );
+                    } catch (error) {
+                        vscode.window.showErrorMessage(`Failed to analyze test quality: ${error}`);
+                    }
+                }
+            );
+        })
+    );
+    
+    context.subscriptions.push(
+        vscode.commands.registerCommand('qagenai.showQualityReport', async () => {
+            if (!lastQualityReport) {
+                vscode.window.showWarningMessage('No quality report available. Run "Analyze Tests" first.');
+                return;
+            }
+            
+            // Create and show a webview panel with detailed report
+            const panel = vscode.window.createWebviewPanel(
+                'testQualityReport',
+                'Test Quality Report',
+                vscode.ViewColumn.One,
+                { enableScripts: true }
+            );
+            
+            panel.webview.html = getQualityReportHtml(lastQualityReport);
+        })
+    );
+    
+    // ========== Dynamic Analysis Commands ==========
+    
+    // Scan App - Start dev server and crawl routes
+    context.subscriptions.push(
+        vscode.commands.registerCommand('qagenai.scanApp', async () => {
+            const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+            if (!workspaceFolder) {
+                vscode.window.showWarningMessage('No workspace folder open');
+                return;
+            }
+            
+            const workspacePath = workspaceFolder.uri.fsPath;
+            
+            vscode.window.withProgress(
+                {
+                    location: vscode.ProgressLocation.Notification,
+                    title: 'Scanning Application...',
+                    cancellable: true
+                },
+                async (progress, token) => {
+                    try {
+                        // Step 1: Detect dev server config
+                        progress.report({ message: 'Detecting framework...' });
+                        const config = await appLauncher.detectConfig(workspacePath);
+                        
+                        if (!config) {
+                            vscode.window.showWarningMessage('Could not detect dev server. Make sure package.json has a "dev" script.');
+                            return;
+                        }
+                        
+                        // Check if server is already running
+                        const alreadyRunning = await appLauncher.isServerRunning();
+                        
+                        if (!alreadyRunning) {
+                            // Step 2: Start dev server
+                            progress.report({ message: `Starting ${config.framework} server...` });
+                            const started = await appLauncher.start(workspacePath);
+                            
+                            if (!started) {
+                                vscode.window.showErrorMessage('Failed to start dev server');
+                                return;
+                            }
+                        }
+                        
+                        if (token.isCancellationRequested) {
+                            await appLauncher.stop();
+                            return;
+                        }
+                        
+                        // Step 3: Crawl routes
+                        progress.report({ message: 'Discovering routes...' });
+                        const crawlResult = await routeCrawler.crawl(config.url, {
+                            maxDepth: 3,
+                            maxRoutes: 30,
+                            captureScreenshots: false // Disable for speed
+                        });
+                        
+                        // Step 4: Generate user flows
+                        progress.report({ message: 'Analyzing user flows...' });
+                        const flowAnalysis = flowGenerator.generateFlows(crawlResult);
+                        lastFlowAnalysis = flowAnalysis; // Store for later use
+                        
+                        // Load flow states and pass to webview
+                        const flowStates = await flowStateService.getAllFlowStates();
+                        
+                        // Update webview
+                        coverageWebviewProvider.updateFlowAnalysis(flowAnalysis, crawlResult, flowStates);
+                        
+                        // Show summary
+                        vscode.window.showInformationMessage(
+                            `🔍 Discovered ${crawlResult.routes.length} routes, ${flowAnalysis.flows.length} user flows, ${crawlResult.totalElements} elements`
+                        );
+                        
+                        // Also check for OpenAPI spec
+                        const specPath = await openApiParser.findSpecFile(workspacePath);
+                        if (specPath) {
+                            const apiSpec = await openApiParser.parseSpec(specPath, workspacePath);
+                            if (apiSpec) {
+                                coverageWebviewProvider.updateApiSpec(apiSpec);
+                            }
+                        }
+                        
+                    } catch (error) {
+                        vscode.window.showErrorMessage(`Scan failed: ${error}`);
+                        await appLauncher.stop();
+                    }
+                }
+            );
+        })
+    );
+    
+    // Stop App
+    context.subscriptions.push(
+        vscode.commands.registerCommand('qagenai.stopApp', async () => {
+            await appLauncher.stop();
+            vscode.window.showInformationMessage('Dev server stopped');
+        })
+    );
+    
+    // Generate Flow Test
+    context.subscriptions.push(
+        vscode.commands.registerCommand('qagenai.generateFlowTest', async (flowId: string) => {
+            const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+            if (!workspaceFolder) {
+                vscode.window.showWarningMessage('No workspace folder open');
+                return;
+            }
+            
+            if (!lastFlowAnalysis) {
+                vscode.window.showWarningMessage('No flow analysis available. Run "Scan App" first.');
+                return;
+            }
+            
+            // Find flow by ID
+            const flow = lastFlowAnalysis.flows.find((f: any) => f.id === flowId);
+            if (!flow) {
+                vscode.window.showErrorMessage(`Flow not found: ${flowId}`);
+                return;
+            }
+            
+            const config = await appLauncher.detectConfig(workspaceFolder.uri.fsPath);
+            if (!config) {
+                vscode.window.showErrorMessage('Could not detect project configuration');
+                return;
+            }
+            
+            // Generate test code
+            const testCode = flowGenerator.generateTestCode(flow, config.url);
+            const testFilePath = `e2e/${flowId}.spec.ts`;
+            
+            // Show unified preview with flow data
+            const result = await testPreviewProvider.showPreview({
+                testCode,
+                testFilePath,
+                sourceFilePath: flow.routes[0] || '/',
+                framework: 'Playwright',
+                testType: 'E2E Flow',
+                flowData: {
+                    flowId: flow.id,
+                    flowName: flow.name,
+                    flowType: flow.type,
+                    icon: flow.icon,
+                    routes: flow.routes,
+                    steps: flow.steps.map((s: any) => ({ ...s, selected: true })),
+                    relatedFiles: flow.relatedFiles.map((f: any) => ({ ...f, selected: !f.tested })),
+                    priority: flow.priority,
+                    coverage: {
+                        testedFiles: flow.testedFiles,
+                        totalFiles: flow.totalFiles
+                    }
+                }
             });
-
-        } catch (error: any) {
-            console.error('Error generating tests:', error);
-            vscode.window.showErrorMessage(`Failed to generate tests: ${error.message}`);
+            
+            // Handle user action
+            if (result.action === PreviewAction.CREATE && result.code) {
+                const testFileUri = vscode.Uri.file(`${workspaceFolder.uri.fsPath}/${testFilePath}`);
+                await vscode.workspace.fs.writeFile(testFileUri, Buffer.from(result.code, 'utf8'));
+                await vscode.window.showTextDocument(testFileUri);
+                
+                // Save flow state
+                await flowStateService.updateFlowState(flowId, {
+                    status: 'generated',
+                    testFilePath: testFilePath,
+                    generatedAt: Date.now()
+                });
+                
+                // Refresh webview with updated states
+                const flowStates = await flowStateService.getAllFlowStates();
+                coverageWebviewProvider.updateFlowAnalysis(lastFlowAnalysis, null, flowStates);
+                
+                // Also refresh coverage data to update Overview tab
+                vscode.commands.executeCommand('qagenai.analyzeWorkspace');
+                
+                vscode.window.showInformationMessage(`✅ Created test file: ${testFilePath}`);
+                
+                // Show celebration for first flow test
+                const allStates = await flowStateService.getAllStates();
+                const generatedCount = allStates.filter(s => s.status !== 'untested').length;
+                if (generatedCount === 1) {
+                    vscode.window.showInformationMessage('🎉 Great start! Your first E2E test is ready.');
+                }
+            }
+        })
+    );
+    
+    // Generate API Test
+    context.subscriptions.push(
+        vscode.commands.registerCommand('qagenai.generateApiTest', async (endpointId: string) => {
+            // TODO: Implement API test generation
+            vscode.window.showInformationMessage(`Generating test for endpoint: ${endpointId}`);
+        })
+    );
+    
+    // Generate All API Tests
+    context.subscriptions.push(
+        vscode.commands.registerCommand('qagenai.generateAllApiTests', async () => {
+            // TODO: Implement batch API test generation
+            vscode.window.showInformationMessage('Generating all API tests...');
+        })
+    );
+    
+    // Generate Tests for File
+    context.subscriptions.push(
+        vscode.commands.registerCommand('qagenai.generateTests', async (filePath: string, options?: { testType?: string }) => {
+            const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+            if (!workspaceFolder) {
+                vscode.window.showWarningMessage('No workspace folder open');
+                return;
+            }
+            
+            const testType = options?.testType || 'component';
+            
+            // Validate framework is installed
+            const stacks = coverageProvider.getStacks();
+            const hasFramework = stacks.some(stack => 
+                stack.testTypes.some(tt => 
+                    tt.status === 'installed' && 
+                    (testType === 'e2e' ? tt.testType === 'e2e' : tt.testType !== 'e2e')
+                )
+            );
+            
+            if (!hasFramework) {
+                const frameworkName = testType === 'e2e' ? 'Playwright' : 'Jest';
+                const action = await vscode.window.showWarningMessage(
+                    `${frameworkName} is not installed. Install it first to generate ${testType} tests.`,
+                    'Install Now',
+                    'Cancel'
+                );
+                
+                if (action === 'Install Now') {
+                    vscode.commands.executeCommand('qagenai.installTestFramework', frameworkName);
+                }
+                return;
+            }
+            
+            // Show progress
+            await vscode.window.withProgress(
+                {
+                    location: vscode.ProgressLocation.Notification,
+                    title: `Generating ${testType} test...`,
+                    cancellable: false
+                },
+                async (progress) => {
+                    try {
+                        progress.report({ message: 'Analyzing file...' });
+                        
+                        // TODO: Call actual test generation service
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        
+                        progress.report({ message: 'Generating test code...' });
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        
+                        // Refresh coverage to show new test
+                        vscode.commands.executeCommand('qagenai.analyzeWorkspace');
+                        
+                        vscode.window.showInformationMessage(`✅ Generated ${testType} test successfully!`);
+                    } catch (error) {
+                        vscode.window.showErrorMessage(`Failed to generate test: ${error}`);
+                    }
+                }
+            );
+        })
+    );
+    
+    // Generate All Tests By Type (batch) - uses existing command with type parameter
+    // Note: The base generateAllTests command is registered in commands/index.ts
+    
+    // Cleanup on deactivation
+    context.subscriptions.push({
+        dispose: () => {
+            appLauncher.dispose();
+            routeCrawler.dispose();
         }
     });
+    
+    // Status Bar service
+    const statusBarService = new StatusBarService();
+    context.subscriptions.push(statusBarService);
+    
+    // CodeLens provider for in-editor coverage indicators
+    const codeLensProvider = new CoverageCodeLensProvider();
+    context.subscriptions.push(
+        vscode.languages.registerCodeLensProvider(
+            [
+                { scheme: 'file', language: 'typescript' },
+                { scheme: 'file', language: 'javascript' },
+                { scheme: 'file', language: 'typescriptreact' },
+                { scheme: 'file', language: 'javascriptreact' },
+                { scheme: 'file', language: 'python' },
+                { scheme: 'file', language: 'go' },
+                { scheme: 'file', language: 'java' },
+                { scheme: 'file', language: 'csharp' }
+            ],
+            codeLensProvider
+        )
+    );
+    
+    // Test CodeLens provider - shows "⚡ Generate Test" above functions
+    const testCodeLensProvider = new TestCodeLensProvider();
+    context.subscriptions.push(
+        vscode.languages.registerCodeLensProvider(
+            [
+                { scheme: 'file', language: 'typescript' },
+                { scheme: 'file', language: 'javascript' },
+                { scheme: 'file', language: 'typescriptreact' },
+                { scheme: 'file', language: 'javascriptreact' }
+            ],
+            testCodeLensProvider
+        )
+    );
+    
+    // Register TestCodeLens commands
+    registerTestCodeLensCommands(context);
+    
+    // Chat panel provider (temporarily disabled - using Coverage panel as primary UI)
+    const chatProvider = new ChatPanelProvider(context.extensionUri, coverageProvider);
 
-    context.subscriptions.push(disposable);
+    // Register chat panel view
+    // TODO: Re-enable when chat is needed as separate feature
+    // context.subscriptions.push(
+    //     vscode.window.registerWebviewViewProvider('qagenai.chatView', chatProvider)
+    // );
+
+    // File watcher to auto re-analyze when tests are created
+    const testFileWatcher = vscode.workspace.createFileSystemWatcher(
+        '**/*.{spec,test}.{ts,tsx,js,jsx}'
+    );
+    
+    testFileWatcher.onDidCreate(() => {
+        console.log('🧪 Test file created - re-analyzing workspace...');
+        setTimeout(() => {
+            vscode.commands.executeCommand('qagenai.analyzeWorkspace');
+        }, 1000);
+    });
+    
+    context.subscriptions.push(testFileWatcher);
+
+    // Coverage file watcher to auto-refresh CodeLens when coverage changes
+    const coverageFileWatcher = vscode.workspace.createFileSystemWatcher(
+        '**/coverage/**/*.{info,json,xml}'
+    );
+    
+    const refreshCoverageCodeLens = () => {
+        console.log('📊 Coverage file changed - refreshing CodeLens...');
+        codeLensProvider.refresh();
+        
+        // Also re-analyze workspace to update TreeView
+        setTimeout(() => {
+            vscode.commands.executeCommand('qagenai.analyzeWorkspace');
+        }, 500);
+    };
+    
+    coverageFileWatcher.onDidChange(refreshCoverageCodeLens);
+    coverageFileWatcher.onDidCreate(refreshCoverageCodeLens);
+    coverageFileWatcher.onDidDelete(() => {
+        console.log('📊 Coverage file deleted - clearing CodeLens...');
+        codeLensProvider.clearCoverageData();
+    });
+    
+    context.subscriptions.push(coverageFileWatcher);
+
+    // Auto-re-analyze when workspace folder changes (switching projects)
+    context.subscriptions.push(
+        vscode.workspace.onDidChangeWorkspaceFolders(() => {
+            console.log('📁 Workspace folder changed - re-analyzing...');
+            setTimeout(() => {
+                vscode.commands.executeCommand('qagenai.analyzeWorkspace');
+            }, 1000);
+        })
+    );
+    
+    // Auto-analyze coverage when file is opened
+    context.subscriptions.push(
+        vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+            if (!editor) return;
+            
+            const document = editor.document;
+            const filePath = document.uri.fsPath;
+            
+            // Only analyze source files (not test files, not node_modules)
+            if (
+                !filePath.includes('node_modules') &&
+                !filePath.includes('.test.') &&
+                !filePath.includes('.spec.') &&
+                (filePath.endsWith('.ts') || filePath.endsWith('.tsx') ||
+                 filePath.endsWith('.js') || filePath.endsWith('.jsx') ||
+                 filePath.endsWith('.py') || filePath.endsWith('.go') ||
+                 filePath.endsWith('.java') || filePath.endsWith('.cs'))
+            ) {
+                // Trigger coverage analysis for this file
+                setTimeout(() => {
+                    vscode.commands.executeCommand('qagenai.analyzeCoverage', filePath);
+                }, 500);
+            }
+        })
+    );
+
+    // Register all commands
+    registerCommands(context, chatProvider, coverageProvider, statusBarService, codeLensProvider);
+
+    // Auto-analyze on activation
+    setTimeout(() => {
+        vscode.commands.executeCommand('qagenai.analyzeWorkspace');
+    }, 2000);
+
+    // Register command to show coverage view (for status bar click)
+    context.subscriptions.push(
+        vscode.commands.registerCommand('qagenai.showCoverageView', () => {
+            vscode.commands.executeCommand('qagenai.coverageView.focus');
+        })
+    );
 }
 
 export function deactivate() {}
 
-// Chat Panel WebView Provider
-class ChatPanelProvider implements vscode.WebviewViewProvider {
-    private _view?: vscode.WebviewView;
-    private chatHistory: Array<{ role: 'user' | 'assistant'; content: string }> = [];
-
-    constructor(private readonly _extensionUri: vscode.Uri) {}
-
-    public resolveWebviewView(
-        webviewView: vscode.WebviewView,
-        context: vscode.WebviewViewResolveContext,
-        _token: vscode.CancellationToken,
-    ) {
-        this._view = webviewView;
-
-        webviewView.webview.options = {
-            enableScripts: true,
-            localResourceRoots: [this._extensionUri]
-        };
-
-        webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
-
-        // Handle messages from webview
-        webviewView.webview.onDidReceiveMessage(async (data) => {
-            console.log('🔵 Extension received message:', data.type);
-            switch (data.type) {
-                case 'sendMessage': {
-                    console.log('💬 Handling chat message:', data.message);
-                    await this.handleChatMessage(data.message);
-                    break;
-                }
-                case 'applyCode': {
-                    console.log('✅ Applying code');
-                    await this.applyCode(data.code);
-                    break;
-                }
-                case 'clearHistory': {
-                    console.log('🧹 Clearing history');
-                    this.chatHistory = [];
-                    this._view?.webview.postMessage({ type: 'historyCleared' });
-                    break;
-                }
-            }
-        });
-    }
-
-    private async handleChatMessage(message: string) {
-        try {
-            // Add user message to history
-            this.chatHistory.push({ role: 'user', content: message });
-
-            // Show typing indicator
-            this._view?.webview.postMessage({
-                type: 'typing',
-                isTyping: true
-            });
-
-            // Get current file context
-            const editor = vscode.window.activeTextEditor;
-            const context = editor ? {
-                code: editor.document.getText(),
-                fileName: path.basename(editor.document.fileName),
-                language: detectLanguage(path.extname(editor.document.fileName))
-            } : undefined;
-
-            // Call backend
-            const config = vscode.workspace.getConfiguration('qagenai');
-            const apiUrl = config.get<string>('apiUrl') || 'http://localhost:3001';
-
-            const response = await axios.post(`${apiUrl}/generate/chat`, {
-                message,
-                context,
-                history: this.chatHistory.slice(0, -1) // Don't send the current message again
-            }, {
-                headers: { 'Content-Type': 'application/json' },
-                timeout: 60000
-            });
-
-            const reply = response.data.reply;
-
-            // Add assistant message to history
-            this.chatHistory.push({ role: 'assistant', content: reply });
-
-            // Send response to webview
-            this._view?.webview.postMessage({
-                type: 'typing',
-                isTyping: false
-            });
-
-            this._view?.webview.postMessage({
-                type: 'chatResponse',
-                message: reply
-            });
-
-        } catch (error: any) {
-            this._view?.webview.postMessage({
-                type: 'typing',
-                isTyping: false
-            });
-            this._view?.webview.postMessage({
-                type: 'error',
-                error: error.message || 'Failed to send message'
-            });
-        }
-    }
-
-    private async applyCode(code: string) {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-            vscode.window.showErrorMessage('No active editor');
-            return;
-        }
-
-        await editor.edit(editBuilder => {
-            // Insert at cursor position
-            const position = editor.selection.active;
-            editBuilder.insert(position, code);
-        });
-
-        vscode.window.showInformationMessage('Code applied!');
-    }
-
-    private _getHtmlForWebview(webview: vscode.Webview) {
-        return `<!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>QAgenAI Chat</title>
-            <style>
-                * {
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
-
-                body {
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-                    background: var(--vscode-editor-background);
-                    color: var(--vscode-editor-foreground);
-                    height: 100vh;
-                    display: flex;
-                    flex-direction: column;
-                }
-
-                .header {
-                    padding: 12px 16px;
-                    border-bottom: 1px solid var(--vscode-panel-border);
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-
-                .header h2 {
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: var(--vscode-foreground);
-                }
-
-                .clear-btn {
-                    background: transparent;
-                    border: 1px solid var(--vscode-button-border);
-                    color: var(--vscode-button-foreground);
-                    padding: 4px 8px;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    font-size: 12px;
-                }
-
-                .clear-btn:hover {
-                    background: var(--vscode-button-hoverBackground);
-                }
-
-                .chat-container {
-                    flex: 1;
-                    overflow-y: auto;
-                    padding: 16px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 12px;
-                }
-
-                .message {
-                    max-width: 85%;
-                    padding: 10px 14px;
-                    border-radius: 8px;
-                    word-wrap: break-word;
-                    line-height: 1.5;
-                    font-size: 13px;
-                }
-
-                .message.user {
-                    align-self: flex-end;
-                    background: var(--vscode-button-background);
-                    color: var(--vscode-button-foreground);
-                }
-
-                .message.assistant {
-                    align-self: flex-start;
-                    background: var(--vscode-input-background);
-                    color: var(--vscode-input-foreground);
-                    border: 1px solid var(--vscode-input-border);
-                }
-
-                .message pre {
-                    background: var(--vscode-textCodeBlock-background);
-                    padding: 8px;
-                    border-radius: 4px;
-                    overflow-x: auto;
-                    margin: 8px 0;
-                    font-size: 12px;
-                }
-
-                .message code {
-                    background: var(--vscode-textCodeBlock-background);
-                    padding: 2px 4px;
-                    border-radius: 3px;
-                    font-family: 'Courier New', monospace;
-                    font-size: 12px;
-                }
-
-                .code-actions {
-                    display: flex;
-                    gap: 8px;
-                    margin-top: 8px;
-                }
-
-                .code-action-btn {
-                    background: var(--vscode-button-secondaryBackground);
-                    color: var(--vscode-button-secondaryForeground);
-                    border: none;
-                    padding: 4px 10px;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    font-size: 11px;
-                }
-
-                .code-action-btn:hover {
-                    background: var(--vscode-button-secondaryHoverBackground);
-                }
-
-                .typing-indicator {
-                    align-self: flex-start;
-                    padding: 10px 14px;
-                    background: var(--vscode-input-background);
-                    border-radius: 8px;
-                    display: none;
-                }
-
-                .typing-indicator.active {
-                    display: block;
-                }
-
-                .typing-dots {
-                    display: flex;
-                    gap: 4px;
-                }
-
-                .typing-dots span {
-                    width: 6px;
-                    height: 6px;
-                    background: var(--vscode-foreground);
-                    border-radius: 50%;
-                    animation: typing 1.4s infinite;
-                }
-
-                .typing-dots span:nth-child(2) {
-                    animation-delay: 0.2s;
-                }
-
-                .typing-dots span:nth-child(3) {
-                    animation-delay: 0.4s;
-                }
-
-                @keyframes typing {
-                    0%, 60%, 100% { opacity: 0.3; }
-                    30% { opacity: 1; }
-                }
-
-                .input-container {
-                    padding: 16px;
-                    border-top: 1px solid var(--vscode-panel-border);
-                    display: flex;
-                    gap: 8px;
-                }
-
-                .input-box {
-                    flex: 1;
-                    padding: 10px;
-                    background: var(--vscode-input-background);
-                    color: var(--vscode-input-foreground);
-                    border: 1px solid var(--vscode-input-border);
-                    border-radius: 6px;
-                    font-size: 13px;
-                    font-family: inherit;
-                    resize: none;
-                    outline: none;
-                }
-
-                .input-box:focus {
-                    border-color: var(--vscode-focusBorder);
-                }
-
-                .send-btn {
-                    background: var(--vscode-button-background);
-                    color: var(--vscode-button-foreground);
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-size: 13px;
-                    font-weight: 600;
-                }
-
-                .send-btn:hover {
-                    background: var(--vscode-button-hoverBackground);
-                }
-
-                .send-btn:disabled {
-                    opacity: 0.5;
-                    cursor: not-allowed;
-                }
-
-                .error-message {
-                    background: var(--vscode-inputValidation-errorBackground);
-                    color: var(--vscode-inputValidation-errorForeground);
-                    border: 1px solid var(--vscode-inputValidation-errorBorder);
-                    padding: 10px;
-                    border-radius: 6px;
-                    margin: 8px 16px;
-                    font-size: 12px;
-                }
-                
-                .copy-toast {
-                    position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    background: var(--vscode-notifications-background);
-                    color: var(--vscode-notifications-foreground);
-                    border: 1px solid var(--vscode-notifications-border);
-                    padding: 8px 16px;
-                    border-radius: 6px;
-                    font-size: 12px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                    z-index: 1000;
-                    animation: slideInUp 0.3s ease;
-                }
-                
-                @keyframes slideInUp {
-                    from {
-                        transform: translateY(20px);
-                        opacity: 0;
-                    }
-                    to {
-                        transform: translateY(0);
-                        opacity: 1;
-                    }
-                }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h2>🤖 QAgenAI Chat</h2>
-                <button class="clear-btn" id="clearBtn">Clear</button>
-            </div>
-
-            <div class="chat-container" id="chatContainer">
-                <div class="message assistant">
-                    Hi! I'm QAgenAI. Ask me about:
-                    <ul style="margin-top: 8px; padding-left: 20px;">
-                        <li>Generating tests for your code</li>
-                        <li>Explaining test strategies</li>
-                        <li>Suggesting edge cases</li>
-                        <li>Debugging failing tests</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="typing-indicator" id="typingIndicator">
-                <div class="typing-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-
-            <div class="input-container">
-                <textarea 
-                    class="input-box" 
-                    id="messageInput" 
-                    placeholder="Ask about testing..."
-                    rows="1"
-                ></textarea>
-                <button class="send-btn" id="sendBtn">Send</button>
-            </div>
-
-            <script>
-                const vscode = acquireVsCodeApi();
-                const chatContainer = document.getElementById('chatContainer');
-                const messageInput = document.getElementById('messageInput');
-                const sendBtn = document.getElementById('sendBtn');
-                const clearBtn = document.getElementById('clearBtn');
-                const typingIndicator = document.getElementById('typingIndicator');
-                
-                // Add event listeners
-                sendBtn.addEventListener('click', sendMessage);
-                clearBtn.addEventListener('click', clearHistory);
-                messageInput.addEventListener('keydown', handleKeyDown);
-
-                // Handle messages from extension
-                window.addEventListener('message', event => {
-                    const message = event.data;
-                    
-                    switch (message.type) {
-                        case 'chatResponse':
-                            addMessage(message.message, 'assistant');
-                            break;
-                        case 'typing':
-                            if (message.isTyping) {
-                                typingIndicator.classList.add('active');
-                                scrollToBottom();
-                            } else {
-                                typingIndicator.classList.remove('active');
-                            }
-                            break;
-                        case 'error':
-                            showError(message.error);
-                            break;
-                        case 'historyCleared':
-                            chatContainer.innerHTML = '<div class="message assistant">Chat history cleared!</div>';
-                            break;
-                    }
-                });
-
-                function sendMessage() {
-                    console.log('🔵 sendMessage called');
-                    const message = messageInput.value.trim();
-                    console.log('📝 Message:', message);
-                    if (!message) {
-                        console.log('⚠️ Empty message, returning');
-                        return;
-                    }
-
-                    addMessage(message, 'user');
-                    console.log('📤 Posting message to extension');
-                    vscode.postMessage({
-                        type: 'sendMessage',
-                        message: message
-                    });
-
-                    messageInput.value = '';
-                    messageInput.style.height = 'auto';
-                    console.log('✅ Message sent');
-                }
-
-                function addMessage(text, role) {
-                    const messageDiv = document.createElement('div');
-                    messageDiv.className = 'message ' + role;
-                    
-                    // Parse markdown-style code blocks
-                    const formattedText = formatMessage(text);
-                    messageDiv.innerHTML = formattedText;
-
-                    // Add action buttons for assistant messages
-                    if (role === 'assistant') {
-                        const actionsDiv = document.createElement('div');
-                        actionsDiv.className = 'code-actions';
-                        
-                        const codeBlocks = extractCodeBlocks(text);
-                        if (codeBlocks.length > 0) {
-                            // Apply Code button
-                            const applyBtn = document.createElement('button');
-                            applyBtn.className = 'code-action-btn';
-                            applyBtn.textContent = '\u2713 Apply Code';
-                            applyBtn.onclick = () => applyCode(codeBlocks[0]);
-                            actionsDiv.appendChild(applyBtn);
-                            
-                            // Copy Code button
-                            const copyCodeBtn = document.createElement('button');
-                            copyCodeBtn.className = 'code-action-btn';
-                            copyCodeBtn.textContent = '\ud83d\udccb Copy Code';
-                            copyCodeBtn.onclick = () => copyToClipboard(codeBlocks[0]);
-                            actionsDiv.appendChild(copyCodeBtn);
-                        }
-                        
-                        // Always add Copy Message button
-                        const copyMsgBtn = document.createElement('button');
-                        copyMsgBtn.className = 'code-action-btn';
-                        copyMsgBtn.textContent = '\ud83d\udccb Copy';
-                        copyMsgBtn.onclick = () => copyToClipboard(text);
-                        actionsDiv.appendChild(copyMsgBtn);
-                        
-                        if (actionsDiv.children.length > 0) {
-                            messageDiv.appendChild(actionsDiv);
-                        }
-                    }
-
-                    chatContainer.appendChild(messageDiv);
-                    scrollToBottom();
-                }
-
-                function formatMessage(text) {
-                    // Convert code blocks (triple backticks)
-                    const codeBlockRegex = new RegExp('\\x60\\x60\\x60(\\w*)\\n([\\s\\S]*?)\\x60\\x60\\x60', 'g');
-                    text = text.replace(codeBlockRegex, '<pre><code>$2<\/code><\/pre>');
-                    // Convert inline code (single backticks)
-                    const inlineCodeRegex = new RegExp('\\x60([^\\x60]+)\\x60', 'g');
-                    text = text.replace(inlineCodeRegex, '<code>$1<\/code>');
-                    // Convert newlines
-                    text = text.replace(new RegExp('\\n', 'g'), '<br>');
-                    return text;
-                }
-
-                function extractCodeBlocks(text) {
-                    const regex = new RegExp('\\x60\\x60\\x60(?:\\w*)\\n([\\s\\S]*?)\\x60\\x60\\x60', 'g');
-                    const blocks = [];
-                    let match;
-                    while ((match = regex.exec(text)) !== null) {
-                        blocks.push(match[1].trim());
-                    }
-                    return blocks;
-                }
-
-                function applyCode(code) {
-                    vscode.postMessage({
-                        type: 'applyCode',
-                        code: code
-                    });
-                }
-                
-                function copyToClipboard(text) {
-                    navigator.clipboard.writeText(text).then(() => {
-                        // Show temporary success message
-                        const toast = document.createElement('div');
-                        toast.className = 'copy-toast';
-                        toast.textContent = '\u2705 Copied!';
-                        document.body.appendChild(toast);
-                        setTimeout(() => toast.remove(), 2000);
-                    }).catch(err => {
-                        console.error('Failed to copy:', err);
-                    });
-                }
-
-                function clearHistory() {
-                    vscode.postMessage({ type: 'clearHistory' });
-                }
-
-                function showError(error) {
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'error-message';
-                    errorDiv.textContent = '❌ ' + error;
-                    chatContainer.appendChild(errorDiv);
-                    scrollToBottom();
-                    
-                    setTimeout(() => errorDiv.remove(), 5000);
-                }
-
-                function handleKeyDown(event) {
-                    if (event.key === 'Enter' && !event.shiftKey) {
-                        event.preventDefault();
-                        sendMessage();
-                    }
-                }
-
-                function scrollToBottom() {
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                }
-
-                // Auto-resize textarea
-                messageInput.addEventListener('input', function() {
-                    this.style.height = 'auto';
-                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-                });
-            </script>
-        </body>
-        </html>`;
-    }
-}
-
-function detectLanguage(extension: string): string {
-    const languageMap: { [key: string]: string } = {
-        '.ts': 'typescript',
-        '.tsx': 'typescript',
-        '.js': 'javascript',
-        '.jsx': 'javascript',
-        '.py': 'python',
-        '.go': 'go',
-        '.java': 'java',
-        '.rb': 'ruby',
-        '.php': 'php'
-    };
-    return languageMap[extension] || 'unknown';
-}
-
-function getTestFileName(fileName: string, extension: string): string {
-    const nameWithoutExt = path.basename(fileName, extension);
+/**
+ * Generate HTML for the detailed quality report panel
+ */
+function getQualityReportHtml(report: TestQualityReport): string {
+    const scoreColor = report.overallScore >= 80 ? '#22c55e' : 
+                      report.overallScore >= 60 ? '#eab308' : '#ef4444';
     
-    // Language-specific test file naming
-    if (extension === '.py') {
-        return `test_${nameWithoutExt}.py`;
-    } else if (extension === '.go') {
-        return `${nameWithoutExt}_test.go`;
-    } else if (extension === '.rb') {
-        return `${nameWithoutExt}_spec.rb`;
-    } else {
-        // JavaScript/TypeScript
-        return `${nameWithoutExt}.test${extension}`;
-    }
+    const filesHtml = report.files.map(file => {
+        const testsHtml = file.tests.map(test => {
+            const statusIcon = test.status === 'good' ? '✓' : test.status === 'warning' ? '!' : '✗';
+            const statusColor = test.status === 'good' ? '#22c55e' : test.status === 'warning' ? '#eab308' : '#ef4444';
+            const issuesHtml = test.issues.map(issue => `
+                <div style="padding: 4px 0 4px 24px; font-size: 12px; color: rgba(255,255,255,0.6);">
+                    → ${escapeHtml(issue.message)}${issue.suggestion ? ` - <em>${escapeHtml(issue.suggestion)}</em>` : ''}
+                </div>
+            `).join('');
+            
+            return `
+                <div style="padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="color: ${statusColor}; font-weight: bold;">${statusIcon}</span>
+                        <span style="flex: 1;">${escapeHtml(test.name)}</span>
+                        <span style="font-size: 12px; color: rgba(255,255,255,0.5);">Line ${test.line}</span>
+                        <span style="font-size: 12px; font-weight: 600; color: ${statusColor};">${test.score}%</span>
+                    </div>
+                    ${issuesHtml}
+                </div>
+            `;
+        }).join('');
+        
+        const fileScoreColor = file.totalScore >= 80 ? '#22c55e' : file.totalScore >= 60 ? '#eab308' : '#ef4444';
+        
+        return `
+            <div style="margin-bottom: 16px; background: rgba(255,255,255,0.03); border-radius: 8px; overflow: hidden;">
+                <div style="padding: 12px 16px; background: rgba(255,255,255,0.05); display: flex; align-items: center; gap: 8px;">
+                    <span style="font-weight: 600;">${escapeHtml(file.fileName)}</span>
+                    <span style="font-size: 12px; color: rgba(255,255,255,0.5);">${file.tests.length} tests</span>
+                    <span style="margin-left: auto; font-weight: 600; color: ${fileScoreColor};">${file.totalScore}%</span>
+                </div>
+                ${testsHtml}
+            </div>
+        `;
+    }).join('');
+    
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Quality Report</title>
+    <style>
+        body {
+            font-family: var(--vscode-font-family);
+            color: rgba(255,255,255,0.9);
+            background: #1e1e1e;
+            padding: 24px;
+            line-height: 1.5;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .score-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: ${scoreColor};
+            border: 4px solid ${scoreColor};
+        }
+        .summary {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stat-num {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="score-circle">${report.overallScore}%</div>
+        <div>
+            <h1 style="margin: 0 0 8px 0; font-size: 20px;">Test Quality Report</h1>
+            <p style="margin: 0; color: rgba(255,255,255,0.5);">${report.totalTests} tests in ${report.files.length} files</p>
+        </div>
+    </div>
+    
+    <div class="summary">
+        <div class="stat">
+            <span class="stat-num" style="color: #22c55e;">${report.goodTests}</span>
+            <span class="stat-label">✓ Good tests</span>
+        </div>
+        <div class="stat">
+            <span class="stat-num" style="color: #eab308;">${report.warningTests}</span>
+            <span class="stat-label">! Warnings</span>
+        </div>
+        <div class="stat">
+            <span class="stat-num" style="color: #ef4444;">${report.errorTests}</span>
+            <span class="stat-label">✗ Errors</span>
+        </div>
+    </div>
+    
+    <h2 style="font-size: 14px; margin-bottom: 12px; color: rgba(255,255,255,0.7);">FILES</h2>
+    ${filesHtml}
+</body>
+</html>`;
+}
+
+function escapeHtml(text: string): string {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }

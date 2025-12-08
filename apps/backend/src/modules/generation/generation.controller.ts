@@ -22,7 +22,10 @@ export class GenerationController {
     return this.generation.refineOutput(body);
   }
 
-  // New endpoint for VS Code extension
+  /**
+   * @deprecated Use POST /generate/agent instead for better E2E detection
+   * Legacy endpoint for backward compatibility
+   */
   @Post('tests')
   async generateTests(@Body() body: {
     code: string;
@@ -44,5 +47,15 @@ export class GenerationController {
     history?: Array<{ role: 'user' | 'assistant'; content: string }>;
   }) {
     return this.generation.chatWithAI(body);
+  }
+  
+  // Agent endpoint for autonomous task execution
+  @Post('agent')
+  async agent(@Body() body: {
+    query: string;
+    context?: any;
+    maxIterations?: number;
+  }) {
+    return this.generation.executeAgent(body);
   }
 }
