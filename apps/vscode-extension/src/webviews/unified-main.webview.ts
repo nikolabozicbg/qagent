@@ -426,10 +426,13 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
     <p class="subtitle">AI-powered E2E test generation for React apps</p>
     
     <div class="action-zone">
-      <button class="btn-huge primary" onclick="send('startDiscovery')">
+      <button id="startBtn" class="btn-huge primary" onclick="startNow()">
         🔍 Discover My Application
       </button>
-      <p class="hint">Takes ~2-5 seconds • AI-powered</p>
+      <p id="countdown" class="hint countdown">Starting in <span id="timer">3</span>s... or click to start now</p>
+      <p class="hint secondary">
+        <a href="#" onclick="skipCountdown(); return false;" class="skip-link">Skip auto-start</a>
+      </p>
     </div>
 
     <div class="info-grid">
@@ -450,9 +453,44 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
 
   <script>
     const vscode = acquireVsCodeApi();
+    let countdownTimer = 3;
+    let intervalId = null;
+    let countdownSkipped = false;
+    
     function send(command, data) {
       vscode.postMessage({ command, data });
     }
+    
+    function startNow() {
+      if (intervalId) clearInterval(intervalId);
+      send('startDiscovery');
+    }
+    
+    function skipCountdown() {
+      if (intervalId) clearInterval(intervalId);
+      countdownSkipped = true;
+      document.getElementById('countdown').textContent = 'Ready when you are!';
+      document.getElementById('startBtn').textContent = '🔍 Start Discovery';
+    }
+    
+    // Start countdown on load
+    window.addEventListener('load', () => {
+      intervalId = setInterval(() => {
+        if (countdownSkipped) {
+          clearInterval(intervalId);
+          return;
+        }
+        
+        countdownTimer--;
+        
+        if (countdownTimer <= 0) {
+          clearInterval(intervalId);
+          startNow();
+        } else {
+          document.getElementById('timer').textContent = countdownTimer;
+        }
+      }, 1000);
+    });
   </script>
 </body>
 </html>`;
@@ -913,6 +951,32 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
         font-size: 12px;
         color: var(--vscode-descriptionForeground);
         margin-top: 8px;
+      }
+
+      .hint.countdown {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--vscode-textLink-foreground);
+      }
+
+      .hint.countdown #timer {
+        font-weight: 700;
+        font-size: 15px;
+      }
+
+      .hint.secondary {
+        margin-top: 4px;
+      }
+
+      .skip-link {
+        color: var(--vscode-textLink-foreground);
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 11px;
+      }
+
+      .skip-link:hover {
+        color: var(--vscode-textLink-activeForeground);
       }
 
       .info-grid {
