@@ -601,7 +601,7 @@ export class OnboardingWizardPanel {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Discovery Results</title>
+  <title>Discovery Complete</title>
   <style>${this.getStyles()}</style>
 </head>
 <body>
@@ -609,41 +609,55 @@ export class OnboardingWizardPanel {
     <div class="wizard-content results">
       ${this.renderProgressBar(3, 3)}
       
-      <div class="icon-success">✨</div>
-      <h1 class="title-hero">Discovery Complete!</h1>
-      <p class="subtitle-hero">Found ${totalCount} user journeys • ${selectedCount} selected</p>
+      <!-- Success Header -->
+      <div class="results-hero">
+        <div class="icon-success">✨</div>
+        <h1 class="title-hero">Discovery Complete!</h1>
+        <p class="subtitle-hero">Found ${totalCount} user journey${totalCount !== 1 ? 's' : ''} ready for testing</p>
+      </div>
 
-      <div class="insights-card">
-        <div class="insights-title">📈 Project Overview</div>
-        <div class="insights-grid">
-          <div class="insight-item">
-            <div class="insight-label">Journeys Found</div>
-            <div class="insight-value">${totalCount}</div>
+      <!-- Project Overview Card -->
+      <div class="results-overview-card">
+        <div class="overview-title">📋 Project Overview</div>
+        <div class="overview-grid">
+          <div class="overview-stat">
+            <div class="stat-number blue">${totalCount}</div>
+            <div class="stat-label">Journeys Found</div>
           </div>
-          <div class="insight-item">
-            <div class="insight-label">Critical Paths</div>
-            <div class="insight-value critical">${categories.critical.length}</div>
+          <div class="overview-stat">
+            <div class="stat-number red">${categories.critical.length}</div>
+            <div class="stat-label">Critical Paths</div>
           </div>
-          <div class="insight-item">
-            <div class="insight-label">High Value</div>
-            <div class="insight-value high">${categories.high.length}</div>
+          <div class="overview-stat">
+            <div class="stat-number orange">${categories.high.length}</div>
+            <div class="stat-label">High Value</div>
           </div>
-          <div class="insight-item">
-            <div class="insight-label">Coverage Est.</div>
-            <div class="insight-value">~85%</div>
+          <div class="overview-stat">
+            <div class="stat-number cyan">~85%</div>
+            <div class="stat-label">Coverage Est.</div>
           </div>
         </div>
       </div>
 
-      <div class="journeys-section">
-        ${this.renderJourneyCategory('Critical Paths', '🔴', categories.critical)}
-        ${this.renderJourneyCategory('High Value', '🟡', categories.high)}
-        ${this.renderJourneyCategory('Standard', '⚙️', categories.standard)}
+      <!-- Selection Info -->
+      <div class="selection-info">
+        <span class="selection-count">${selectedCount} selected</span>
+        <span class="selection-hint">Click to toggle selection</span>
       </div>
 
-      <button class="btn-hero" onclick="addToDashboard()" ${selectedCount === 0 ? 'disabled' : ''}>
-        ➕ Add ${selectedCount} to Dashboard
-      </button>
+      <!-- Journeys List -->
+      <div class="journeys-container">
+        ${this.renderJourneyCategory('Critical Paths', '🔴', categories.critical)}
+        ${categories.high.length > 0 ? this.renderJourneyCategory('High Value', '🟡', categories.high) : ''}
+        ${categories.standard.length > 0 ? this.renderJourneyCategory('Standard', '🔵', categories.standard) : ''}
+      </div>
+
+      <!-- Action Button -->
+      <div class="action-footer">
+        <button class="btn-hero" onclick="addToDashboard()" ${selectedCount === 0 ? 'disabled' : ''}>
+          ✅ Add ${selectedCount || 'Selected'} to Dashboard
+        </button>
+      </div>
     </div>
   </div>
 
@@ -676,11 +690,18 @@ export class OnboardingWizardPanel {
 
   private renderJourneyItem(journey: DiscoveredFlow): string {
     const isSelected = this.selectedJourneyIds.has(journey.id);
+    const confidence = journey.confidence || 95;
     return `
       <div class="journey-item ${isSelected ? 'selected' : ''}" onclick="toggleJourney('${journey.id}')">
-        <input type="checkbox" ${isSelected ? 'checked' : ''} />
-        <span class="journey-name">${journey.name}</span>
-        <span class="journey-confidence">${journey.confidence || 0}%</span>
+        <div class="journey-checkbox">
+          <input type="checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation()" />
+        </div>
+        <div class="journey-content">
+          <div class="journey-name">${journey.name}</div>
+          <div class="journey-meta">
+            <span class="journey-confidence">${confidence}% confidence</span>
+          </div>
+        </div>
       </div>
     `;
   }
@@ -1259,10 +1280,108 @@ export class OnboardingWizardPanel {
         margin-top: 12px;
       }
 
-      /* Journeys Section */
-      .journeys-section {
-        margin: 40px 0;
-        text-align: left;
+      /* Results Screen */
+      .results-hero {
+        text-align: center;
+        margin-bottom: 48px;
+      }
+
+      /* Results Overview Card */
+      .results-overview-card {
+        max-width: 700px;
+        margin: 0 auto 40px auto;
+        padding: 32px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+
+      .overview-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 24px;
+        color: #ffffff;
+        text-align: center;
+      }
+
+      .overview-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+      }
+
+      .overview-stat {
+        text-align: center;
+        padding: 20px 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        transition: all 0.3s;
+      }
+
+      .overview-stat:hover {
+        transform: translateY(-4px);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .stat-number {
+        font-size: 42px;
+        font-weight: 800;
+        margin-bottom: 8px;
+        line-height: 1;
+      }
+
+      .stat-number.blue {
+        color: #00d4ff;
+      }
+
+      .stat-number.red {
+        color: #ef4444;
+      }
+
+      .stat-number.orange {
+        color: #fb923c;
+      }
+
+      .stat-number.cyan {
+        color: #06b6d4;
+      }
+
+      .stat-label {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+      }
+
+      /* Selection Info */
+      .selection-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 700px;
+        margin: 0 auto 20px auto;
+        padding: 0 8px;
+      }
+
+      .selection-count {
+        font-size: 16px;
+        font-weight: 700;
+        color: #00d4ff;
+      }
+
+      .selection-hint {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      /* Journeys Container */
+      .journeys-container {
+        max-width: 700px;
+        margin: 0 auto;
       }
 
       .journey-category {
@@ -1272,47 +1391,96 @@ export class OnboardingWizardPanel {
       .category-header {
         display: flex;
         justify-content: space-between;
-        padding: 12px 0;
-        border-bottom: 2px solid var(--vscode-panel-border);
+        align-items: center;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px 8px 0 0;
         font-size: 16px;
-        font-weight: 600;
-        margin-bottom: 16px;
+        font-weight: 700;
+        margin-bottom: 0;
+        color: #ffffff;
       }
 
       .category-count {
-        color: var(--vscode-descriptionForeground);
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 14px;
       }
 
+      /* Journey Item - Much larger and clearer */
       .journey-item {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 16px;
-        background: var(--vscode-input-background);
-        border: 2px solid transparent;
-        border-radius: 8px;
+        gap: 16px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-top: none;
         cursor: pointer;
-        transition: all 0.2s;
-        margin-bottom: 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .journey-item:first-of-type {
+        border-top: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px 8px 0 0;
+      }
+
+      .journey-item:last-of-type {
+        border-radius: 0 0 8px 8px;
       }
 
       .journey-item:hover {
-        background: var(--vscode-list-hoverBackground);
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(0, 212, 255, 0.3);
+        transform: translateX(8px);
       }
 
       .journey-item.selected {
-        border-color: var(--vscode-textLink-foreground);
-        background: var(--vscode-list-activeSelectionBackground);
+        border-color: #00d4ff;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(123, 47, 247, 0.15));
+        box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+      }
+
+      .journey-checkbox {
+        flex-shrink: 0;
+      }
+
+      .journey-checkbox input[type="checkbox"] {
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        accent-color: #00d4ff;
+      }
+
+      .journey-content {
+        flex: 1;
+        min-width: 0;
       }
 
       .journey-name {
-        flex: 1;
-        font-size: 15px;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: #ffffff;
+        line-height: 1.3;
+      }
+
+      .journey-meta {
+        display: flex;
+        gap: 12px;
+        align-items: center;
       }
 
       .journey-confidence {
-        font-size: 13px;
-        color: var(--vscode-descriptionForeground);
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      /* Action Footer */
+      .action-footer {
+        margin-top: 56px;
+        text-align: center;
       }
 
       /* Progress Bar Header */
