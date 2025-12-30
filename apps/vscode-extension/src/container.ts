@@ -86,8 +86,11 @@ export class ServiceContainer {
    * Show main dashboard
    */
   async showDashboard(): Promise<void> {
+    // Force refresh first
+    await this.mainViewProvider.refresh();
+    
     // Focus the unified main view
-    await vscode.commands.executeCommand('qagenai.main.focus');
+    await vscode.commands.executeCommand('workbench.view.extension.qagenai');
   }
 
   /**

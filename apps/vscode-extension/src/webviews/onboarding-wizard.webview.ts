@@ -51,6 +51,9 @@ export class OnboardingWizardPanel {
       return OnboardingWizardPanel.currentPanel;
     }
 
+    // Hide sidebar to focus on wizard (clean UX)
+    vscode.commands.executeCommand('workbench.action.closeSidebar');
+
     // Create new panel
     const panel = vscode.window.createWebviewPanel(
       'qagenaiOnboarding',
@@ -463,7 +466,25 @@ export class OnboardingWizardPanel {
       <h1 class="title-hero">Analyzing Your Application</h1>
       <p class="subtitle-hero typing-text">Discovering user journeys and interactions...</p>
       
-      ${framework ? `<div class="framework-badge">${frameworkIcon} ${framework} Detected</div>` : ''}
+      <div class="tech-stack-card">
+        <div class="tech-stack-title">🔍 Detected Technologies</div>
+        <div class="tech-stack-grid">
+          ${detectedTechnologies.length > 0 ? detectedTechnologies.map((tech, i) => `
+            <div class="tech-item" style="animation-delay: ${i * 0.15}s">
+              <div class="tech-item-icon">✓</div>
+              <div class="tech-item-name">${tech}</div>
+            </div>
+          `).join('') : '<div class="tech-placeholder">Scanning...</div>'}
+        </div>
+      </div>
+      
+      <div class="scan-status-message">
+        ${components === 0 ? '🔍 Initializing scan...' : 
+          components < 10 ? '📦 Analyzing components...' :
+          components < 20 ? '🛣️ Mapping routes...' :
+          components < 30 ? '🌐 Detecting API calls...' :
+          '✨ Discovering user journeys...'}
+      </div>
       
       <div class="progress-section">
         <div class="progress-card">
@@ -573,6 +594,28 @@ export class OnboardingWizardPanel {
       <div class="icon-success">✨</div>
       <h1 class="title-hero">Discovery Complete!</h1>
       <p class="subtitle-hero">Found ${totalCount} user journeys • ${selectedCount} selected</p>
+
+      <div class="insights-card">
+        <div class="insights-title">📈 Project Overview</div>
+        <div class="insights-grid">
+          <div class="insight-item">
+            <div class="insight-label">Journeys Found</div>
+            <div class="insight-value">${totalCount}</div>
+          </div>
+          <div class="insight-item">
+            <div class="insight-label">Critical Paths</div>
+            <div class="insight-value critical">${categories.critical.length}</div>
+          </div>
+          <div class="insight-item">
+            <div class="insight-label">High Value</div>
+            <div class="insight-value high">${categories.high.length}</div>
+          </div>
+          <div class="insight-item">
+            <div class="insight-label">Coverage Est.</div>
+            <div class="insight-value">~85%</div>
+          </div>
+        </div>
+      </div>
 
       <div class="journeys-section">
         ${this.renderJourneyCategory('Critical Paths', '🔴', categories.critical)}
@@ -1399,6 +1442,158 @@ export class OnboardingWizardPanel {
       /* Hero Section */
       .hero-section {
         margin-bottom: 48px;
+      }
+      
+      /* Tech Stack Card */
+      .tech-stack-card {
+        margin: 40px auto;
+        padding: 32px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        max-width: 600px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      }
+      
+      .tech-stack-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 24px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.95);
+      }
+      
+      .tech-stack-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+      }
+      
+      .tech-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        background: rgba(123, 47, 247, 0.1);
+        border: 1px solid rgba(123, 47, 247, 0.3);
+        border-radius: 12px;
+        animation: techItemFadeIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      }
+      
+      @keyframes techItemFadeIn {
+        0% {
+          opacity: 0;
+          transform: scale(0.8) translateY(-10px);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+      
+      .tech-item-icon {
+        width: 20px;
+        height: 20px;
+        background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: white;
+        flex-shrink: 0;
+      }
+      
+      .tech-item-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
+      }
+      
+      .tech-placeholder {
+        text-align: center;
+        padding: 20px;
+        color: rgba(255, 255, 255, 0.5);
+        font-style: italic;
+      }
+      
+      /* Scan Status Message */
+      .scan-status-message {
+        text-align: center;
+        font-size: 16px;
+        font-weight: 600;
+        color: #00d4ff;
+        margin: 32px 0;
+        padding: 16px;
+        background: rgba(0, 212, 255, 0.1);
+        border-radius: 12px;
+        animation: pulse 2s infinite;
+      }
+      
+      /* Insights Card */
+      .insights-card {
+        margin: 40px 0;
+        padding: 32px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        animation: fadeIn 0.6s;
+      }
+      
+      .insights-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 24px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.95);
+      }
+      
+      .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+      }
+      
+      .insight-item {
+        text-align: center;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      .insight-label {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+      
+      .insight-value {
+        font-size: 32px;
+        font-weight: 800;
+        background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      .insight-value.critical {
+        background: linear-gradient(135deg, #ff4757, #f107a3);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      .insight-value.high {
+        background: linear-gradient(135deg, #ffa502, #f107a3);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
 
       /* Detected Technologies */
