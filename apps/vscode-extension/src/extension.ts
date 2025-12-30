@@ -22,16 +22,8 @@ export async function activate(context: vscode.ExtensionContext) {
   // Initialize service container
   container = new ServiceContainer(context);
 
-  // Check if onboarding is completed
-  const onboardingCompleted = context.globalState.get<boolean>('qagenai.onboardingCompleted', false);
-
-  if (!onboardingCompleted) {
-    // Show onboarding wizard on first run
-    await container.showOnboarding();
-  } else {
-    // Show dashboard for returning users
-    await container.showDashboard();
-  }
+  // Always show unified main view (it handles welcome/dashboard state internally)
+  await container.showDashboard();
 
   // Register commands
   registerCommands(context);
