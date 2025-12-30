@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QAgenAI - Full-Stack Flow (FE + BE)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #09090b;
+            color: rgba(255,255,255,0.92);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* Flow Navigation */
+        .flow-nav {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            padding: 10px 16px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .flow-step:hover {
+            background: rgba(168, 85, 247, 0.1);
+            border-color: rgba(168, 85, 247, 0.3);
+        }
+
+        .flow-step.active {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: #a855f7;
+            color: #a855f7;
+        }
+
+        .flow-step .num {
+            width: 20px;
+            height: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .flow-step.active .num {
+            background: #a855f7;
+            color: white;
+        }
+
+        /* Screen Container */
+        .screen {
+            display: none;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .screen-header {
+            padding: 16px 20px;
+            background: rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .screen-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .screen-content {
+            padding: 24px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Welcome Screen */
+        .welcome-center {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .welcome-logo {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .welcome-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .welcome-subtitle {
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 30px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            max-width: 400px;
+            margin: 0 auto 30px;
+            text-align: left;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .feature-item span {
+            color: #22c55e;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a855f7, #6366f1);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Scan Results */
+        .scan-section {
+            margin-bottom: 20px;
+        }
+
+        .scan-title {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .tech-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tech-item.selected {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .tech-icon {
+            font-size: 24px;
+        }
+
+        .tech-info h4 {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .tech-info span {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .tech-check {
+            margin-left: auto;
+            color: #22c55e;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-value.green { color: #22c55e; }
+        .stat-value.red { color: #ef4444; }
+        .stat-value.yellow { color: #f59e0b; }
+        .stat-value.purple { color: #a855f7; }
+
+        .stat-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+        }
+
+        /* File Types */
+        .file-type-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .file-type-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .file-type-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .file-type-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .file-type-icon.fe { background: rgba(59, 130, 246, 0.2); }
+        .file-type-icon.be { background: rgba(34, 197, 94, 0.2); }
+        .file-type-icon.shared { background: rgba(168, 85, 247, 0.2); }
+
+        .file-type-name {
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .file-type-count {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .file-type-tests {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* Priority Queue */
+        .queue-item {
+            display: flex;
+            align-items: center;
+            padding: 14px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            gap: 12px;
+        }
+
+        .queue-priority {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .queue-priority.critical { background: #ef4444; }
+        .queue-priority.high { background: #f59e0b; }
+        .queue-priority.medium { background: #3b82f6; }
+
+        .queue-info {
+            flex: 1;
+        }
+
+        .queue-file {
+            font-weight: 500;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .queue-file .type-tag {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .type-tag.fe { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .type-tag.be { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+
+        .queue-meta {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+            margin-top: 4px;
+        }
+
+        .queue-action {
+            padding: 6px 12px;
+            background: rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* Test Preview */
+        .function-list {
+            margin-bottom: 20px;
+        }
+
+        .function-group {
+            margin-bottom: 16px;
+        }
+
+        .function-group-title {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .function-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+
+        .function-item input {
+            margin-right: 10px;
+        }
+
+        .function-name {
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #a855f7;
+            flex: 1;
+        }
+
+        .function-tests {
+            color: rgba(255,255,255,0.5);
+            font-size: 11px;
+        }
+
+        /* Code Preview */
+        .code-preview {
+            background: #0d1117;
+            border-radius: 10px;
+            padding: 16px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 11px;
+            line-height: 1.6;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .code-preview .keyword { color: #ff7b72; }
+        .code-preview .string { color: #a5d6ff; }
+        .code-preview .function { color: #d2a8ff; }
+        .code-preview .comment { color: #8b949e; }
+
+        /* Generation Progress */
+        .gen-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            gap: 12px;
+        }
+
+        .gen-status {
+            font-size: 16px;
+        }
+
+        .gen-info {
+            flex: 1;
+        }
+
+        .gen-file {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .gen-detail {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Results */
+        .result-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .result-item {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .result-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .result-label {
+            font-size: 10px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+        }
+
+        /* Coverage Comparison */
+        .coverage-compare {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .coverage-box {
+            text-align: center;
+        }
+
+        .coverage-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 8px;
+        }
+
+        .coverage-ring {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .coverage-ring.before {
+            background: conic-gradient(#ef4444 0deg, #ef4444 122deg, rgba(255,255,255,0.1) 122deg);
+        }
+
+        .coverage-ring.after {
+            background: conic-gradient(#22c55e 0deg, #22c55e 280deg, rgba(255,255,255,0.1) 280deg);
+        }
+
+        .coverage-ring-inner {
+            width: 60px;
+            height: 60px;
+            background: #09090b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .coverage-arrow {
+            font-size: 32px;
+            color: #22c55e;
+        }
+
+        /* Dashboard */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .health-score {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+
+        .health-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: conic-gradient(#a855f7 0deg, #a855f7 252deg, rgba(255,255,255,0.1) 252deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .health-circle-inner {
+            width: 48px;
+            height: 48px;
+            background: #09090b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: #a855f7;
+        }
+
+        .health-info h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .health-info span {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Breakdown */
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .breakdown-item {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .breakdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .breakdown-title {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .breakdown-value {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .breakdown-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .breakdown-fill {
+            height: 100%;
+            border-radius: 2px;
+        }
+
+        .breakdown-fill.fe { background: #3b82f6; }
+        .breakdown-fill.be { background: #22c55e; }
+        .breakdown-fill.e2e { background: #f59e0b; }
+        .breakdown-fill.api { background: #a855f7; }
+
+        /* Step indicator */
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .step-dot.active {
+            background: #a855f7;
+        }
+
+        .step-dot.done {
+            background: #22c55e;
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .actions-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .flow-nav {
+                flex-direction: column;
+            }
+            .tech-grid, .file-type-grid, .stats-grid, .breakdown-grid {
+                grid-template-columns: 1fr;
+            }
+            .result-summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ QAgenAI Full-Stack Flow</h1>
+        <p class="subtitle">Frontend + Backend TypeScript Support</p>
+
+        <!-- Flow Navigation -->
+        <div class="flow-nav">
+            <div class="flow-step active" onclick="showScreen(0)">
+                <span class="num">1</span>
+                Welcome
+            </div>
+            <div class="flow-step" onclick="showScreen(1)">
+                <span class="num">2</span>
+                Scanning
+            </div>
+            <div class="flow-step" onclick="showScreen(2)">
+                <span class="num">3</span>
+                Stack Detection
+            </div>
+            <div class="flow-step" onclick="showScreen(3)">
+                <span class="num">4</span>
+                Coverage Status
+            </div>
+            <div class="flow-step" onclick="showScreen(4)">
+                <span class="num">5</span>
+                Select Files
+            </div>
+            <div class="flow-step" onclick="showScreen(5)">
+                <span class="num">6</span>
+                Preview Tests
+            </div>
+            <div class="flow-step" onclick="showScreen(6)">
+                <span class="num">7</span>
+                Generating
+            </div>
+            <div class="flow-step" onclick="showScreen(7)">
+                <span class="num">8</span>
+                Results
+            </div>
+            <div class="flow-step" onclick="showScreen(8)">
+                <span class="num">9</span>
+                Dashboard
+            </div>
+        </div>
+
+        <!-- Screen 0: Welcome -->
+        <div class="screen active" id="screen-0">
+            <div class="screen-content">
+                <div class="welcome-center">
+                    <div class="welcome-logo">⚡</div>
+                    <h2 class="welcome-title">Welcome to QAgenAI</h2>
+                    <p class="welcome-subtitle">Your AI QA Engineer for Full-Stack TypeScript</p>
+                    
+                    <div class="features-grid">
+                        <div class="feature-item"><span>✓</span> React + Next.js testing</div>
+                        <div class="feature-item"><span>✓</span> Node.js + NestJS testing</div>
+                        <div class="feature-item"><span>✓</span> Jest + Playwright</div>
+                        <div class="feature-item"><span>✓</span> API & E2E tests</div>
+                        <div class="feature-item"><span>✓</span> Smart prioritization</div>
+                        <div class="feature-item"><span>✓</span> Coverage tracking</div>
+                    </div>
+
+                    <div class="step-indicator">
+                        <div class="step-dot active"></div>
+                        <div class="step-dot"></div>
+                        <div class="step-dot"></div>
+                        <div class="step-dot"></div>
+                        <div class="step-dot"></div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; justify-content: center;">
+                        <button class="btn btn-secondary">Skip for Now</button>
+                        <button class="btn btn-primary" onclick="showScreen(1)">🚀 Start Setup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 1: Scanning -->
+        <div class="screen" id="screen-1">
+            <div class="screen-header">
+                <span class="screen-title">🔍 Scanning Your Project</span>
+                <span style="color: rgba(255,255,255,0.5); font-size: 12px;">Step 1/5</span>
+            </div>
+            <div class="screen-content">
+                <div class="card">
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+                        <h3 style="margin-bottom: 8px;">Analyzing workspace...</h3>
+                        <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 20px;">
+                            Detecting frameworks, files, and existing tests
+                        </p>
+                        <div class="progress-bar" style="max-width: 300px; margin: 0 auto;">
+                            <div class="progress-fill" style="width: 65%;"></div>
+                        </div>
+                        <p style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 8px;">65% complete</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4 style="font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 12px;">SCAN PROGRESS</h4>
+                    <div class="gen-item">
+                        <span class="gen-status">✅</span>
+                        <div class="gen-info">
+                            <div class="gen-file">Found package.json</div>
+                            <div class="gen-detail">Detected dependencies</div>
+                        </div>
+                    </div>
+                    <div class="gen-item">
+                        <span class="gen-status">✅</span>
+                        <div class="gen-info">
+                            <div class="gen-file">Found tsconfig.json</div>
+                            <div class="gen-detail">TypeScript project confirmed</div>
+                        </div>
+                    </div>
+                    <div class="gen-item">
+                        <span class="gen-status">⏳</span>
+                        <div class="gen-info">
+                            <div class="gen-file">Scanning source files...</div>
+                            <div class="gen-detail">45/67 files analyzed</div>
+                        </div>
+                    </div>
+                    <div class="gen-item">
+                        <span class="gen-status">⏳</span>
+                        <div class="gen-info">
+                            <div class="gen-file">Detecting test coverage...</div>
+                            <div class="gen-detail">Waiting...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-dot done"></div>
+                    <div class="step-dot active"></div>
+                    <div class="step-dot"></div>
+                    <div class="step-dot"></div>
+                    <div class="step-dot"></div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="showScreen(0)">← Back</button>
+                    <button class="btn btn-primary" onclick="showScreen(2)">Continue →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 2: Stack Detection -->
+        <div class="screen" id="screen-2">
+            <div class="screen-header">
+                <span class="screen-title">🎯 We Found Your Stack!</span>
+                <span style="color: rgba(255,255,255,0.5); font-size: 12px;">Step 2/5</span>
+            </div>
+            <div class="screen-content">
+                <div class="scan-section">
+                    <div class="scan-title">💻 FRONTEND</div>
+                    <div class="tech-grid">
+                        <div class="tech-item selected">
+                            <span class="tech-icon">⚛️</span>
+                            <div class="tech-info">
+                                <h4>React 18.2</h4>
+                                <span>UI Framework</span>
+                            </div>
+                            <span class="tech-check">✓</span>
+                        </div>
+                        <div class="tech-item selected">
+                            <span class="tech-icon">📘</span>
+                            <div class="tech-info">
+                                <h4>TypeScript 5.3</h4>
+                                <span>Language</span>
+                            </div>
+                            <span class="tech-check">✓</span>
+                        </div>
+                        <div class="tech-item selected">
+                            <span class="tech-icon">▲</span>
+                            <div class="tech-info">
+                                <h4>Next.js 14</h4>
+                                <span>Framework</span>
+                            </div>
+                            <span class="tech-check">✓</span>
+                        </div>
+                        <div class="tech-item selected">
+                            <span class="tech-icon">🃏</span>
+                            <div class="tech-info">
+                                <h4>Jest + RTL</h4>
+                                <span>Testing</span>
+                            </div>
+                            <span class="tech-check">✓</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="scan-section">
+                    <div class="scan-title">🔧 BACKEND</div>
+                    <div class="tech-grid">
+                        <div class="tech-item selected">
+                            <span class="tech-icon">🟢</span>
+                            <div class="tech-info">
+                                <h4>Node.js 20</h4>
+                                <span>Runtime</span>
+                            </div>
+                            <span class="tech-check">✓</span>
+                        </div>
+                        <div class="tech-item selected">
+                            <span class="tech-icon">🏗️</span>
+                            <div class="tech-info">
+                                <h4>NestJS 10</h4>
+                                <span>Framework</span>
+                            </div>
+                            <span class="tech-check">✓</span>
+                        </div>
+                        <div class="tech-item selected">
+                            <span class="tech-icon">🗄️</span>
+                            <div class="tech-info">
+                                <h4>Prisma</h4>
+                                <span>ORM</span>
+                            </div>
+                            <span class="tech-check">✓</span>
+                        </div>
+                        <div class="tech-item selected">
+                            <span class="tech-icon">🧪</span>
+                            <div class="tech-info">
+                                <h4>Supertest</h4>
+                                <span>API Testing</span>
+                            </div>
+                            <span class="tech-check">✓</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="scan-section">
+                    <div class="scan-title">🌐 E2E & INTEGRATION</div>
+                    <div class="tech-grid">
+                        <div class="tech-item selected">
+                            <span class="tech-icon">🎭</span>
+                            <div class="tech-info">
+                                <h4>Playwright</h4>
+                                <span>E2E Testing</span>
+                            </div>
+                            <span class="tech-check">✓</span>
+                        </div>
+                        <div class="tech-item selected">
+                            <span class="tech-icon">📡</span>
+                            <div class="tech-info">
+                                <h4>MSW</h4>
+                                <span>API Mocking</span>
+                            </div>
+                            <span class="tech-check">✓</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-dot done"></div>
+                    <div class="step-dot done"></div>
+                    <div class="step-dot active"></div>
+                    <div class="step-dot"></div>
+                    <div class="step-dot"></div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="showScreen(1)">← Back</button>
+                    <button class="btn btn-primary" onclick="showScreen(3)">Continue →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 3: Coverage Status -->
+        <div class="screen" id="screen-3">
+            <div class="screen-header">
+                <span class="screen-title">📊 Current Coverage Status</span>
+                <span style="color: rgba(255,255,255,0.5); font-size: 12px;">Step 3/5</span>
+            </div>
+            <div class="screen-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value yellow">45%</div>
+                        <div class="stat-label">Overall Coverage</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">67</div>
+                        <div class="stat-label">Total Files</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value red">23</div>
+                        <div class="stat-label">Need Tests</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title" style="margin-bottom: 16px;">📁 Breakdown by Type</div>
+                    <div class="file-type-grid">
+                        <div class="file-type-card">
+                            <div class="file-type-header">
+                                <div class="file-type-icon fe">⚛️</div>
+                                <div>
+                                    <div class="file-type-name">React Components</div>
+                                    <div class="file-type-count">24 files • 58% covered</div>
+                                </div>
+                            </div>
+                            <div class="file-type-tests">→ Jest + React Testing Library</div>
+                        </div>
+                        <div class="file-type-card">
+                            <div class="file-type-header">
+                                <div class="file-type-icon fe">🪝</div>
+                                <div>
+                                    <div class="file-type-name">Custom Hooks</div>
+                                    <div class="file-type-count">8 files • 40% covered</div>
+                                </div>
+                            </div>
+                            <div class="file-type-tests">→ Jest + @testing-library/react-hooks</div>
+                        </div>
+                        <div class="file-type-card">
+                            <div class="file-type-header">
+                                <div class="file-type-icon be">🎮</div>
+                                <div>
+                                    <div class="file-type-name">NestJS Controllers</div>
+                                    <div class="file-type-count">12 files • 25% covered</div>
+                                </div>
+                            </div>
+                            <div class="file-type-tests">→ Jest + Supertest (HTTP)</div>
+                        </div>
+                        <div class="file-type-card">
+                            <div class="file-type-header">
+                                <div class="file-type-icon be">⚙️</div>
+                                <div>
+                                    <div class="file-type-name">NestJS Services</div>
+                                    <div class="file-type-count">15 files • 35% covered</div>
+                                </div>
+                            </div>
+                            <div class="file-type-tests">→ Jest + mocked dependencies</div>
+                        </div>
+                        <div class="file-type-card">
+                            <div class="file-type-header">
+                                <div class="file-type-icon shared">🛤️</div>
+                                <div>
+                                    <div class="file-type-name">API Routes</div>
+                                    <div class="file-type-count">6 files • 50% covered</div>
+                                </div>
+                            </div>
+                            <div class="file-type-tests">→ Supertest + MSW</div>
+                        </div>
+                        <div class="file-type-card">
+                            <div class="file-type-header">
+                                <div class="file-type-icon shared">🔧</div>
+                                <div>
+                                    <div class="file-type-name">Utilities</div>
+                                    <div class="file-type-count">12 files • 72% covered</div>
+                                </div>
+                            </div>
+                            <div class="file-type-tests">→ Jest unit tests</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 24px;">⚠️</span>
+                        <div>
+                            <div style="font-weight: 600; color: #ef4444;">5 Critical Files Have 0% Coverage</div>
+                            <div style="font-size: 12px; color: rgba(255,255,255,0.6);">
+                                payment.service.ts, auth.controller.ts, checkout.service.ts, user.controller.ts, order.service.ts
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-dot done"></div>
+                    <div class="step-dot done"></div>
+                    <div class="step-dot done"></div>
+                    <div class="step-dot active"></div>
+                    <div class="step-dot"></div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="showScreen(2)">← Back</button>
+                    <button class="btn btn-primary" onclick="showScreen(4)">Continue →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 4: Select Files -->
+        <div class="screen" id="screen-4">
+            <div class="screen-header">
+                <span class="screen-title">🎯 Priority Queue</span>
+                <span style="color: rgba(255,255,255,0.5); font-size: 12px;">Step 4/5</span>
+            </div>
+            <div class="screen-content">
+                <p style="color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 20px;">
+                    Select files to generate tests for. We've prioritized by business impact and risk.
+                </p>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">🔴 CRITICAL - Backend Services</span>
+                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px;">Select All</button>
+                    </div>
+                    
+                    <div class="queue-item">
+                        <input type="checkbox" checked>
+                        <div class="queue-priority critical"></div>
+                        <div class="queue-info">
+                            <div class="queue-file">
+                                payment.service.ts
+                                <span class="type-tag be">BE</span>
+                            </div>
+                            <div class="queue-meta">NestJS Service • 289 LOC • 💳 Handles payments</div>
+                        </div>
+                        <span style="color: rgba(255,255,255,0.5); font-size: 11px;">12 tests</span>
+                    </div>
+
+                    <div class="queue-item">
+                        <input type="checkbox" checked>
+                        <div class="queue-priority critical"></div>
+                        <div class="queue-info">
+                            <div class="queue-file">
+                                auth.controller.ts
+                                <span class="type-tag be">BE</span>
+                            </div>
+                            <div class="queue-meta">NestJS Controller • 245 LOC • 🔐 Authentication endpoints</div>
+                        </div>
+                        <span style="color: rgba(255,255,255,0.5); font-size: 11px;">18 tests</span>
+                    </div>
+
+                    <div class="queue-item">
+                        <input type="checkbox" checked>
+                        <div class="queue-priority critical"></div>
+                        <div class="queue-info">
+                            <div class="queue-file">
+                                user.controller.ts
+                                <span class="type-tag be">BE</span>
+                            </div>
+                            <div class="queue-meta">NestJS Controller • 198 LOC • 👤 User CRUD operations</div>
+                        </div>
+                        <span style="color: rgba(255,255,255,0.5); font-size: 11px;">15 tests</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">🟠 HIGH - Frontend Components</span>
+                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px;">Select All</button>
+                    </div>
+                    
+                    <div class="queue-item">
+                        <input type="checkbox" checked>
+                        <div class="queue-priority high"></div>
+                        <div class="queue-info">
+                            <div class="queue-file">
+                                CheckoutForm.tsx
+                                <span class="type-tag fe">FE</span>
+                            </div>
+                            <div class="queue-meta">React Component • 312 LOC • 🛒 Main checkout flow</div>
+                        </div>
+                        <span style="color: rgba(255,255,255,0.5); font-size: 11px;">10 tests</span>
+                    </div>
+
+                    <div class="queue-item">
+                        <input type="checkbox" checked>
+                        <div class="queue-priority high"></div>
+                        <div class="queue-info">
+                            <div class="queue-file">
+                                useAuth.ts
+                                <span class="type-tag fe">FE</span>
+                            </div>
+                            <div class="queue-meta">React Hook • 156 LOC • 🔑 Authentication logic</div>
+                        </div>
+                        <span style="color: rgba(255,255,255,0.5); font-size: 11px;">8 tests</span>
+                    </div>
+
+                    <div class="queue-item">
+                        <input type="checkbox">
+                        <div class="queue-priority medium"></div>
+                        <div class="queue-info">
+                            <div class="queue-file">
+                                ProductCard.tsx
+                                <span class="type-tag fe">FE</span>
+                            </div>
+                            <div class="queue-meta">React Component • 89 LOC • 📦 Product display</div>
+                        </div>
+                        <span style="color: rgba(255,255,255,0.5); font-size: 11px;">6 tests</span>
+                    </div>
+                </div>
+
+                <div style="background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600; font-size: 14px;">5 files selected</div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.5);">~63 test cases • Est. time: 3 minutes</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Expected coverage</div>
+                        <div style="font-size: 20px; font-weight: 700; color: #22c55e;">45% → 72%</div>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-dot done"></div>
+                    <div class="step-dot done"></div>
+                    <div class="step-dot done"></div>
+                    <div class="step-dot done"></div>
+                    <div class="step-dot active"></div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="showScreen(3)">← Back</button>
+                    <button class="btn btn-primary" onclick="showScreen(5)">Preview Tests →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 5: Preview Tests -->
+        <div class="screen" id="screen-5">
+            <div class="screen-header">
+                <span class="screen-title">📝 Test Preview: payment.service.ts</span>
+                <span style="color: rgba(255,255,255,0.5); font-size: 12px;">Backend • NestJS Service</span>
+            </div>
+            <div class="screen-content">
+                <div class="card">
+                    <div class="card-title" style="margin-bottom: 4px;">📄 File Info</div>
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 16px;">
+                        Type: NestJS Service • LOC: 289 • Dependencies: 5 • Framework: Jest + Supertest
+                    </div>
+
+                    <div class="function-list">
+                        <div class="function-group">
+                            <div class="function-group-title">
+                                <span style="color: #ef4444;">🔴</span> CRITICAL (Must Test)
+                            </div>
+                            <div class="function-item">
+                                <input type="checkbox" checked>
+                                <span class="function-name">processPayment()</span>
+                                <span class="function-tests">→ 4 tests</span>
+                            </div>
+                            <div class="function-item">
+                                <input type="checkbox" checked>
+                                <span class="function-name">refundPayment()</span>
+                                <span class="function-tests">→ 3 tests</span>
+                            </div>
+                            <div class="function-item">
+                                <input type="checkbox" checked>
+                                <span class="function-name">validateCard()</span>
+                                <span class="function-tests">→ 3 tests</span>
+                            </div>
+                        </div>
+
+                        <div class="function-group">
+                            <div class="function-group-title">
+                                <span style="color: #f59e0b;">🟡</span> RECOMMENDED
+                            </div>
+                            <div class="function-item">
+                                <input type="checkbox" checked>
+                                <span class="function-name">calculateFees()</span>
+                                <span class="function-tests">→ 2 tests</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">👁️ Code Preview</span>
+                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px;">📋 Copy</button>
+                    </div>
+                    <div class="code-preview">
+<span class="keyword">import</span> { Test, TestingModule } <span class="keyword">from</span> <span class="string">'@nestjs/testing'</span>;
+<span class="keyword">import</span> { PaymentService } <span class="keyword">from</span> <span class="string">'./payment.service'</span>;
+<span class="keyword">import</span> { PrismaService } <span class="keyword">from</span> <span class="string">'../prisma/prisma.service'</span>;
+
+<span class="function">describe</span>(<span class="string">'PaymentService'</span>, () => {
+  <span class="keyword">let</span> service: PaymentService;
+  <span class="keyword">let</span> prisma: PrismaService;
+
+  <span class="function">beforeEach</span>(<span class="keyword">async</span> () => {
+    <span class="keyword">const</span> module: TestingModule = <span class="keyword">await</span> Test.createTestingModule({
+      providers: [
+        PaymentService,
+        {
+          provide: PrismaService,
+          useValue: { <span class="comment">/* mocked methods */</span> },
+        },
+      ],
+    }).compile();
+
+    service = module.get&lt;PaymentService&gt;(PaymentService);
+  });
+
+  <span class="function">describe</span>(<span class="string">'processPayment'</span>, () => {
+    <span class="function">it</span>(<span class="string">'should process valid payment successfully'</span>, <span class="keyword">async</span> () => {
+      <span class="comment">// Arrange</span>
+      <span class="keyword">const</span> paymentDto = { amount: 100, currency: <span class="string">'USD'</span>, cardToken: <span class="string">'tok_xxx'</span> };
+      
+      <span class="comment">// Act</span>
+      <span class="keyword">const</span> result = <span class="keyword">await</span> service.processPayment(paymentDto);
+      
+      <span class="comment">// Assert</span>
+      <span class="function">expect</span>(result.status).<span class="function">toBe</span>(<span class="string">'success'</span>);
+    });
+
+    <span class="function">it</span>(<span class="string">'should throw error for invalid card'</span>, <span class="keyword">async</span> () => {
+      <span class="comment">// ...</span>
+    });
+
+    <span class="function">it</span>(<span class="string">'should handle insufficient funds'</span>, <span class="keyword">async</span> () => {
+      <span class="comment">// ...</span>
+    });
+  });
+});
+                    </div>
+                </div>
+
+                <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 20px;">
+                        <div>
+                            <div style="font-size: 11px; color: rgba(255,255,255,0.5);">Test Cases</div>
+                            <div style="font-size: 18px; font-weight: 700;">12</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: rgba(255,255,255,0.5);">Est. Coverage</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #22c55e;">95%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: rgba(255,255,255,0.5);">Generation Time</div>
+                            <div style="font-size: 18px; font-weight: 700;">~30s</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="showScreen(4)">← Back</button>
+                    <div class="actions-right">
+                        <button class="btn btn-secondary">⚙️ Customize</button>
+                        <button class="btn btn-success" onclick="showScreen(6)">✅ Generate All Tests</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 6: Generating -->
+        <div class="screen" id="screen-6">
+            <div class="screen-header">
+                <span class="screen-title">⚡ Generating Tests...</span>
+                <span style="color: rgba(255,255,255,0.5); font-size: 12px;">3/5 files complete</span>
+            </div>
+            <div class="screen-content">
+                <div class="progress-bar" style="margin-bottom: 20px;">
+                    <div class="progress-fill" style="width: 60%;"></div>
+                </div>
+
+                <div class="card">
+                    <div class="gen-item">
+                        <span class="gen-status">✅</span>
+                        <div class="gen-info">
+                            <div class="gen-file">payment.service.ts <span class="type-tag be">BE</span></div>
+                            <div class="gen-detail">→ payment.service.spec.ts • 12 test cases</div>
+                        </div>
+                    </div>
+                    <div class="gen-item">
+                        <span class="gen-status">✅</span>
+                        <div class="gen-info">
+                            <div class="gen-file">auth.controller.ts <span class="type-tag be">BE</span></div>
+                            <div class="gen-detail">→ auth.controller.spec.ts • 18 test cases</div>
+                        </div>
+                    </div>
+                    <div class="gen-item">
+                        <span class="gen-status">✅</span>
+                        <div class="gen-info">
+                            <div class="gen-file">user.controller.ts <span class="type-tag be">BE</span></div>
+                            <div class="gen-detail">→ user.controller.spec.ts • 15 test cases</div>
+                        </div>
+                    </div>
+                    <div class="gen-item" style="background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3);">
+                        <span class="gen-status">⏳</span>
+                        <div class="gen-info">
+                            <div class="gen-file">CheckoutForm.tsx <span class="type-tag fe">FE</span></div>
+                            <div class="gen-detail">Generating... 6/10 test cases</div>
+                        </div>
+                        <div style="width: 80px;">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 60%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gen-item">
+                        <span class="gen-status">⏸️</span>
+                        <div class="gen-info">
+                            <div class="gen-file">useAuth.ts <span class="type-tag fe">FE</span></div>
+                            <div class="gen-detail">Queued</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; color: rgba(255,255,255,0.5); font-size: 13px;">
+                    Est. time remaining: ~45 seconds
+                </div>
+
+                <div class="actions">
+                    <div></div>
+                    <button class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 7: Results -->
+        <div class="screen" id="screen-7">
+            <div class="screen-header">
+                <span class="screen-title">🎉 All Done!</span>
+            </div>
+            <div class="screen-content">
+                <div class="result-summary">
+                    <div class="result-item">
+                        <div class="result-value" style="color: #a855f7;">5</div>
+                        <div class="result-label">Files Created</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-value" style="color: #22c55e;">63</div>
+                        <div class="result-label">Test Cases</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-value" style="color: #3b82f6;">+27%</div>
+                        <div class="result-label">Coverage Gain</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-value">2:34</div>
+                        <div class="result-label">Time Taken</div>
+                    </div>
+                </div>
+
+                <div class="coverage-compare">
+                    <div class="coverage-box">
+                        <div class="coverage-label">BEFORE</div>
+                        <div class="coverage-ring before">
+                            <div class="coverage-ring-inner">45%</div>
+                        </div>
+                    </div>
+                    <div class="coverage-arrow">→</div>
+                    <div class="coverage-box">
+                        <div class="coverage-label">AFTER</div>
+                        <div class="coverage-ring after">
+                            <div class="coverage-ring-inner">72%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title" style="margin-bottom: 16px;">📁 Generated Tests</div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-size: 11px; color: rgba(255,255,255,0.5); margin-bottom: 8px;">BACKEND (3 files, 45 tests)</div>
+                        <div class="gen-item">
+                            <span>✅</span>
+                            <div class="gen-info">
+                                <div class="gen-file">payment.service.spec.ts</div>
+                                <div class="gen-detail">12 tests • 95% coverage</div>
+                            </div>
+                            <button class="queue-action">View</button>
+                        </div>
+                        <div class="gen-item">
+                            <span>✅</span>
+                            <div class="gen-info">
+                                <div class="gen-file">auth.controller.spec.ts</div>
+                                <div class="gen-detail">18 tests • 92% coverage</div>
+                            </div>
+                            <button class="queue-action">View</button>
+                        </div>
+                        <div class="gen-item">
+                            <span>✅</span>
+                            <div class="gen-info">
+                                <div class="gen-file">user.controller.spec.ts</div>
+                                <div class="gen-detail">15 tests • 88% coverage</div>
+                            </div>
+                            <button class="queue-action">View</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div style="font-size: 11px; color: rgba(255,255,255,0.5); margin-bottom: 8px;">FRONTEND (2 files, 18 tests)</div>
+                        <div class="gen-item">
+                            <span>✅</span>
+                            <div class="gen-info">
+                                <div class="gen-file">CheckoutForm.test.tsx</div>
+                                <div class="gen-detail">10 tests • 90% coverage</div>
+                            </div>
+                            <button class="queue-action">View</button>
+                        </div>
+                        <div class="gen-item">
+                            <span>✅</span>
+                            <div class="gen-info">
+                                <div class="gen-file">useAuth.test.ts</div>
+                                <div class="gen-detail">8 tests • 85% coverage</div>
+                            </div>
+                            <button class="queue-action">View</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-secondary">▶️ Run All Tests</button>
+                    <button class="btn btn-primary" onclick="showScreen(8)">Open Dashboard →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 8: Dashboard -->
+        <div class="screen" id="screen-8">
+            <div class="screen-header">
+                <span class="screen-title">⚡ QAgenAI Dashboard</span>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-secondary" style="padding: 6px 10px;">⚙️</button>
+                    <button class="btn btn-secondary" style="padding: 6px 10px;">Cmd+K</button>
+                </div>
+            </div>
+            <div class="screen-content">
+                <div class="health-score">
+                    <div class="health-circle">
+                        <div class="health-circle-inner">72%</div>
+                    </div>
+                    <div class="health-info">
+                        <h3>Test Health Score: B+ 🎉</h3>
+                        <span>Goal: 80% • 8% to go • ~15 more tests needed</span>
+                    </div>
+                    <button class="btn btn-primary" style="margin-left: auto;">🎯 Fix My Tests</button>
+                </div>
+
+                <div class="breakdown-grid">
+                    <div class="breakdown-item">
+                        <div class="breakdown-header">
+                            <span class="breakdown-title">💻 Frontend</span>
+                            <span class="breakdown-value" style="color: #3b82f6;">68%</span>
+                        </div>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill fe" style="width: 68%;"></div>
+                        </div>
+                    </div>
+                    <div class="breakdown-item">
+                        <div class="breakdown-header">
+                            <span class="breakdown-title">🔧 Backend</span>
+                            <span class="breakdown-value" style="color: #22c55e;">76%</span>
+                        </div>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill be" style="width: 76%;"></div>
+                        </div>
+                    </div>
+                    <div class="breakdown-item">
+                        <div class="breakdown-header">
+                            <span class="breakdown-title">🌐 E2E</span>
+                            <span class="breakdown-value" style="color: #f59e0b;">45%</span>
+                        </div>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill e2e" style="width: 45%;"></div>
+                        </div>
+                    </div>
+                    <div class="breakdown-item">
+                        <div class="breakdown-header">
+                            <span class="breakdown-title">🔗 API</span>
+                            <span class="breakdown-value" style="color: #a855f7;">82%</span>
+                        </div>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill api" style="width: 82%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">🔥 Priority Queue</span>
+                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px;">View All →</button>
+                    </div>
+                    
+                    <div class="queue-item">
+                        <div class="queue-priority critical"></div>
+                        <div class="queue-info">
+                            <div class="queue-file">
+                                order.service.ts
+                                <span class="type-tag be">BE</span>
+                            </div>
+                            <div class="queue-meta">0% coverage • Business critical</div>
+                        </div>
+                        <button class="queue-action">Generate</button>
+                    </div>
+                    <div class="queue-item">
+                        <div class="queue-priority high"></div>
+                        <div class="queue-info">
+                            <div class="queue-file">
+                                CartSummary.tsx
+                                <span class="type-tag fe">FE</span>
+                            </div>
+                            <div class="queue-meta">25% coverage • High traffic</div>
+                        </div>
+                        <button class="queue-action">Improve</button>
+                    </div>
+                    <div class="queue-item">
+                        <div class="queue-priority medium"></div>
+                        <div class="queue-info">
+                            <div class="queue-file">
+                                notification.service.ts
+                                <span class="type-tag be">BE</span>
+                            </div>
+                            <div class="queue-meta">40% coverage • Recently modified</div>
+                        </div>
+                        <button class="queue-action">Improve</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title" style="margin-bottom: 12px;">📊 Recent Activity</div>
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.6);">
+                        <div style="margin-bottom: 8px;">✅ Tests generated for 5 files (+63 tests)</div>
+                        <div style="margin-bottom: 8px;">📈 Coverage increased by +27% today</div>
+                        <div>🎯 8% more to reach your 80% goal</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showScreen(index) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // Show selected screen
+            document.getElementById('screen-' + index).classList.add('active');
+            
+            // Update navigation
+            document.querySelectorAll('.flow-step').forEach((s, i) => {
+                s.classList.remove('active');
+                if (i === index) s.classList.add('active');
+            });
+        }
+    </script>
+</body>
+</html>

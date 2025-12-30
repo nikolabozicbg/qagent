@@ -1,9 +1,10 @@
 {
   "name": "qagenai",
-  "displayName": "QAgenAI - AI Test Generation",
-  "description": "AI-powered test generation and self-healing for your code",
-  "version": "0.0.1",
+  "displayName": "QAgenAI - Flow-First Test Generation",
+  "description": "AI-powered, flow-first test generation for QA engineers. Generate Playwright tests from user flows, not files.",
+  "version": "0.1.0",
   "publisher": "qagenai",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -11,206 +12,64 @@
     "Testing",
     "Other"
   ],
+  "keywords": [
+    "testing",
+    "playwright",
+    "e2e",
+    "qa",
+    "ai",
+    "test generation",
+    "flow-based testing"
+  ],
   "activationEvents": [
-    "onCommand:qagenai.generateTests",
-    "onView:qagenai.chatView"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "qagenai.generateTests",
-        "title": "Generate Tests",
+        "command": "qagenai.showDashboard",
+        "title": "Show Dashboard",
         "category": "QAgenAI"
       },
       {
-        "command": "qagenai.openChat",
-        "title": "Open Test Assistant",
+        "command": "qagenai.startOnboarding",
+        "title": "Start Setup Wizard",
         "category": "QAgenAI"
       },
       {
-        "command": "qagenai.analyzeWorkspace",
-        "title": "Analyze Coverage",
-        "category": "QAgenAI",
-        "icon": "$(sync)"
+        "command": "qagenai.resetOnboarding",
+        "title": "Reset Onboarding (Dev)",
+        "category": "QAgenAI"
       },
       {
-        "command": "qagenai.generateTestsForFile",
-        "title": "Generate Test",
-        "icon": "$(sparkle)"
+        "command": "qagenai.resetFlowsToDraft",
+        "title": "Reset All Flows to Draft",
+        "category": "QAgenAI"
       },
       {
-        "command": "qagenai.installFramework",
-        "title": "Install Framework",
-        "icon": "$(package)"
+        "command": "qagenai.clearAllData",
+        "title": "Clear All Data",
+        "category": "QAgenAI"
       },
       {
-        "command": "qagenai.showSetupWizard",
-        "title": "Setup Testing",
-        "category": "QAgenAI",
-        "icon": "$(tools)"
+        "command": "qagenai.nuclearReset",
+        "title": "💣 Nuclear Reset (Delete Framework + Tests)",
+        "category": "QAgenAI"
       },
       {
-        "command": "qagenai.generateAllTests",
-        "title": "Generate All Tests",
-        "icon": "$(rocket)"
-      },
-      {
-        "command": "qagenai.improveTest",
-        "title": "Improve Test Coverage",
-        "icon": "$(arrow-up)"
-      },
-      {
-        "command": "qagenai.runTests",
-        "title": "Run Tests",
-        "icon": "$(run-all)"
-      },
-      {
-        "command": "qagenai.installTestFramework",
-        "title": "Install Framework",
-        "icon": "$(cloud-download)"
-      },
-      {
-        "command": "qagenai.runTest",
-        "title": "Run Test",
-        "category": "QAgenAI",
-        "icon": "$(run)"
-      },
-      {
-        "command": "qagenai.watchTest",
-        "title": "Watch Test",
-        "category": "QAgenAI",
-        "icon": "$(eye)"
-      },
-      {
-        "command": "qagenai.debugTest",
-        "title": "Debug Test",
-        "category": "QAgenAI",
-        "icon": "$(debug)"
-      },
-      {
-        "command": "qagenai.analyzeTestQuality",
-        "title": "Analyze Test Quality",
+        "command": "qagenai.liveSmartDiscovery",
+        "title": "🧠 Live Smart Discovery (Real-time)",
         "category": "QAgenAI",
         "icon": "$(pulse)"
       },
       {
-        "command": "qagenai.showQualityReport",
-        "title": "Show Quality Report",
+        "command": "qagenai.generateSmartE2E",
+        "title": "✨ Generate Smart E2E Tests",
         "category": "QAgenAI",
-        "icon": "$(graph)"
+        "icon": "$(sparkle)"
       }
     ],
-    "menus": {
-      "explorer/context": [
-        {
-          "command": "qagenai.generateTests",
-          "group": "navigation",
-          "when": "resourceExtname =~ /\\.(ts|js|py|tsx|jsx)$/"
-        },
-        {
-          "command": "qagenai.runTest",
-          "group": "qagenai@1",
-          "when": "resourceExtname =~ /\\.(spec|test)\\.(ts|js|py|tsx|jsx|go|java)$/ || resourceFilename =~ /.*_test\\.(go|py)$/ || resourceFilename =~ /.*Test\\.java$/"
-        },
-        {
-          "command": "qagenai.watchTest",
-          "group": "qagenai@2",
-          "when": "resourceExtname =~ /\\.(spec|test)\\.(ts|js|tsx|jsx)$/"
-        },
-        {
-          "command": "qagenai.debugTest",
-          "group": "qagenai@3",
-          "when": "resourceExtname =~ /\\.(spec|test)\\.(ts|js|tsx|jsx)$/"
-        }
-      ],
-      "editor/context": [
-        {
-          "command": "qagenai.generateTests",
-          "group": "navigation"
-        },
-        {
-          "command": "qagenai.runTest",
-          "group": "qagenai@1",
-          "when": "resourceExtname =~ /\\.(spec|test)\\.(ts|js|py|tsx|jsx|go|java)$/ || resourceFilename =~ /.*_test\\.(go|py)$/ || resourceFilename =~ /.*Test\\.java$/"
-        },
-        {
-          "command": "qagenai.watchTest",
-          "group": "qagenai@2",
-          "when": "resourceExtname =~ /\\.(spec|test)\\.(ts|js|tsx|jsx)$/"
-        },
-        {
-          "command": "qagenai.debugTest",
-          "group": "qagenai@3",
-          "when": "resourceExtname =~ /\\.(spec|test)\\.(ts|js|tsx|jsx)$/"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "qagenai.generateTestsForFile",
-          "when": "view == qagenai.coverageView && viewItem == fileWithoutTest",
-          "group": "inline"
-        },
-        {
-          "command": "qagenai.generateTestsForFile",
-          "when": "view == qagenai.coverageView && viewItem == fileWithoutTest"
-        },
-        {
-          "command": "qagenai.generateTestsForFile",
-          "when": "view == qagenai.coverageView && viewItem == testTypeRecommendation",
-          "group": "inline"
-        },
-        {
-          "command": "qagenai.generateTestsForFile",
-          "when": "view == qagenai.coverageView && viewItem == testTypeRecommendation"
-        },
-        {
-          "command": "qagenai.improveTest",
-          "when": "view == qagenai.coverageView && viewItem == fileWithTest",
-          "group": "inline"
-        },
-        {
-          "command": "qagenai.improveTest",
-          "when": "view == qagenai.coverageView && viewItem == fileWithTest"
-        },
-        {
-          "command": "qagenai.installFramework",
-          "when": "view == qagenai.coverageView && viewItem == recommendedFramework",
-          "group": "inline"
-        },
-        {
-          "command": "qagenai.installFramework",
-          "when": "view == qagenai.coverageView && viewItem == recommendedFramework"
-        },
-        {
-          "command": "qagenai.generateAllTests",
-          "when": "view == qagenai.coverageView && viewItem == category",
-          "group": "inline"
-        },
-        {
-          "command": "qagenai.runTests",
-          "when": "view == qagenai.coverageView && viewItem =~ /testType-.*-installed/",
-          "group": "inline"
-        },
-        {
-          "command": "qagenai.installTestFramework",
-          "when": "view == qagenai.coverageView && viewItem =~ /testType-.*-missing/",
-          "group": "inline"
-        },
-        {
-          "command": "qagenai.installTestFramework",
-          "when": "view == qagenai.coverageView && viewItem =~ /testType-.*-notConfigured/",
-          "group": "inline"
-        }
-      ],
-      "view/title": [
-        {
-          "command": "qagenai.analyzeWorkspace",
-          "when": "view == qagenai.coverageView",
-          "group": "navigation"
-        }
-      ]
-    },
     "viewsContainers": {
       "activitybar": [
         {
@@ -224,41 +83,33 @@
       "qagenai": [
         {
           "type": "webview",
-          "id": "qagenai.coverageView",
-          "name": "Test Coverage",
-          "icon": "$(graph)",
-          "contextualTitle": "Coverage Analysis"
+          "id": "qagenai.dashboard",
+          "name": "Dashboard"
         }
       ]
     },
-    "viewsWelcome": [
-      {
-        "view": "qagenai.coverageView",
-        "contents": "Welcome to QAgenAI! ✨\n\nAnalyze your project to see test coverage.\n\n[$(sync) Analyze Project](command:qagenai.analyzeWorkspace)\n\n[$(sparkle) Generate Tests](command:qagenai.generateTests)\n\nOr right-click any file to generate tests."
-      }
-    ],
     "configuration": {
       "title": "QAgenAI",
       "properties": {
-        "qagenai.apiKey": {
+        "qagenai.e2e.baseUrl": {
           "type": "string",
           "default": "",
-          "markdownDescription": "**Claude API Key** for AI test generation\n\nGet your API key from: [Anthropic Console](https://console.anthropic.com)"
+          "description": "Base URL for E2E tests"
         },
-        "qagenai.apiUrl": {
+        "qagenai.e2e.selectorPolicy": {
           "type": "string",
-          "default": "http://localhost:3001",
-          "markdownDescription": "**Backend API URL**\n\nDefault: `http://localhost:3001`"
+          "enum": [
+            "testid",
+            "role",
+            "css"
+          ],
+          "default": "testid",
+          "description": "Preferred selector strategy for generated tests"
         },
-        "qagenai.enableAnimations": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable smooth animations and transitions in the UI"
-        },
-        "qagenai.autoAnalyze": {
-          "type": "boolean",
-          "default": true,
-          "description": "Automatically analyze coverage when workspace opens"
+        "qagenai.coverageGoal": {
+          "type": "number",
+          "default": 80,
+          "description": "Target test coverage percentage"
         }
       }
     }
@@ -267,8 +118,8 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile",
-    "lint": "eslint src --ext ts"
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
@@ -276,10 +127,9 @@
     "@typescript-eslint/eslint-plugin": "^6.13.0",
     "@typescript-eslint/parser": "^6.13.0",
     "eslint": "^8.54.0",
-    "typescript": "^5.3.2"
+    "typescript": "^5.3.0"
   },
   "dependencies": {
-    "axios": "^1.6.2",
-    "playwright": "^1.57.0"
+    "socket.io-client": "^4.8.3"
   }
 }

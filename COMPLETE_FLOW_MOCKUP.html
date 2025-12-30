@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QAgenAI - Complete User Flow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #1e1e2e;
+            --bg-secondary: #282838;
+            --bg-card: #313244;
+            --bg-hover: #45475a;
+            --accent-purple: #cba6f7;
+            --accent-green: #a6e3a1;
+            --accent-yellow: #f9e2af;
+            --accent-red: #f38ba8;
+            --accent-blue: #89b4fa;
+            --accent-orange: #fab387;
+            --text-primary: #cdd6f4;
+            --text-secondary: #a6adc8;
+            --text-muted: #6c7086;
+            --border: #45475a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+
+        /* Flow Steps */
+        .flow-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .flow-step {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .flow-step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Progress Bar */
+        .flow-progress {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .progress-dot:hover {
+            border-color: var(--accent-purple);
+        }
+
+        .progress-dot.active {
+            background: var(--accent-purple);
+            border-color: var(--accent-purple);
+            color: var(--bg-primary);
+        }
+
+        .progress-dot.completed {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: var(--bg-primary);
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            max-width: 80px;
+            text-align: center;
+        }
+
+        .progress-line {
+            width: 40px;
+            height: 2px;
+            background: var(--border);
+        }
+
+        .progress-line.completed {
+            background: var(--accent-green);
+        }
+
+        /* Screen Container */
+        .screen {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .screen-header {
+            background: var(--bg-card);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .screen-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .screen-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .screen-badge.step {
+            background: rgba(203, 166, 247, 0.2);
+            color: var(--accent-purple);
+        }
+
+        .screen-body {
+            padding: 24px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .card-icon.purple { background: rgba(203, 166, 247, 0.2); }
+        .card-icon.green { background: rgba(166, 227, 161, 0.2); }
+        .card-icon.red { background: rgba(243, 139, 168, 0.2); }
+        .card-icon.yellow { background: rgba(249, 226, 175, 0.2); }
+        .card-icon.blue { background: rgba(137, 180, 250, 0.2); }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* File Info */
+        .file-info {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .file-path {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 13px;
+            color: var(--accent-blue);
+            margin-bottom: 8px;
+        }
+
+        .file-meta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .file-meta-item {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .file-meta-item span {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Function List */
+        .function-group {
+            margin-bottom: 20px;
+        }
+
+        .function-group-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .function-group-header.critical { color: var(--accent-red); }
+        .function-group-header.recommended { color: var(--accent-yellow); }
+        .function-group-header.optional { color: var(--text-muted); }
+
+        .function-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .function-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .function-checkbox {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .function-checkbox.checked {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: var(--bg-primary);
+        }
+
+        .function-checkbox.partial {
+            background: var(--accent-yellow);
+            border-color: var(--accent-yellow);
+            color: var(--bg-primary);
+        }
+
+        .function-info {
+            flex: 1;
+        }
+
+        .function-name {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .function-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .function-tests {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        .function-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .function-badge.critical {
+            background: rgba(243, 139, 168, 0.2);
+            color: var(--accent-red);
+        }
+
+        /* Test Cases Breakdown */
+        .test-case {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .test-case:last-child {
+            border-bottom: none;
+        }
+
+        .test-case-icon {
+            font-size: 10px;
+        }
+
+        .test-case-icon.pass { color: var(--accent-green); }
+        .test-case-icon.pending { color: var(--text-muted); }
+
+        /* Progress Animation */
+        .generation-progress {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--bg-hover);
+            border-top-color: var(--accent-purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 24px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .progress-text {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .progress-detail {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .progress-bar-container {
+            background: var(--bg-hover);
+            border-radius: 8px;
+            height: 8px;
+            margin-top: 24px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
+            border-radius: 8px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .progress-step-item.active {
+            color: var(--accent-purple);
+            font-weight: 500;
+        }
+
+        .progress-step-item.done {
+            color: var(--accent-green);
+        }
+
+        /* Coverage Stats */
+        .coverage-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .coverage-stat {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .coverage-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .coverage-stat-value.green { color: var(--accent-green); }
+        .coverage-stat-value.purple { color: var(--accent-purple); }
+        .coverage-stat-value.blue { color: var(--accent-blue); }
+
+        .coverage-stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .coverage-bar {
+            height: 8px;
+            background: var(--bg-hover);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .coverage-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .coverage-bar-fill.green { background: var(--accent-green); }
+        .coverage-bar-fill.yellow { background: var(--accent-yellow); }
+        .coverage-bar-fill.red { background: var(--accent-red); }
+
+        /* Result Summary */
+        .result-header {
+            text-align: center;
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(166, 227, 161, 0.1), rgba(137, 180, 250, 0.1));
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .result-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .result-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .result-subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-purple), #b4befe);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(203, 166, 247, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+        }
+
+        .btn-success {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        /* Summary Card */
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            color: var(--text-muted);
+        }
+
+        .summary-value {
+            font-weight: 500;
+        }
+
+        /* Code Preview */
+        .code-preview {
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .code-line {
+            display: flex;
+        }
+
+        .code-line-number {
+            color: var(--text-muted);
+            min-width: 30px;
+            user-select: none;
+        }
+
+        .code-line-content {
+            color: var(--text-secondary);
+        }
+
+        .code-keyword { color: var(--accent-purple); }
+        .code-string { color: var(--accent-green); }
+        .code-function { color: var(--accent-blue); }
+        .code-comment { color: var(--text-muted); }
+
+        /* Missing Coverage */
+        .missing-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(243, 139, 168, 0.1);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 3px solid var(--accent-red);
+        }
+
+        .missing-item-icon {
+            color: var(--accent-red);
+        }
+
+        .missing-item-text {
+            flex: 1;
+            font-size: 13px;
+        }
+
+        .missing-item-action {
+            padding: 6px 12px;
+            background: var(--accent-purple);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* Dashboard Preview */
+        .dashboard-file {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .dashboard-file-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .dashboard-file-name {
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dashboard-file-coverage {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .dashboard-functions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+        }
+
+        .dashboard-function {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .dashboard-function-icon {
+            font-size: 10px;
+        }
+
+        .nav-hint {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <h1>QAgenAI - Complete User Flow</h1>
+    <p class="subtitle">Klikni na brojeve da vidiš svaki korak</p>
+
+    <!-- Progress Bar -->
+    <div class="flow-progress">
+        <div class="progress-step">
+            <div class="progress-dot completed" onclick="showStep(1)">1</div>
+            <div class="progress-label">Select File</div>
+        </div>
+        <div class="progress-line completed"></div>
+        <div class="progress-step">
+            <div class="progress-dot active" onclick="showStep(2)">2</div>
+            <div class="progress-label">Preview Tests</div>
+        </div>
+        <div class="progress-line"></div>
+        <div class="progress-step">
+            <div class="progress-dot" onclick="showStep(3)">3</div>
+            <div class="progress-label">Generating</div>
+        </div>
+        <div class="progress-line"></div>
+        <div class="progress-step">
+            <div class="progress-dot" onclick="showStep(4)">4</div>
+            <div class="progress-label">Results</div>
+        </div>
+        <div class="progress-line"></div>
+        <div class="progress-step">
+            <div class="progress-dot" onclick="showStep(5)">5</div>
+            <div class="progress-label">Dashboard</div>
+        </div>
+    </div>
+
+    <div class="flow-container">
+        <!-- STEP 1: Select File -->
+        <div class="flow-step active" id="step1">
+            <div class="screen">
+                <div class="screen-header">
+                    <div class="screen-title">
+                        <span>🎯</span>
+                        Priority Queue
+                    </div>
+                    <span class="screen-badge step">Step 1: Select File</span>
+                </div>
+                <div class="screen-body">
+                    <p style="color: var(--text-muted); margin-bottom: 20px;">
+                        AI analyzed your project and prioritized files that need tests:
+                    </p>
+
+                    <div class="card" style="border-left: 4px solid var(--accent-red); cursor: pointer;" onclick="showStep(2)">
+                        <div class="card-header">
+                            <div class="card-icon red">💳</div>
+                            <div>
+                                <div class="card-title">payment.service.ts</div>
+                                <div class="card-subtitle">Critical • Handles payments • No tests</div>
+                            </div>
+                            <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
+                                <span style="color: var(--accent-red); font-weight: 600;">0%</span>
+                                <button class="btn btn-primary" style="padding: 8px 16px; font-size: 13px;">Generate</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="border-left: 4px solid var(--accent-red);">
+                        <div class="card-header">
+                            <div class="card-icon red">🔐</div>
+                            <div>
+                                <div class="card-title">auth.controller.ts</div>
+                                <div class="card-subtitle">Critical • Authentication logic • Outdated tests</div>
+                            </div>
+                            <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
+                                <span style="color: var(--accent-red); font-weight: 600;">12%</span>
+                                <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 13px;">Improve</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="border-left: 4px solid var(--accent-orange);">
+                        <div class="card-header">
+                            <div class="card-icon yellow">🛒</div>
+                            <div>
+                                <div class="card-title">useCart.ts</div>
+                                <div class="card-subtitle">High • Used by 12 components</div>
+                            </div>
+                            <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
+                                <span style="color: var(--accent-yellow); font-weight: 600;">45%</span>
+                                <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 13px;">Improve</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nav-hint">👆 Klikni na "payment.service.ts" da nastaviš</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 2: Preview Tests -->
+        <div class="flow-step" id="step2">
+            <div class="screen">
+                <div class="screen-header">
+                    <div class="screen-title">
+                        <span>🔍</span>
+                        Test Preview
+                    </div>
+                    <span class="screen-badge step">Step 2: Choose What to Test</span>
+                </div>
+                <div class="screen-body">
+                    <div class="file-info">
+                        <div class="file-path">src/services/payment.service.ts</div>
+                        <div class="file-meta">
+                            <div class="file-meta-item">Type: <span>TypeScript Service</span></div>
+                            <div class="file-meta-item">Lines: <span>289</span></div>
+                            <div class="file-meta-item">Functions: <span>5</span></div>
+                            <div class="file-meta-item">Complexity: <span style="color: var(--accent-red);">High</span></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div style="font-weight: 600; margin-bottom: 16px;">📋 Select what to test:</div>
+
+                        <!-- Critical -->
+                        <div class="function-group">
+                            <div class="function-group-header critical">
+                                🔴 CRITICAL (Must Test)
+                            </div>
+                            <div class="function-item" onclick="this.querySelector('.function-checkbox').classList.toggle('checked')">
+                                <div class="function-checkbox checked">✓</div>
+                                <div class="function-info">
+                                    <div class="function-name">processPayment()</div>
+                                    <div class="function-desc">Handles credit card transactions</div>
+                                    <div class="function-tests">→ 3 test cases: success, card error, timeout</div>
+                                </div>
+                                <span class="function-badge critical">Financial</span>
+                            </div>
+                            <div class="function-item" onclick="this.querySelector('.function-checkbox').classList.toggle('checked')">
+                                <div class="function-checkbox checked">✓</div>
+                                <div class="function-info">
+                                    <div class="function-name">refundPayment()</div>
+                                    <div class="function-desc">Processes refunds and cancellations</div>
+                                    <div class="function-tests">→ 3 test cases: full, partial, already refunded</div>
+                                </div>
+                                <span class="function-badge critical">Financial</span>
+                            </div>
+                        </div>
+
+                        <!-- Recommended -->
+                        <div class="function-group">
+                            <div class="function-group-header recommended">
+                                🟡 RECOMMENDED
+                            </div>
+                            <div class="function-item" onclick="this.querySelector('.function-checkbox').classList.toggle('checked')">
+                                <div class="function-checkbox checked">✓</div>
+                                <div class="function-info">
+                                    <div class="function-name">validateCard()</div>
+                                    <div class="function-desc">Validates card number, expiry, CVV</div>
+                                    <div class="function-tests">→ 3 test cases: valid, expired, invalid CVV</div>
+                                </div>
+                            </div>
+                            <div class="function-item" onclick="this.querySelector('.function-checkbox').classList.toggle('checked')">
+                                <div class="function-checkbox checked">✓</div>
+                                <div class="function-info">
+                                    <div class="function-name">calculateFees()</div>
+                                    <div class="function-desc">Calculates transaction fees</div>
+                                    <div class="function-tests">→ 2 test cases: standard, international</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Optional -->
+                        <div class="function-group">
+                            <div class="function-group-header optional">
+                                ⚪ OPTIONAL (Lower Priority)
+                            </div>
+                            <div class="function-item" onclick="this.querySelector('.function-checkbox').classList.toggle('checked')">
+                                <div class="function-checkbox"></div>
+                                <div class="function-info">
+                                    <div class="function-name">getPaymentHistory()</div>
+                                    <div class="function-desc">Fetches past transactions (read-only)</div>
+                                    <div class="function-tests">→ 2 test cases: with data, empty</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summary -->
+                    <div class="card" style="background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));">
+                        <div class="summary-row">
+                            <span class="summary-label">Functions to test:</span>
+                            <span class="summary-value">4 of 5</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Test cases:</span>
+                            <span class="summary-value">11 tests</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Estimated coverage:</span>
+                            <span class="summary-value" style="color: var(--accent-green);">~82%</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Generation time:</span>
+                            <span class="summary-value">~30 seconds</span>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="showStep(1)">← Back</button>
+                        <button class="btn btn-primary" onclick="showStep(3)">✨ Generate Tests</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3: Generating -->
+        <div class="flow-step" id="step3">
+            <div class="screen">
+                <div class="screen-header">
+                    <div class="screen-title">
+                        <span>⚡</span>
+                        Generating Tests
+                    </div>
+                    <span class="screen-badge step">Step 3: AI at Work</span>
+                </div>
+                <div class="screen-body">
+                    <div class="generation-progress">
+                        <div class="spinner"></div>
+                        <div class="progress-text">Generating tests for payment.service.ts</div>
+                        <div class="progress-detail">Creating test case 7 of 11...</div>
+
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" style="width: 65%;"></div>
+                        </div>
+
+                        <div class="progress-steps">
+                            <span class="progress-step-item done">✓ Analyzing code</span>
+                            <span class="progress-step-item done">✓ Planning tests</span>
+                            <span class="progress-step-item active">● Writing tests</span>
+                            <span class="progress-step-item">○ Validating</span>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 24px;">
+                        <div style="font-weight: 600; margin-bottom: 12px;">📝 Live Preview:</div>
+                        <div class="code-preview">
+                            <div class="code-line">
+                                <span class="code-line-number">1</span>
+                                <span class="code-line-content"><span class="code-keyword">describe</span>(<span class="code-string">'PaymentService'</span>, () => {</span>
+                            </div>
+                            <div class="code-line">
+                                <span class="code-line-number">2</span>
+                                <span class="code-line-content">  <span class="code-keyword">describe</span>(<span class="code-string">'processPayment'</span>, () => {</span>
+                            </div>
+                            <div class="code-line">
+                                <span class="code-line-number">3</span>
+                                <span class="code-line-content">    <span class="code-function">it</span>(<span class="code-string">'should process valid payment'</span>, <span class="code-keyword">async</span> () => {</span>
+                            </div>
+                            <div class="code-line">
+                                <span class="code-line-number">4</span>
+                                <span class="code-line-content">      <span class="code-comment">// Generating...</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" disabled>Please wait...</button>
+                        <button class="btn btn-primary" onclick="showStep(4)">Skip to Results →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 4: Results -->
+        <div class="flow-step" id="step4">
+            <div class="screen">
+                <div class="screen-header">
+                    <div class="screen-title">
+                        <span>✅</span>
+                        Tests Generated
+                    </div>
+                    <span class="screen-badge step">Step 4: Review Results</span>
+                </div>
+                <div class="screen-body">
+                    <div class="result-header">
+                        <div class="result-icon">🎉</div>
+                        <div class="result-title">11 Tests Generated Successfully!</div>
+                        <div class="result-subtitle">payment.service.ts → payment.service.test.ts</div>
+                    </div>
+
+                    <!-- Coverage Stats -->
+                    <div class="coverage-stats">
+                        <div class="coverage-stat">
+                            <div class="coverage-stat-value green">82%</div>
+                            <div class="coverage-stat-label">Coverage</div>
+                            <div class="coverage-bar">
+                                <div class="coverage-bar-fill green" style="width: 82%;"></div>
+                            </div>
+                        </div>
+                        <div class="coverage-stat">
+                            <div class="coverage-stat-value purple">11</div>
+                            <div class="coverage-stat-label">Test Cases</div>
+                        </div>
+                        <div class="coverage-stat">
+                            <div class="coverage-stat-value blue">4/5</div>
+                            <div class="coverage-stat-label">Functions</div>
+                        </div>
+                        <div class="coverage-stat">
+                            <div class="coverage-stat-value green">✓</div>
+                            <div class="coverage-stat-label">All Passing</div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Breakdown -->
+                    <div class="card">
+                        <div style="font-weight: 600; margin-bottom: 16px;">📊 Coverage Breakdown:</div>
+
+                        <div class="function-item" style="background: transparent; padding: 0; margin-bottom: 16px;">
+                            <div class="function-checkbox checked">✓</div>
+                            <div class="function-info">
+                                <div class="function-name">processPayment() <span style="color: var(--accent-green); font-size: 12px;">100%</span></div>
+                                <div style="margin-top: 8px; padding-left: 8px; border-left: 2px solid var(--border);">
+                                    <div class="test-case"><span class="test-case-icon pass">✓</span> should process valid payment successfully</div>
+                                    <div class="test-case"><span class="test-case-icon pass">✓</span> should throw error for declined card</div>
+                                    <div class="test-case"><span class="test-case-icon pass">✓</span> should handle network timeout</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="function-item" style="background: transparent; padding: 0; margin-bottom: 16px;">
+                            <div class="function-checkbox checked">✓</div>
+                            <div class="function-info">
+                                <div class="function-name">refundPayment() <span style="color: var(--accent-green); font-size: 12px;">100%</span></div>
+                                <div style="margin-top: 8px; padding-left: 8px; border-left: 2px solid var(--border);">
+                                    <div class="test-case"><span class="test-case-icon pass">✓</span> should process full refund</div>
+                                    <div class="test-case"><span class="test-case-icon pass">✓</span> should process partial refund</div>
+                                    <div class="test-case"><span class="test-case-icon pass">✓</span> should reject already refunded transaction</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="function-item" style="background: transparent; padding: 0; margin-bottom: 16px;">
+                            <div class="function-checkbox checked">✓</div>
+                            <div class="function-info">
+                                <div class="function-name">validateCard() <span style="color: var(--accent-green); font-size: 12px;">100%</span></div>
+                                <div style="margin-top: 8px; padding-left: 8px; border-left: 2px solid var(--border);">
+                                    <div class="test-case"><span class="test-case-icon pass">✓</span> should validate correct card number</div>
+                                    <div class="test-case"><span class="test-case-icon pass">✓</span> should reject expired card</div>
+                                    <div class="test-case"><span class="test-case-icon pass">✓</span> should reject invalid CVV</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="function-item" style="background: transparent; padding: 0; margin-bottom: 16px;">
+                            <div class="function-checkbox checked">✓</div>
+                            <div class="function-info">
+                                <div class="function-name">calculateFees() <span style="color: var(--accent-green); font-size: 12px;">100%</span></div>
+                                <div style="margin-top: 8px; padding-left: 8px; border-left: 2px solid var(--border);">
+                                    <div class="test-case"><span class="test-case-icon pass">✓</span> should calculate standard fee</div>
+                                    <div class="test-case"><span class="test-case-icon pass">✓</span> should calculate international fee</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Missing Coverage -->
+                    <div class="card">
+                        <div style="font-weight: 600; margin-bottom: 16px; color: var(--accent-yellow);">⚠️ Missing Coverage:</div>
+                        
+                        <div class="missing-item">
+                            <span class="missing-item-icon">○</span>
+                            <div class="missing-item-text">
+                                <strong>getPaymentHistory()</strong> - Not tested (skipped as optional)
+                            </div>
+                            <button class="missing-item-action">+ Add Tests</button>
+                        </div>
+
+                        <div class="missing-item">
+                            <span class="missing-item-icon">○</span>
+                            <div class="missing-item-text">
+                                <strong>Lines 156-159</strong> - Uncovered branch (rare error case)
+                            </div>
+                            <button class="missing-item-action">+ Add Tests</button>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-secondary">👁️ View Test File</button>
+                        <button class="btn btn-secondary">▶️ Run Tests</button>
+                        <button class="btn btn-primary" onclick="showStep(5)">Done →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 5: Dashboard -->
+        <div class="flow-step" id="step5">
+            <div class="screen">
+                <div class="screen-header">
+                    <div class="screen-title">
+                        <span>📊</span>
+                        Dashboard
+                    </div>
+                    <span class="screen-badge step">Step 5: Ongoing Status</span>
+                </div>
+                <div class="screen-body">
+                    <p style="color: var(--text-muted); margin-bottom: 20px;">
+                        Your test coverage is now tracked. Here's the current status:
+                    </p>
+
+                    <!-- Overall Stats -->
+                    <div class="coverage-stats" style="margin-bottom: 24px;">
+                        <div class="coverage-stat">
+                            <div class="coverage-stat-value green">78%</div>
+                            <div class="coverage-stat-label">Total Coverage</div>
+                        </div>
+                        <div class="coverage-stat">
+                            <div class="coverage-stat-value purple">167</div>
+                            <div class="coverage-stat-label">Total Tests</div>
+                        </div>
+                        <div class="coverage-stat">
+                            <div class="coverage-stat-value blue">46/58</div>
+                            <div class="coverage-stat-label">Files Tested</div>
+                        </div>
+                    </div>
+
+                    <!-- Per-File Breakdown -->
+                    <div class="dashboard-file" style="border-left: 4px solid var(--accent-green);">
+                        <div class="dashboard-file-header">
+                            <div class="dashboard-file-name">
+                                <span>✅</span>
+                                payment.service.ts
+                            </div>
+                            <div class="dashboard-file-coverage" style="color: var(--accent-green);">82%</div>
+                        </div>
+                        <div class="dashboard-functions">
+                            <div class="dashboard-function">
+                                <span class="dashboard-function-icon" style="color: var(--accent-green);">✓</span>
+                                processPayment (100%)
+                            </div>
+                            <div class="dashboard-function">
+                                <span class="dashboard-function-icon" style="color: var(--accent-green);">✓</span>
+                                refundPayment (100%)
+                            </div>
+                            <div class="dashboard-function">
+                                <span class="dashboard-function-icon" style="color: var(--accent-green);">✓</span>
+                                validateCard (100%)
+                            </div>
+                            <div class="dashboard-function">
+                                <span class="dashboard-function-icon" style="color: var(--accent-green);">✓</span>
+                                calculateFees (100%)
+                            </div>
+                            <div class="dashboard-function">
+                                <span class="dashboard-function-icon" style="color: var(--accent-red);">○</span>
+                                getPaymentHistory (0%)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-file" style="border-left: 4px solid var(--accent-red);">
+                        <div class="dashboard-file-header">
+                            <div class="dashboard-file-name">
+                                <span>🔴</span>
+                                auth.controller.ts
+                            </div>
+                            <div class="dashboard-file-coverage" style="color: var(--accent-red);">12%</div>
+                        </div>
+                        <div class="dashboard-functions">
+                            <div class="dashboard-function">
+                                <span class="dashboard-function-icon" style="color: var(--accent-green);">✓</span>
+                                login (100%)
+                            </div>
+                            <div class="dashboard-function">
+                                <span class="dashboard-function-icon" style="color: var(--accent-red);">○</span>
+                                register (0%)
+                            </div>
+                            <div class="dashboard-function">
+                                <span class="dashboard-function-icon" style="color: var(--accent-red);">○</span>
+                                resetPassword (0%)
+                            </div>
+                            <div class="dashboard-function">
+                                <span class="dashboard-function-icon" style="color: var(--accent-red);">○</span>
+                                verifyEmail (0%)
+                            </div>
+                        </div>
+                        <div style="margin-top: 12px;">
+                            <button class="btn btn-primary" style="padding: 8px 16px; font-size: 13px;" onclick="showStep(2)">Generate Missing Tests</button>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-file" style="border-left: 4px solid var(--accent-yellow);">
+                        <div class="dashboard-file-header">
+                            <div class="dashboard-file-name">
+                                <span>🟡</span>
+                                useCart.ts
+                            </div>
+                            <div class="dashboard-file-coverage" style="color: var(--accent-yellow);">45%</div>
+                        </div>
+                        <div class="dashboard-functions">
+                            <div class="dashboard-function">
+                                <span class="dashboard-function-icon" style="color: var(--accent-green);">✓</span>
+                                addItem (100%)
+                            </div>
+                            <div class="dashboard-function">
+                                <span class="dashboard-function-icon" style="color: var(--accent-green);">✓</span>
+                                removeItem (100%)
+                            </div>
+                            <div class="dashboard-function">
+                                <span class="dashboard-function-icon" style="color: var(--accent-red);">○</span>
+                                updateQuantity (0%)
+                            </div>
+                            <div class="dashboard-function">
+                                <span class="dashboard-function-icon" style="color: var(--accent-red);">○</span>
+                                clearCart (0%)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="showStep(1)">← Back to Priority Queue</button>
+                        <button class="btn btn-success">🎯 Fix All Critical Files</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showStep(step) {
+            // Hide all steps
+            document.querySelectorAll('.flow-step').forEach(s => s.classList.remove('active'));
+            
+            // Show selected step
+            document.getElementById('step' + step).classList.add('active');
+            
+            // Update progress dots
+            document.querySelectorAll('.progress-dot').forEach((dot, index) => {
+                dot.classList.remove('active', 'completed');
+                if (index + 1 < step) {
+                    dot.classList.add('completed');
+                } else if (index + 1 === step) {
+                    dot.classList.add('active');
+                }
+            });
+
+            // Update progress lines
+            document.querySelectorAll('.progress-line').forEach((line, index) => {
+                line.classList.remove('completed');
+                if (index + 1 < step) {
+                    line.classList.add('completed');
+                }
+            });
+        }
+
+        // Initialize
+        showStep(1);
+    </script>
+</body>
+</html>

@@ -1,89 +1,254 @@
 import * as vscode from 'vscode';
-import axios from 'axios';
+import { DiscoveredFlow } from '../types';
+import { log } from '../extension';
 
-export class BackendApiService {
-    private getApiUrl(): string {
-        const config = vscode.workspace.getConfiguration('qagenai');
-        return config.get<string>('apiUrl') || 'http://localhost:3001';
+/**
+ * BackendAPIService - Communicates with QAgenAI backend
+ */
+export class BackendAPIService {
+  private baseUrl: string;
+
+  constructor() {
+    // Get backend URL from settings or default to localhost
+    this.baseUrl = vscode.workspace.getConfiguration('qagenai').get('backendUrl') || 'http://localhost:3001';
+  }
+
+  /**
+   * Check if backend is available
+   */
+  async isAvailable(): Promise<boolean> {
+    try {
+      log('Checking backend at:', this.baseUrl);
+      
+      // Ping health endpoint to check if backend is running
+      const response = await fetch(`${this.baseUrl}/system/health`, {
+        method: 'GET',
+        signal: AbortSignal.timeout(3000), // 3s timeout
+      });
+      
+      if (!response.ok) {
+        log('Backend health check failed:', response.status);
+        return false;
+      }
+      
+      const health = await response.json() as { status: string };
+      log('Backend is healthy:', health.status);
+      return health.status === 'ok';
+    } catch (error) {
+      log('Backend not available:', (error as Error).message);
+      return false;
     }
+  }
 
-    async analyzeWorkspace(workspacePath: string) {
-        const apiUrl = this.getApiUrl();
-        
-        const response = await axios.post(`${apiUrl}/analyze/workspace`, {
-            workspacePath
-        }, {
-            headers: { 'Content-Type': 'application/json' },
-            timeout: 30000
-        });
+  /**
+   * Discover flows using AI (backend)
+   */
+  async discoverFlowsWithAI(workspacePath: string): Promise<DiscoveredFlow[]> {
+    try {
+      log('Calling backend for flow discovery:', workspacePath);
+      
+      const response = await fetch(`${this.baseUrl}/analyze/flows/discover`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspacePath }),
+        signal: AbortSignal.timeout(60000), // 60s timeout for AI
+      });
 
-        let report = response.data;
-        
-        // Fetch setup recommendations and include them in report
-        try {
-            const recommendationsResponse = await axios.post(`${apiUrl}/analyze/setup-recommendations`, {
-                workspacePath: workspacePath
-            });
-            
-            report.stack = recommendationsResponse.data.stack;
-            report.recommendations = recommendationsResponse.data.recommendations;
-        } catch (error: any) {
-            console.error('Failed to fetch recommendations:', error);
-        }
-        
-        return report;
+      if (!response.ok) {
+        log('Backend error:', response.status);
+        throw new Error(`Backend error: ${response.status}`);
+      }
+
+      const result = await response.json() as { flows?: DiscoveredFlow[] };
+      log('Backend returned:', result.flows?.length || 0, 'flows');
+      
+      // Map backend response to include 'selected' property
+      const flows = (result.flows || []).map(f => ({
+        ...f,
+        selected: true,
+      }));
+      
+      log('Mapped flows:', flows.length);
+      return flows;
+    } catch (error) {
+      log('Flow discovery failed:', error);
+      return [];
     }
+  }
 
-    async getTestTypeRecommendations(fileType: string, frameworks: any) {
-        const apiUrl = this.getApiUrl();
-        
-        const response = await axios.post(`${apiUrl}/analyze/test-type-recommendations`, {
-            fileType,
-            frameworks
-        });
-        
-        return response.data.recommendations;
-    }
+  /**
+   * Get enhanced workspace analysis
+   */
+  async analyzeWorkspace(workspacePath: string): Promise<any> {
+    try {
+      const response = await fetch(`${this.baseUrl}/analyze/enhanced`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspacePath }),
+        signal: AbortSignal.timeout(30000),
+      });
 
-    async getSetupRecommendations(workspacePath: string) {
-        const apiUrl = this.getApiUrl();
-        
-        const response = await axios.post(`${apiUrl}/analyze/setup-recommendations`, {
-            workspacePath
-        });
-        
-        return response.data;
-    }
+      if (!response.ok) {
+        throw new Error(`Backend error: ${response.status}`);
+      }
 
-    async generateTests(code: string, fileName: string, language: string) {
-        const apiUrl = this.getApiUrl();
-        
-        const response = await axios.post(`${apiUrl}/generate/tests`, {
-            code,
-            fileName,
-            language
-        }, {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            timeout: 60000
-        });
-        
-        return response.data.tests;
+      return await response.json();
+    } catch (error) {
+      console.error('Workspace analysis failed:', error);
+      return null;
     }
+  }
 
-    async callAgent(query: string, context: any, maxIterations: number = 10) {
-        const apiUrl = this.getApiUrl();
-        
-        const response = await axios.post(`${apiUrl}/generate/agent`, {
-            query,
-            context,
-            maxIterations
-        }, {
-            headers: { 'Content-Type': 'application/json' },
-            timeout: 60000
-        });
-        
-        return response;
+  /**
+   * Discover E2E journeys using SMART multi-strategy system
+   * This is the NEW system that uses graph + form + intent synthesis (3 parallel strategies)
+   * Returns journeys with user-friendly names (emoji icons) and enriched data
+   */
+  async discoverJourneysHolistic(workspacePath: string): Promise<E2EJourney[]> {
+    try {
+      log('Calling SMART journey discovery + auto-enrichment:', workspacePath);
+      
+      // Use NEW endpoint that auto-enriches critical journeys
+      const response = await fetch(`${this.baseUrl}/analyze/journeys/discover-and-enrich`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspacePath }),
+        signal: AbortSignal.timeout(60000), // 60s timeout
+      });
+
+      if (!response.ok) {
+        log('Journey discovery error:', response.status);
+        throw new Error(`Backend error: ${response.status}`);
+      }
+
+      const result = await response.json() as EnrichedJourneyDiscoveryResult;
+      log('Journey discovery complete:', {
+        total: result.totalJourneys || 0,
+        enriched: result.enrichedJourneys || 0,
+        time: result.analysisTime + 'ms'
+      });
+      
+      return result.journeys || [];
+    } catch (error) {
+      log('Journey discovery failed:', error);
+      return [];
     }
+  }
+  
+  /**
+   * Generate test for a specific journey
+   */
+  async generateTestForJourney(journey: E2EJourney, workspacePath: string): Promise<TestGenerationResult> {
+    try {
+      log('Generating test for journey:', journey.name);
+      
+      const response = await fetch(`${this.baseUrl}/analyze/generate-test`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ journey, workspacePath }),
+        signal: AbortSignal.timeout(30000),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Backend error: ${response.status}`);
+      }
+      
+      const result = await response.json() as TestGenerationResult;
+      log('Test generated:', result.fileName, `(${result.stats?.testCases} tests)`);
+      
+      return result;
+    } catch (error) {
+      log('Test generation failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update backend URL
+   */
+  setBaseUrl(url: string): void {
+    this.baseUrl = url;
+  }
+}
+
+// Types for journey discovery
+export interface E2EJourney {
+  name: string; // User-friendly name with emoji (e.g., "👤 User Login")
+  description: string;
+  steps: JourneyStep[];
+  priority: number; // 1 = critical, 2 = medium, 3 = low
+  tags: string[];
+  category?: 'authentication' | 'crud' | 'navigation' | 'workflow' | null;
+  status?: 'enriched' | 'discovery-only';
+  estimatedDuration?: number; // seconds
+  stepCount?: number;
+  components?: { name: string; path: string }[];
+  metadata?: {
+    technicalName?: string; // Original technical name
+    formComponent?: string;
+  };
+  enrichedData?: EnrichedJourneyData;
+}
+
+export interface EnrichedJourneyData {
+  components: Array<{
+    name: string;
+    path: string;
+    fields: Array<{
+      selector: string;
+      type: string;
+      allSelectors?: any[];
+    }>;
+    validations: Array<{
+      fieldName: string;
+      rules: Array<{ type: string; errorMessage?: string }>;
+    }>;
+    apis: Array<{
+      method: string;
+      endpoint: string;
+      libraryUsed?: string;
+    }>;
+    state?: any[];
+  }>;
+  testDataSuggestions?: {
+    validTestData?: Record<string, any>;
+    invalidTestData?: Record<string, any>;
+  };
+  edgeCases: string[];
+  estimatedTestCases: number;
+  estimatedCodeLines: number;
+}
+
+export interface JourneyStep {
+  action: 'navigate' | 'click' | 'fill' | 'submit' | 'verify' | 'wait';
+  component: string;
+  target: string;
+  description: string; // User-friendly description
+  details?: string; // Technical details
+  assertions?: string[];
+}
+
+interface EnrichedJourneyDiscoveryResult {
+  success: boolean;
+  totalJourneys: number;
+  enrichedJourneys: number;
+  journeys: E2EJourney[];
+  analysisTime: number;
+  metadata?: {
+    nodeCount: number;
+    edgeCount: number;
+    cycleCount: number;
+    componentCount?: number;
+  };
+}
+
+export interface TestGenerationResult {
+  success: boolean;
+  testCode: string;
+  fileName: string;
+  stats: {
+    linesOfCode: number;
+    testCases: number;
+  };
+  error?: string;
 }

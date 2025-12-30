@@ -8,6 +8,27 @@ async function bootstrap() {
   // Increase payload limits for file uploads
   app.use(json({ limit: '10mb' }));
   app.use(urlencoded({ extended: true, limit: '10mb' }));
+  
+  // DEBUG: Log all incoming requests
+  app.use((req: any, res: any, next: any) => {
+    if (req.path.includes('/analyze/generate-test')) {
+      console.log('\n🔍 INCOMING REQUEST:', req.method, req.path);
+      console.log('📦 Body keys:', Object.keys(req.body || {}));
+      if (req.body?.journey) {
+        console.log('  Journey name:', req.body.journey.name);
+        console.log('  Has enrichedData:', !!req.body.journey.enrichedData);
+        console.log('  Components count:', req.body.journey.enrichedData?.components?.length || 0);
+        if (req.body.journey.enrichedData?.components?.[0]) {
+          const comp = req.body.journey.enrichedData.components[0];
+          console.log('  First component keys:', Object.keys(comp).join(', '));
+          console.log('  Elements count:', comp.elements?.length || 0);
+          console.log('  Validations count:', comp.validations?.length || 0);
+          console.log('  ApiCalls count:', comp.apiCalls?.length || 0);
+        }
+      }
+    }
+    next();
+  });
 
   const port = process.env.PORT || 3001;
   await app.listen(port);

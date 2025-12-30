@@ -1,482 +1,384 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { StackType, TechnologyStack, TechnologyInfo, TestTypeMatrix, FrameworkInfo, FrameworkStatus, TestType } from '../types/enhanced-analysis.types';
-import { FileScannerService, ScannedFile } from './file-scanner.service';
-import { TestFileDetectorService } from './test-file-detector.service';
+import { DetectedStack } from '../types';
 
 /**
- * ProjectDetectionService
+ * ProjectDetectionService - Detects frameworks and tools in any project
  * 
- * Detects project type (Frontend/Backend/Fullstack) from:
+ * Analyzes:
  * - package.json dependencies
- * - Folder structure (src/components, src/controllers)
- * - Config files (next.config.js, nest-cli.json)
- * 
- * Returns TechnologyStack[] with detected frameworks and test type matrix.
+ * - Config files (tsconfig, vite, playwright, etc.)
+ * - Folder structure (monorepo detection)
  */
 export class ProjectDetectionService {
-  private fileScanner = new FileScannerService();
-  private testDetector = new TestFileDetectorService();
   
   /**
-   * Detect technology stacks in workspace
+   * Detect full stack from workspace
    */
-  async detectStacks(workspaceRoot: string): Promise<TechnologyStack[]> {
-    const stacks: TechnologyStack[] = [];
-    
-    // Read package.json
-    const packageJsonPath = path.join(workspaceRoot, 'package.json');
-    if (!fs.existsSync(packageJsonPath)) {
-      return stacks;
+  async detectStack(workspaceRoot?: string): Promise<DetectedStack> {
+    const root = workspaceRoot || this.getWorkspaceRoot();
+    if (!root) {
+      return { isMonorepo: false };
     }
-    
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
-    const allDeps = {
-      ...packageJson.dependencies || {},
-      ...packageJson.devDependencies || {}
+
+    const packageJson = await this.readPackageJson(root);
+    const allDeps = this.getAllDependencies(packageJson);
+
+    const frontend = this.detectFrontend(allDeps, root);
+    const backend = this.detectBackend(allDeps, root);
+
+    const stack: DetectedStack = {
+      projectType: this.determineProjectType(frontend, backend),
+      frontend,
+      backend,
+      e2e: await this.detectE2E(allDeps, root),
+      unit: this.detectUnitTesting(allDeps),
+      api: await this.detectApiSpec(root),
+      isMonorepo: await this.detectMonorepo(root),
     };
-    
-    // Detect Frontend
-    const frontendStack = await this.detectFrontend(workspaceRoot, allDeps);
-    if (frontendStack) {
-      // Scan files and populate counts
-      await this.populateStackCounts(workspaceRoot, frontendStack);
-      stacks.push(frontendStack);
-    }
-    
-    // Detect Backend
-    const backendStack = await this.detectBackend(workspaceRoot, allDeps);
-    if (backendStack) {
-      // Scan files and populate counts
-      await this.populateStackCounts(workspaceRoot, backendStack);
-      stacks.push(backendStack);
-    }
-    
-    return stacks;
+
+    // Clean up undefined values
+    if (!stack.frontend) delete stack.frontend;
+    if (!stack.backend) delete stack.backend;
+    if (!stack.e2e) delete stack.e2e;
+    if (!stack.unit) delete stack.unit;
+    if (!stack.api) delete stack.api;
+
+    return stack;
   }
-  
+
   /**
-   * Detect Frontend stack (React, Vue, Angular, Next.js, etc.)
+   * Determine project type based on detected frameworks
    */
-  private detectFrontend(workspaceRoot: string, deps: Record<string, string>): TechnologyStack | null {
-    const technologies: TechnologyInfo[] = [];
-    let detected = false;
-    
-    // React detection
-    if (deps['react'] || deps['react-dom']) {
-      detected = true;
-      const version = deps['react'] || deps['react-dom'];
-      technologies.push({
-        language: 'TypeScript',
-        displayName: `React ${this.parseVersion(version)}`,
-        projectType: 'spa',
-        confidence: 95,
-        indicators: ['react', 'react-dom'],
-        icon: '⚛️',
-        color: '#61DAFB'
-      });
-      
-      // Next.js detection
-      if (deps['next']) {
-        technologies.push({
-          language: 'TypeScript',
-          displayName: `Next.js ${this.parseVersion(deps['next'])}`,
-          projectType: 'spa',
-          confidence: 98,
-          indicators: ['next.config.js', 'app/', 'pages/'],
-          icon: '▲',
-          color: '#000000'
-        });
-      }
+  private determineProjectType(
+    frontend: DetectedStack['frontend'] | undefined,
+    backend: DetectedStack['backend'] | undefined
+  ): 'frontend' | 'backend' | 'fullstack' {
+    if (frontend && backend) return 'fullstack';
+    if (frontend) return 'frontend';
+    if (backend) return 'backend';
+    return 'frontend'; // Default to frontend if nothing detected
+  }
+
+  // ============================================
+  // Frontend Detection
+  // ============================================
+
+  private detectFrontend(deps: Record<string, string>, root: string): DetectedStack['frontend'] | undefined {
+    // React
+    if (deps['react']) {
+      return {
+        framework: deps['next'] ? 'Next.js' : 'React',
+        version: deps['react'],
+        buildTool: this.detectBuildTool(deps, root),
+      };
     }
-    
-    // Vue detection
+
+    // Vue
     if (deps['vue']) {
-      detected = true;
-      technologies.push({
-        language: 'TypeScript',
-        displayName: `Vue ${this.parseVersion(deps['vue'])}`,
-        projectType: 'spa',
-        confidence: 95,
-        indicators: ['vue', 'vue.config.js'],
-        icon: '💚',
-        color: '#42b883'
-      });
+      return {
+        framework: deps['nuxt'] ? 'Nuxt' : 'Vue',
+        version: deps['vue'],
+        buildTool: this.detectBuildTool(deps, root),
+      };
     }
-    
-    if (!detected) {
-      return null;
+
+    // Angular
+    if (deps['@angular/core']) {
+      return {
+        framework: 'Angular',
+        version: deps['@angular/core'],
+        buildTool: 'Angular CLI',
+      };
     }
-    
-    // Build test type matrix for Frontend
-    const testTypes = this.buildFrontendTestMatrix(workspaceRoot, deps);
-    
-    return {
-      type: 'frontend',
-      name: technologies[0]?.displayName || 'Frontend',
-      technologies,
-      testTypes,
-      fileCount: 0, // Will be populated by analysis
-      testedCount: 0,
-      coverage: 0
-    };
+
+    // Svelte
+    if (deps['svelte']) {
+      return {
+        framework: deps['@sveltejs/kit'] ? 'SvelteKit' : 'Svelte',
+        version: deps['svelte'],
+        buildTool: 'Vite',
+      };
+    }
+
+    return undefined;
   }
-  
-  /**
-   * Detect Backend stack (NestJS, Express, Fastify, etc.)
-   */
-  private detectBackend(workspaceRoot: string, deps: Record<string, string>): TechnologyStack | null {
-    const technologies: TechnologyInfo[] = [];
-    let detected = false;
-    
-    // NestJS detection
-    if (deps['@nestjs/core'] || deps['@nestjs/common']) {
-      detected = true;
-      const version = deps['@nestjs/core'] || deps['@nestjs/common'];
-      technologies.push({
-        language: 'TypeScript',
-        displayName: `NestJS ${this.parseVersion(version)}`,
-        projectType: 'web-api',
-        confidence: 98,
-        indicators: ['nest-cli.json', '@nestjs/core', 'src/main.ts'],
-        icon: '🐈',
-        color: '#E0234E'
-      });
+
+  private detectBuildTool(deps: Record<string, string>, root: string): string | undefined {
+    if (deps['vite'] || this.fileExists(root, 'vite.config.ts') || this.fileExists(root, 'vite.config.js')) {
+      return 'Vite';
     }
-    
-    // Express detection
-    if (deps['express'] && !deps['@nestjs/core']) {
-      detected = true;
-      technologies.push({
-        language: 'JavaScript',
-        displayName: `Express ${this.parseVersion(deps['express'])}`,
-        projectType: 'web-api',
-        confidence: 90,
-        indicators: ['express', 'app.js', 'server.js'],
-        icon: '🚂',
-        color: '#000000'
-      });
+    if (deps['webpack'] || this.fileExists(root, 'webpack.config.js')) {
+      return 'Webpack';
     }
-    
-    // Fastify detection
+    if (deps['esbuild']) {
+      return 'esbuild';
+    }
+    if (deps['next']) {
+      return 'Next.js';
+    }
+    return undefined;
+  }
+
+  // ============================================
+  // Backend Detection
+  // ============================================
+
+  private detectBackend(deps: Record<string, string>, root: string): DetectedStack['backend'] | undefined {
+    // NestJS
+    if (deps['@nestjs/core']) {
+      return {
+        framework: 'NestJS',
+        version: deps['@nestjs/core'],
+        orm: this.detectORM(deps),
+      };
+    }
+
+    // Express
+    if (deps['express']) {
+      return {
+        framework: 'Express',
+        version: deps['express'],
+        orm: this.detectORM(deps),
+      };
+    }
+
+    // Fastify
     if (deps['fastify']) {
-      detected = true;
-      technologies.push({
-        language: 'JavaScript',
-        displayName: `Fastify ${this.parseVersion(deps['fastify'])}`,
-        projectType: 'web-api',
-        confidence: 92,
-        indicators: ['fastify', 'server.js'],
-        icon: '⚡',
-        color: '#000000'
-      });
+      return {
+        framework: 'Fastify',
+        version: deps['fastify'],
+        orm: this.detectORM(deps),
+      };
     }
-    
-    if (!detected) {
-      return null;
+
+    // Koa
+    if (deps['koa']) {
+      return {
+        framework: 'Koa',
+        version: deps['koa'],
+        orm: this.detectORM(deps),
+      };
     }
-    
-    // Build test type matrix for Backend
-    const testTypes = this.buildBackendTestMatrix(workspaceRoot, deps);
-    
-    return {
-      type: 'backend',
-      name: technologies[0]?.displayName || 'Backend',
-      technologies,
-      testTypes,
-      fileCount: 0,
-      testedCount: 0,
-      coverage: 0
-    };
+
+    return undefined;
   }
-  
-  /**
-   * Build test type matrix for Frontend
-   */
-  private buildFrontendTestMatrix(workspaceRoot: string, deps: Record<string, string>): TestTypeMatrix[] {
-    const matrix: TestTypeMatrix[] = [];
-    
-    // Read package.json to detect available scripts
-    const packageJsonPath = path.join(workspaceRoot, 'package.json');
-    let availableScripts: Record<string, string> = {};
-    try {
-      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
-      availableScripts = packageJson.scripts || {};
-    } catch (error) {
-      // Fallback if package.json not readable
+
+  private detectORM(deps: Record<string, string>): string | undefined {
+    if (deps['typeorm']) return 'TypeORM';
+    if (deps['prisma'] || deps['@prisma/client']) return 'Prisma';
+    if (deps['sequelize']) return 'Sequelize';
+    if (deps['mongoose']) return 'Mongoose';
+    if (deps['drizzle-orm']) return 'Drizzle';
+    if (deps['knex']) return 'Knex';
+    return undefined;
+  }
+
+  // ============================================
+  // E2E Testing Detection
+  // ============================================
+
+  private async detectE2E(deps: Record<string, string>, root: string): Promise<DetectedStack['e2e'] | undefined> {
+    // Playwright
+    if (deps['@playwright/test'] || deps['playwright']) {
+      const configPath = await this.findConfigFile(root, [
+        'playwright.config.ts',
+        'playwright.config.js',
+        'playwright.config.mjs',
+      ]);
+      return {
+        framework: 'Playwright',
+        installed: true,
+        configPath: configPath ? path.relative(root, configPath) : undefined,
+      };
     }
-    
-    // Component Tests (React Testing Library)
-    const hasRTL = deps['@testing-library/react'] !== undefined;
-    const hasJest = deps['jest'] !== undefined;
-    console.log('[ProjectDetection] Frontend deps check:', { hasRTL, hasJest, deps: Object.keys(deps) });
-    const componentRunCommand = this.detectRunCommand(availableScripts, ['test:component', 'test', 'jest']);
-    
-    // Unit Tests (Jest) - for utility functions, helpers, etc.
-    const unitRunCommand = this.detectRunCommand(availableScripts, ['test:unit', 'test', 'jest']);
-    
-    matrix.push({
-      testType: 'unit',
-      framework: {
-        name: 'Jest',
-        version: hasJest ? this.parseVersion(deps['jest']) : undefined,
-        status: hasJest ? 'installed' : 'missing',
-        configFiles: ['jest.config.js'],
-        marketShare: 88,
-        reason: 'Industry standard for JavaScript/TypeScript unit testing',
-        installCommand: 'npm install --save-dev jest @types/jest ts-jest',
-        setupGuide: 'https://jestjs.io/docs/getting-started'
-      },
-      status: hasJest ? 'installed' : 'missing',
-      coverage: 0,
-      filesTotal: 0,
-      filesTested: 0,
-      filesUntested: 0,
-      outputPath: 'src/**/*.spec.ts',
-      runCommand: unitRunCommand || 'npm test',
-      recommendedFiles: []
-    });
-    
-    // Component Tests (React Testing Library)
-    matrix.push({
-      testType: 'component',
-      framework: {
-        name: hasRTL ? 'React Testing Library' : 'Jest',
-        version: hasRTL ? this.parseVersion(deps['@testing-library/react']) : this.parseVersion(deps['jest']),
-        status: hasRTL ? 'installed' : (hasJest ? 'not-configured' : 'missing'),
-        configFiles: ['jest.config.js', 'setupTests.ts'],
-        marketShare: 85,
-        reason: 'Industry standard for React component testing',
-        installCommand: 'npm install --save-dev @testing-library/react @testing-library/jest-dom',
-        setupGuide: 'https://testing-library.com/docs/react-testing-library/intro/'
-      },
-      status: hasRTL ? 'installed' : (hasJest ? 'not-configured' : 'missing'),
-      coverage: 0,
-      filesTotal: 0,
-      filesTested: 0,
-      filesUntested: 0,
-      outputPath: 'src/__tests__/components/',
-      runCommand: componentRunCommand || 'npm test',
-      recommendedFiles: []
-    });
-    
-    // E2E Tests (Playwright)
-    const hasPlaywright = deps['@playwright/test'] !== undefined;
-    const e2eRunCommand = this.detectRunCommand(availableScripts, ['test:e2e', 'e2e', 'playwright']);
-    
-    // Playwright can run directly with npx, so mark as installed if package exists
-    const playwrightStatus: 'installed' | 'not-configured' | 'missing' = hasPlaywright ? 'installed' : 'missing';
-    
-    matrix.push({
-      testType: 'e2e',
-      framework: {
-        name: 'Playwright',
-        version: hasPlaywright ? this.parseVersion(deps['@playwright/test']) : undefined,
-        status: playwrightStatus,
-        configFiles: ['playwright.config.ts'],
-        marketShare: 67,
-        reason: 'Modern, fast, and reliable E2E testing for web apps',
-        installCommand: 'npm init playwright@latest',
-        setupGuide: 'https://playwright.dev/docs/intro'
-      },
-      status: playwrightStatus,
-      coverage: 0,
-      filesTotal: 0,
-      filesTested: 0,
-      filesUntested: 0,
-      outputPath: 'tests/e2e/',
-      runCommand: e2eRunCommand || 'npx playwright test', // Use default if no script
-      recommendedFiles: []
-    });
-    
-    // Visual Tests (Chromatic) - optional
-    const hasChromatic = deps['chromatic'] !== undefined;
-    const visualRunCommand = this.detectRunCommand(availableScripts, ['chromatic', 'test:visual']);
-    
-    matrix.push({
-      testType: 'visual',
-      framework: {
-        name: 'Chromatic',
-        version: hasChromatic ? this.parseVersion(deps['chromatic']) : undefined,
-        status: hasChromatic ? 'installed' : 'missing',
-        marketShare: 45,
-        reason: 'Visual regression testing with Storybook integration',
-        installCommand: 'npm install --save-dev chromatic',
-        setupGuide: 'https://www.chromatic.com/docs/'
-      },
-      status: hasChromatic ? 'installed' : 'missing',
-      coverage: 0,
-      filesTotal: 0,
-      filesTested: 0,
-      filesUntested: 0,
-      outputPath: '.chromatic/',
-      runCommand: visualRunCommand || 'npx chromatic',
-      recommendedFiles: []
-    });
-    
-    return matrix;
-  }
-  
-  /**
-   * Build test type matrix for Backend
-   */
-  private buildBackendTestMatrix(workspaceRoot: string, deps: Record<string, string>): TestTypeMatrix[] {
-    const matrix: TestTypeMatrix[] = [];
-    
-    // Read package.json to detect available scripts
-    const packageJsonPath = path.join(workspaceRoot, 'package.json');
-    let availableScripts: Record<string, string> = {};
-    try {
-      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
-      availableScripts = packageJson.scripts || {};
-    } catch (error) {
-      // Fallback if package.json not readable
+
+    // Cypress
+    if (deps['cypress']) {
+      const configPath = await this.findConfigFile(root, [
+        'cypress.config.ts',
+        'cypress.config.js',
+        'cypress.json',
+      ]);
+      return {
+        framework: 'Cypress',
+        installed: true,
+        configPath: configPath ? path.relative(root, configPath) : undefined,
+      };
     }
-    
-    // Unit Tests (Jest)
-    const hasJest = deps['jest'] !== undefined;
-    console.log('[ProjectDetection] Backend deps check:', { hasJest, deps: Object.keys(deps) });
-    const unitRunCommand = this.detectRunCommand(availableScripts, ['test:unit', 'test', 'jest']);
-    
-    matrix.push({
-      testType: 'unit',
-      framework: {
-        name: 'Jest',
-        version: hasJest ? this.parseVersion(deps['jest']) : undefined,
-        status: hasJest ? 'installed' : 'missing',
-        configFiles: ['jest.config.js'],
-        marketShare: 88,
-        reason: 'Industry standard for Node.js unit testing',
-        installCommand: 'npm install --save-dev jest @types/jest ts-jest',
-        setupGuide: 'https://jestjs.io/docs/getting-started'
-      },
-      status: hasJest ? 'installed' : 'missing',
-      coverage: 0,
-      filesTotal: 0,
-      filesTested: 0,
-      filesUntested: 0,
-      outputPath: 'src/**/*.spec.ts',
-      runCommand: unitRunCommand || 'npm test',
-      recommendedFiles: []
-    });
-    
-    // Integration Tests (Supertest)
-    const hasSupertest = deps['supertest'] !== undefined;
-    const integrationRunCommand = this.detectRunCommand(availableScripts, ['test:integration', 'test:int', 'test']);
-    
-    matrix.push({
-      testType: 'integration',
-      framework: {
-        name: 'Supertest',
-        version: hasSupertest ? this.parseVersion(deps['supertest']) : undefined,
-        status: hasSupertest ? 'installed' : 'missing',
-        marketShare: 75,
-        reason: 'HTTP assertion library for Node.js integration testing',
-        installCommand: 'npm install --save-dev supertest @types/supertest',
-        setupGuide: 'https://github.com/visionmedia/supertest'
-      },
-      status: hasSupertest ? 'installed' : 'missing',
-      coverage: 0,
-      filesTotal: 0,
-      filesTested: 0,
-      filesUntested: 0,
-      outputPath: 'test/integration/*.spec.ts',
-      runCommand: integrationRunCommand || 'npm test',
-      recommendedFiles: []
-    });
-    
-    // E2E API Tests (Supertest)
-    const e2eRunCommand = this.detectRunCommand(availableScripts, ['test:e2e', 'test:api', 'test']);
-    
-    matrix.push({
-      testType: 'api',
-      framework: {
-        name: 'Supertest',
-        version: hasSupertest ? this.parseVersion(deps['supertest']) : undefined,
-        status: hasSupertest ? 'installed' : 'not-configured',
-        marketShare: 75,
-        reason: 'Full API flow testing with real database',
-        installCommand: 'npm install --save-dev supertest @types/supertest',
-        setupGuide: 'https://github.com/visionmedia/supertest'
-      },
-      status: hasSupertest ? 'not-configured' : 'missing',
-      coverage: 0,
-      filesTotal: 0,
-      filesTested: 0,
-      filesUntested: 0,
-      outputPath: 'test/e2e/*.spec.ts',
-      runCommand: e2eRunCommand || 'npm test',
-      recommendedFiles: []
-    });
-    
-    return matrix;
+
+    // Check if config exists even without dependency
+    const playwrightConfig = await this.findConfigFile(root, ['playwright.config.ts', 'playwright.config.js']);
+    if (playwrightConfig) {
+      return {
+        framework: 'Playwright',
+        installed: false,
+        configPath: path.relative(root, playwrightConfig),
+      };
+    }
+
+    const cypressConfig = await this.findConfigFile(root, ['cypress.config.ts', 'cypress.config.js', 'cypress.json']);
+    if (cypressConfig) {
+      return {
+        framework: 'Cypress',
+        installed: false,
+        configPath: path.relative(root, cypressConfig),
+      };
+    }
+
+    return undefined;
   }
-  
-  /**
-   * Parse version from dependency string (e.g. "^18.2.0" -> "18.2.0")
-   */
-  private parseVersion(versionString: string): string {
-    if (!versionString) return '';
-    return versionString.replace(/^[\^~]/, '');
+
+  // ============================================
+  // Unit Testing Detection
+  // ============================================
+
+  private detectUnitTesting(deps: Record<string, string>): DetectedStack['unit'] | undefined {
+    if (deps['jest'] || deps['@jest/core']) {
+      return { framework: 'Jest', installed: true };
+    }
+    if (deps['vitest']) {
+      return { framework: 'Vitest', installed: true };
+    }
+    if (deps['mocha']) {
+      return { framework: 'Mocha', installed: true };
+    }
+    if (deps['@testing-library/react']) {
+      return { framework: 'React Testing Library', installed: true };
+    }
+    return undefined;
   }
-  
-  /**
-   * Detect run command from available package.json scripts
-   * Tries candidates in order and returns first match, or null if none found
-   */
-  private detectRunCommand(scripts: Record<string, string>, candidates: string[]): string | null {
-    // Try each candidate script name
-    for (const candidate of candidates) {
-      if (scripts[candidate]) {
-        return `npm run ${candidate}`;
+
+  // ============================================
+  // API Spec Detection
+  // ============================================
+
+  private async detectApiSpec(root: string): Promise<DetectedStack['api'] | undefined> {
+    // OpenAPI / Swagger
+    const openapiFiles = [
+      'openapi.json', 'openapi.yaml', 'openapi.yml',
+      'swagger.json', 'swagger.yaml', 'swagger.yml',
+      'api-spec.json', 'api-spec.yaml',
+    ];
+    
+    for (const file of openapiFiles) {
+      if (this.fileExists(root, file)) {
+        return { spec: 'openapi', path: file };
       }
     }
+
+    // Postman
+    const postmanPattern = /\.postman_collection\.json$/;
+    const files = await this.listFiles(root);
+    const postmanFile = files.find(f => postmanPattern.test(f));
+    if (postmanFile) {
+      return { spec: 'postman', path: postmanFile };
+    }
+
+    // HAR
+    const harFile = files.find(f => f.endsWith('.har'));
+    if (harFile) {
+      return { spec: 'har', path: harFile };
+    }
+
+    return undefined;
+  }
+
+  // ============================================
+  // Monorepo Detection
+  // ============================================
+
+  private async detectMonorepo(root: string): Promise<boolean> {
+    // Check for monorepo patterns
+    const monorepoIndicators = [
+      'apps',
+      'packages',
+      'libs',
+      'projects',
+    ];
+
+    for (const dir of monorepoIndicators) {
+      const dirPath = path.join(root, dir);
+      if (this.directoryExists(dirPath)) {
+        return true;
+      }
+    }
+
+    // Check for workspace config
+    const packageJson = await this.readPackageJson(root);
+    if (packageJson?.workspaces) {
+      return true;
+    }
+
+    // Check for monorepo tools
+    if (this.fileExists(root, 'pnpm-workspace.yaml') ||
+        this.fileExists(root, 'lerna.json') ||
+        this.fileExists(root, 'nx.json') ||
+        this.fileExists(root, 'turbo.json')) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // ============================================
+  // Helper Methods
+  // ============================================
+
+  private getWorkspaceRoot(): string | undefined {
+    return vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+  }
+
+  private async readPackageJson(root: string): Promise<Record<string, unknown> | null> {
+    const pkgPath = path.join(root, 'package.json');
+    try {
+      const content = fs.readFileSync(pkgPath, 'utf-8');
+      return JSON.parse(content);
+    } catch {
+      return null;
+    }
+  }
+
+  private getAllDependencies(packageJson: Record<string, unknown> | null): Record<string, string> {
+    if (!packageJson) return {};
     
-    // No matching script found
+    const deps = (packageJson.dependencies as Record<string, string>) || {};
+    const devDeps = (packageJson.devDependencies as Record<string, string>) || {};
+    
+    return { ...deps, ...devDeps };
+  }
+
+  private fileExists(root: string, filename: string): boolean {
+    return fs.existsSync(path.join(root, filename));
+  }
+
+  private directoryExists(dirPath: string): boolean {
+    try {
+      return fs.statSync(dirPath).isDirectory();
+    } catch {
+      return false;
+    }
+  }
+
+  private async findConfigFile(root: string, candidates: string[]): Promise<string | null> {
+    for (const candidate of candidates) {
+      const fullPath = path.join(root, candidate);
+      if (fs.existsSync(fullPath)) {
+        return fullPath;
+      }
+    }
     return null;
   }
-  
-  /**
-   * Populate file counts for a stack by scanning workspace
-   */
-  private async populateStackCounts(workspaceRoot: string, stack: TechnologyStack): Promise<void> {
-    // Scan files for this stack
-    const sourceFiles = await this.fileScanner.scanStackFiles(workspaceRoot, stack.type);
-    
-    // Match test files to source files
-    await this.testDetector.matchTestFiles(workspaceRoot, sourceFiles);
-    
-    // Categorize files by test type
-    const filesByTestType = this.testDetector.categorizeFilesByTestType(sourceFiles);
-    
-    // Populate counts in test type matrix
-    for (const testTypeMatrix of stack.testTypes) {
-      const filesForType = filesByTestType.get(testTypeMatrix.testType) || [];
-      
-      testTypeMatrix.filesTotal = filesForType.length;
-      testTypeMatrix.filesTested = filesForType.filter(f => f.hasTest).length;
-      testTypeMatrix.filesUntested = filesForType.filter(f => !f.hasTest).length;
-      
-      // Calculate coverage
-      if (testTypeMatrix.filesTotal > 0) {
-        testTypeMatrix.coverage = Math.round(
-          (testTypeMatrix.filesTested / testTypeMatrix.filesTotal) * 100
-        );
-      }
-      
-      // Store files for later use (TreeView children)
-      testTypeMatrix.recommendedFiles = filesForType.map(f => f.relativePath);
+
+  private async listFiles(root: string): Promise<string[]> {
+    try {
+      return fs.readdirSync(root).filter(f => {
+        const stat = fs.statSync(path.join(root, f));
+        return stat.isFile();
+      });
+    } catch {
+      return [];
     }
-    
-    // Calculate overall stack counts
-    stack.fileCount = sourceFiles.length;
-    stack.testedCount = sourceFiles.filter(f => f.hasTest).length;
-    stack.coverage = stack.fileCount > 0 
-      ? Math.round((stack.testedCount / stack.fileCount) * 100)
-      : 0;
-    
-    // Store scanned files for TreeView display
-    stack.scannedFiles = sourceFiles;
   }
 }

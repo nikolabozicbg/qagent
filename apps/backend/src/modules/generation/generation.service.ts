@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import { AgentService } from './agent.service';
 import { TestEnforcementService } from './test-enforcement.service';
+import { RuntimeInspectorService } from './runtime-inspector.service';
 import { AIProviderService } from '../../services/ai-provider.service';
 
 @Injectable()
@@ -13,6 +14,7 @@ export class GenerationService {
     private configService: ConfigService,
     private agentService: AgentService,
     private enforcementService: TestEnforcementService,
+    private runtimeInspector: RuntimeInspectorService,
     private aiProvider: AIProviderService
   ) {
     // Log which AI provider is being used
@@ -640,6 +642,290 @@ class TestCalculator:
     });
     
     return result;
+  }
+
+  /**
+   * Generate E2E Playwright test from flow data
+   * Used by VS Code extension when user clicks ✨ on a flow
+   */
+  async generateE2EFromFlow({ flow, config, componentCode }: {
+    flow: {
+      name: string;
+      description?: string;
+      routes?: string[];
+      components?: string[];
+    };
+    config: {
+      baseUrl: string;
+      selectorPolicy: string;
+      framework: string;
+    };
+    componentCode?: string;
+  }) {
+    const slugName = flow.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const filename = `${slugName}.spec.ts`;
+    const route = flow.routes?.[0] || '/';
+    
+    console.log(`🎭 E2E Generation: ${flow.name}`);
+    console.log(`   Route: ${route}, BaseUrl: ${config.baseUrl}`);
+    
+    // Check if AI provider is configured
+    if (!this.aiProvider.isConfigured()) {
+      console.log(`⚠️  Using template mode (no AI provider configured)`);
+      return {
+        code: this.buildE2ETemplate(flow, config, route),
+        filename,
+        _meta: { mode: 'template', reason: 'no_api_key' }
+      };
+    }
+    
+    const providerInfo = this.aiProvider.getProviderInfo();
+    console.log(`🔑 Using ${providerInfo.provider} (${providerInfo.model})`);
+    const startTime = Date.now();
+    
+    // LEVEL 3: Try runtime page inspection for REAL selectors
+    let pageStructure: string | undefined;
+    try {
+      const fullUrl = `${config.baseUrl}${route}`;
+      console.log(`🔍 Attempting runtime inspection: ${fullUrl}`);
+      const structure = await this.runtimeInspector.inspectPage(fullUrl, 15000);
+      pageStructure = this.runtimeInspector.formatStructureForPrompt(structure);
+      console.log(`✅ Runtime inspection successful!`);
+    } catch (error) {
+      console.log(`⚠️  Runtime inspection failed (${error.message}) - falling back to component code`);
+      pageStructure = undefined;
+    }
+    
+    const prompt = this.buildE2EPrompt(flow, config, route, componentCode, pageStructure);
+    
+    try {
+      const response = await this.aiProvider.createCompletion({
+        messages: [
+          {
+            role: 'system',
+            content: `You are QAgenAI, an expert E2E test engineer. Generate production-ready Playwright tests. Output ONLY the test code, no explanations or markdown fences.`,
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.7,
+        maxTokens: 4000,
+      });
+      
+      const elapsed = Date.now() - startTime;
+      console.log(`✅ E2E generation completed in ${(elapsed / 1000).toFixed(2)}s`);
+      
+      let code = response.content.trim();
+      code = this.stripMarkdownFences(code);
+      
+      return {
+        code,
+        filename,
+        _meta: {
+          mode: response.provider,
+          model: response.model,
+          duration: elapsed / 1000,
+          tokens: response.usage.totalTokens,
+        }
+      };
+    } catch (error) {
+      console.error('❌ AI API error:', error.message);
+      console.log('⚠️  Falling back to template mode');
+      return {
+        code: this.buildE2ETemplate(flow, config, route),
+        filename,
+        _meta: { mode: 'template', reason: 'api_error', error: error.message }
+      };
+    }
+  }
+  
+  private buildE2EPrompt(flow: { name: string; description?: string; routes?: string[]; components?: string[] }, config: { baseUrl: string; selectorPolicy: string }, route: string, componentCode?: string, pageStructure?: string): string {
+    const selectorGuidance = {
+      'testid': 'Use data-testid attributes: page.getByTestId("..."). This is the most stable approach.',
+      'role': 'Use ARIA roles: page.getByRole("button", { name: "..." }). More accessible.',
+      'css': 'Use CSS selectors: page.locator("..."). Use sparingly for complex cases.',
+    };
+    
+    // Detect route params like :language, :id
+    const hasRouteParams = route.includes(':');
+    const routeParams = route.match(/:[a-zA-Z]+/g) || [];
+    
+    // If we have runtime page structure, add it (PRIORITY 1)
+    const pageStructureSection = pageStructure ? `
+
+${pageStructure}
+
+CRITICAL: The above selectors are from LIVE PAGE INSPECTION.
+These are the ONLY selectors that exist on the page.
+You MUST use these exact selectors in your test.
+DO NOT invent any other selectors!
+` : '';
+    
+    // If we have component code, add it to the prompt for better selector generation (PRIORITY 2)
+    const componentSection = componentCode ? `
+
+ACTUAL COMPONENT CODE:
+\`\`\`tsx
+${componentCode.substring(0, 8000)}
+\`\`\`
+
+IMPORTANT: Analyze the component code above to find REAL selectors:
+- Look for data-testid attributes and use them with getByTestId()
+- Look for button/link text and use getByRole() with name
+- Look for form labels and use getByLabel()
+- Look for headings and use getByRole('heading')
+- Look for placeholder text and use getByPlaceholder()
+- DO NOT invent selectors that don't exist in the code!
+` : '';
+    
+    return `Generate a comprehensive Playwright E2E test for the following flow:
+
+FLOW NAME: ${flow.name}
+DESCRIPTION: ${flow.description || 'User flow'}
+ROUTE: ${route}
+${Array.isArray(flow.components) && flow.components.length ? `COMPONENTS INVOLVED: ${flow.components.join(', ')}` : ''}
+${Array.isArray(flow.routes) && flow.routes.length > 1 ? `ALL ROUTES IN FLOW: ${flow.routes.join(' → ')}` : ''}${pageStructureSection}${componentSection}
+
+${hasRouteParams ? `DYNAMIC ROUTE PARAMETERS: ${routeParams.join(', ')}
+IMPORTANT: This route has dynamic parameters. You MUST:
+1. Define constants at the top of the file for each parameter with sensible defaults:
+   const LANGUAGE = process.env.TEST_LANGUAGE || 'en';
+   const USER_ID = process.env.TEST_USER_ID || '1';
+2. Build the URL dynamically: \`\${BASE_URL}/\${LANGUAGE}/privacy-policy\`
+3. Use regex in toHaveURL() to match dynamic segments: expect(page).toHaveURL(/\\/[a-z]{2}\\/privacy-policy/);
+` : ''}
+
+SELECTOR POLICY: ${config.selectorPolicy}
+${selectorGuidance[config.selectorPolicy] || selectorGuidance['testid']}
+
+CRITICAL REQUIREMENTS:
+
+1. BASEURL CONFIGURATION:
+   ⚠️  CRITICAL: User MUST configure baseURL in playwright.config.ts
+   - Use ONLY relative paths: page.goto('/common/rules')
+   - DO NOT use absolute URLs: page.goto('http://localhost:3000/common/rules')
+   - Playwright will prepend baseURL from config automatically
+   - If tests fail with "Cannot navigate to invalid URL", user needs to add:
+     use: { baseURL: 'http://localhost:3002' } to playwright.config.ts
+
+2. SELECTOR STRATEGY (CRITICAL - NO GENERIC SELECTORS!):
+   ❌ NEVER invent generic selectors like:
+      - page.getByTestId('email-form') // unless you see data-testid="email-form" in code
+      - page.getByLabel('Email') // unless you see <label>Email</label> in code
+      - page.getByPlaceholder('Enter your email') // unless you see placeholder="Enter your email" in code
+   
+   ✅ INSTEAD, use SAFE, GENERIC locators that work on any page:
+      - page.locator('form').first() // First form on page
+      - page.locator('input[type="email"]') // Email input by type
+      - page.locator('input[type="password"]') // Password input
+      - page.locator('button[type="submit"]') // Submit button
+      - page.locator('h1') // Page heading
+      - page.locator('main') // Main content area
+      - page.getByRole('heading', { level: 1 }) // H1 via role
+      - page.getByRole('button').first() // First button
+   
+   ✅ IF component code is provided, extract REAL selectors:
+      - Search for data-testid="..." and use those
+      - Search for aria-label="..." and use those
+      - Search for button text and use getByRole('button', { name: 'actual text' })
+   
+   ✅ ADD HELPFUL COMMENTS:
+      - // Note: Update selector if page has data-testid attributes
+      - // Note: This uses generic CSS selector - customize for your page
+
+3. TEST STRUCTURE:
+   - Use test.describe for grouping
+   - Use test.beforeEach for navigation
+   - Include 3-5 REALISTIC tests (not fake form assertions)
+
+4. REALISTIC TESTS (Examples):
+   ✅ GOOD:
+   test('page loads and displays content', async ({ page }) => {
+     await expect(page).toHaveURL(/\/common\/rules/);
+     await expect(page.locator('h1, h2, [role="heading"]').first()).toBeVisible();
+     await expect(page.locator('main, #root, .app-content').first()).toBeVisible();
+   });
+   
+   test('page has interactive elements', async ({ page }) => {
+     const buttons = page.locator('button, [role="button"]');
+     await expect(buttons.first()).toBeVisible();
+     // Note: Customize selectors based on actual page elements
+   });
+   
+   ❌ BAD (inventing selectors):
+   test('check if email form elements are visible', async ({ page }) => {
+     await expect(page.getByTestId('email-form')).toBeVisible(); // ❌ May not exist!
+     await expect(page.getByLabel('Email')).toBeVisible(); // ❌ May not exist!
+   });
+
+5. PLAYWRIGHT BEST PRACTICES:
+   - Use modern locators (getByRole, locator)
+   - Always use await with expect
+   - Use .first() when multiple elements match
+   - Add comments explaining selector choices
+
+OUTPUT: Complete TypeScript Playwright test file with SAFE, GENERIC selectors. No markdown, no explanations.`;
+  }
+  
+  private buildE2ETemplate(flow: { name: string; description?: string; routes?: string[] }, config: { baseUrl: string; selectorPolicy: string }, route: string): string {
+    const escapeRoute = route.replace(/\//g, '\\/');
+    
+    return `import { test, expect } from '@playwright/test';
+
+/**
+ * E2E Test: ${flow.name}
+ * ${flow.description || 'Generated by QAgenAI'}
+ * 
+ * Route: ${route}
+ * 
+ * NOTE: This is a TEMPLATE test using SAFE, GENERIC selectors.
+ * Customize selectors based on your actual page structure.
+ * 
+ * IMPORTANT: Configure baseURL in playwright.config.ts:
+ *   use: { baseURL: '${config.baseUrl}' }
+ */
+test.describe('${flow.name}', () => {
+  test.beforeEach(async ({ page }) => {
+    // Navigate using relative path (baseURL configured in playwright.config.ts)
+    await page.goto('${route}');
+  });
+
+  test('page loads successfully', async ({ page }) => {
+    await expect(page).toHaveURL(/.*${escapeRoute}/);
+  });
+
+  test('page displays main content', async ({ page }) => {
+    // Check for common page elements (customize based on your page)
+    await expect(page.locator('h1, h2, [role="heading"]').first()).toBeVisible();
+    await expect(page.locator('main, #root, .app, .app-content').first()).toBeVisible();
+  });
+
+  test('page has interactive elements', async ({ page }) => {
+    // Check for buttons or links (customize based on your page)
+    const interactiveElements = page.locator('button, a, [role="button"], [role="link"]');
+    const count = await interactiveElements.count();
+    expect(count).toBeGreaterThan(0);
+    
+    // Note: Add specific interactions based on your flow requirements:
+    // - Form submissions: page.locator('form').first()
+    // - Button clicks: page.getByRole('button', { name: 'specific text' })
+    // - Navigation: page.getByRole('link', { name: 'specific text' })
+  });
+
+  test('page structure is valid', async ({ page }) => {
+    // Basic accessibility checks
+    const main = page.locator('main, [role="main"]').first();
+    await expect(main).toBeVisible();
+    
+    // Note: Add more specific assertions for your page:
+    // - Check for forms: page.locator('form')
+    // - Check for specific sections: page.locator('[data-testid="..."]')
+    // - Check for error states: page.locator('.error, [role="alert"]')
+  });
+});
+`;
   }
 
   /**

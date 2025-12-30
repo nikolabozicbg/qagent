@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QAgenAI · First Launch (VS Code)</title>
+  <style>
+    :root{--bg:#0b0c10;--card:#111218;--muted:#9aa3b2;--text:#e8eaed;--border:#1d2230;--brand:#a855f7;--brand2:#6366f1;--green:#22c55e}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial;background:linear-gradient(180deg,#0b0c10 0,#0b0c10 60%,#0f1117 100%);color:var(--text)}
+    .wrap{display:grid;place-items:center;min-height:100vh;padding:20px}
+    .wiz{width:min(960px,96vw);background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+    .head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+    .title{font-weight:800}
+    .stepbar{display:flex;gap:8px}
+    .dot{width:10px;height:10px;border-radius:999px;background:#1e2636}
+    .dot.active{background:linear-gradient(90deg,var(--brand),var(--brand2))}
+    .body{padding:18px}
+    .grid{display:grid;gap:12px}
+    .g2{grid-template-columns:1fr 1fr}
+    .g3{grid-template-columns:repeat(3,1fr)}
+    @media(max-width:920px){.g2,.g3{grid-template-columns:1fr}}
+    .card{border:1px solid var(--border);background:rgba(255,255,255,.03);border-radius:12px;padding:16px}
+    h3{margin:0 0 10px;font-size:16px}
+    .muted{color:var(--muted);font-size:12px}
+    input,select,textarea{width:100%;background:#0c0f16;border:1px solid var(--border);border-radius:10px;color:var(--text);padding:10px 12px;font-size:13px}
+    textarea{min-height:100px}
+    .row{display:flex;align-items:center;gap:10px}
+    .btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+    .btn.p{background:linear-gradient(90deg,var(--brand),var(--brand2));color:white}
+    .btn.gh{background:rgba(255,255,255,.06);border:1px solid var(--border);color:#e2e8f0}
+    .actions{display:flex;justify-content:space-between;margin-top:14px}
+    .progress{height:6px;border-radius:6px;background:#121722;overflow:hidden}
+    .bar{height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));width:0%}
+    .list{display:flex;flex-direction:column;gap:8px}
+    .item{display:flex;gap:10px;border:1px solid var(--border);background:#0c0f16;border-radius:10px;padding:10px}
+    .badge{font-size:10px;border:1px solid var(--border);padding:2px 6px;border-radius:999px;color:#cbd5e1}
+    .pill{font-size:11px;border:1px solid var(--border);background:rgba(255,255,255,.04);padding:4px 8px;border-radius:999px;color:#cbd5e1}
+    .right{margin-left:auto}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="wiz">
+      <div class="head">
+        <div class="title" id="ttl">Welcome</div>
+        <div class="stepbar">
+          <div class="dot active" id="d0"></div>
+          <div class="dot" id="d1"></div>
+          <div class="dot" id="d2"></div>
+          <div class="dot" id="d3"></div>
+          <div class="dot" id="d4"></div>
+          <div class="dot" id="d5"></div>
+        </div>
+      </div>
+      <div class="body">
+        <!-- Step 0: Welcome + Mode -->
+        <section id="s0">
+          <div class="card" style="text-align:center">
+            <h3>⚡ Welcome to QAgenAI</h3>
+            <div class="muted" style="margin:6px 0 12px">Your QA assistant for flow‑first test generation</div>
+            <div class="row" style="justify-content:center;gap:12px">
+              <button class="btn p" onclick="next(1)">QA Mode (flow‑first) ✓</button>
+              <button class="btn gh" onclick="next(1)">Dev Mode (file‑first)</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 1: Framework Detection -->
+        <section id="s1" style="display:none">
+          <h3>🎯 Framework Detection</h3>
+          <div class="grid g3" style="margin-top:8px">
+            <div class="card"><h3>Frontend</h3><div class="muted">React 18 • TypeScript • Jest/RTL</div></div>
+            <div class="card"><h3>Backend</h3><div class="muted">NestJS • Jest • Supertest</div></div>
+            <div class="card"><h3>E2E</h3><div class="muted">Playwright (ready)</div></div>
+          </div>
+          <div class="actions"><button class="btn gh" onclick="prev(0)">← Back</button><button class="btn p" onclick="next(2)">Continue →</button></div>
+        </section>
+
+        <!-- Step 2: E2E Setup -->
+        <section id="s2" style="display:none">
+          <h3>🌐 E2E Setup</h3>
+          <div class="grid g2" style="margin-top:8px">
+            <div><div class="muted">Base URL</div><input placeholder="https://staging.example.com" value="https://shop.demo"/></div>
+            <div><div class="muted">Auth</div><select><option>Login form</option><option>Bearer token</option><option>None</option></select></div>
+          </div>
+          <div class="row" style="margin-top:10px"><button class="btn gh" onclick="openImport()">Import recording</button><button class="btn gh" onclick="openDescribe()">Describe flow</button></div>
+          <div class="actions"><button class="btn gh" onclick="prev(1)">← Back</button><button class="btn p" onclick="next(3)">Continue →</button></div>
+        </section>
+
+        <!-- Step 3: Quick Scan -->
+        <section id="s3" style="display:none">
+          <h3>🔍 Quick Scan</h3>
+          <div class="progress" style="margin:10px 0"><div class="bar" id="bar"></div></div>
+          <div class="list">
+            <div class="item"><span class="badge">OK</span><div style="flex:1">Found package.json, tsconfig, jest config</div></div>
+            <div class="item"><span class="badge">OK</span><div style="flex:1">Detected 312 source files · 126 tests</div></div>
+            <div class="item"><span class="badge">…</span><div style="flex:1" id="scanlbl">Analyzing gaps…</div></div>
+          </div>
+          <div class="actions"><button class="btn gh" onclick="prev(2)">← Back</button><button class="btn p" onclick="finishScan()">Skip</button></div>
+        </section>
+
+        <!-- Step 4: Flow Discovery -->
+        <section id="s4" style="display:none">
+          <h3>📚 Flow Discovery</h3>
+          <div class="list" style="margin-top:8px">
+            <div class="item"><span class="badge">FLOW</span><div style="flex:1">Login <span class="pill">confidence 0.92</span></div><button class="btn gh right">Select</button></div>
+            <div class="item"><span class="badge">FLOW</span><div style="flex:1">Checkout <span class="pill">confidence 0.84</span></div><button class="btn gh right">Select</button></div>
+          </div>
+          <div class="actions"><button class="btn gh" onclick="prev(3)">← Back</button><button class="btn p" onclick="next(5)">Continue →</button></div>
+        </section>
+
+        <!-- Step 5: Ready -->
+        <section id="s5" style="display:none">
+          <div class="card" style="text-align:center">
+            <h3>🎉 You are ready!</h3>
+            <div class="muted" style="margin:8px 0">Open Dashboard with Risk Queue, Impact Mode and Flow Library</div>
+            <div class="row" style="justify-content:center;gap:10px">
+              <button class="btn p" onclick="alert('Open Dashboard')">Go to Dashboard →</button>
+              <button class="btn gh" onclick="alert('Fix My Tests')">Fix My Tests</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightweight dialogs -->
+  <div id="dlg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);display:grid;place-items:center">
+    <div class="card" style="width:min(560px,94vw);background:#0c0f16">
+      <h3 id="dlgt">Dialog</h3>
+      <div class="muted" id="dlgb">Content</div>
+      <div class="row" style="margin-top:10px;justify-content:flex-end"><button class="btn gh" onclick="closeDlg()">Close</button></div>
+    </div>
+  </div>
+
+  <script>
+    let step=0;const steps=["s0","s1","s2","s3","s4","s5"];const dots=["d0","d1","d2","d3","d4","d5"];const titles=['Welcome','Framework Detection','E2E Setup','Quick Scan','Flow Discovery','Ready'];
+    function show(){steps.forEach((id,i)=>document.getElementById(id).style.display=i===step?'block':'none');dots.forEach((id,i)=>document.getElementById(id).classList.toggle('active',i<=step));document.getElementById('ttl').textContent=titles[step];}
+    function next(n){step=n;show();if(n===3){simulateScan();}}
+    function prev(n){step=n;show();}
+    function simulateScan(){const bar=document.getElementById('bar');const lbl=document.getElementById('scanlbl');let p=0;const it=setInterval(()=>{p+=12;bar.style.width=p+'%';if(p>=100){clearInterval(it);lbl.textContent='12 critical files need tests';}},160)}
+    function finishScan(){step=4;show();}
+    function openImport(){openDlg('Import recording','Drop DevTools .json or Playwright trace .zip');}
+    function openDescribe(){openDlg('Describe flow','Type: "Open /login, fill email/password, click Sign In, expect dashboard"');}
+    function openDlg(t,b){document.getElementById('dlgt').textContent=t;document.getElementById('dlgb').textContent=b;document.getElementById('dlg').style.display='grid'}
+    function closeDlg(){document.getElementById('dlg').style.display='none'}
+    // Auto-open at load as first-launch behavior
+    window.addEventListener('load',()=>{step=0;show();});
+  </script>
+</body>
+</html>

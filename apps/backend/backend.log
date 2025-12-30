@@ -1,87 +1,59 @@
 
-> backend@0.0.1 start:dev
-> nest start --watch
+> backend@0.0.1 start
+> node dist/main
 
-[2J[3J[H[[90m8:20:21 AM[0m] Starting compilation in watch mode...
-
-[[90m8:20:22 AM[0m] Found 0 errors. Watching for file changes.
-
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +5ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMulterModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUsersModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mSystemModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUploadModule dependencies initialized[39m[38;5;3m +1ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mGenerationModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/auth}:[39m[38;5;3m +1ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/login, POST} route[39m[38;5;3m +1ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/register, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUsersController {/user}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/user/me, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/user/usage, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUploadController {/upload}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/upload/extract, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mGenerationController {/generate}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/generate/test-suite, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/generate/refine, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mSystemController {/system}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/system/health, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/system/feedback, POST} route[39m[38;5;3m +1ms[39m
-[32m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +0ms[39m
-[31m[Nest] 59695  - [39m11/18/2025, 8:20:22 AM [31m  ERROR[39m [38;5;3m[NestApplication] [39m[31mError: listen EADDRINUSE: address already in use :::3001[39m[38;5;3m +1ms[39m
-node:net:1939
-    const ex = new UVExceptionWithHostPort(err, 'listen', address, port);
-               ^
-
-Error: listen EADDRINUSE: address already in use :::3001
-    at Server.setupListenHandle [as _listen2] (node:net:1939:16)
-    at listenInCluster (node:net:1996:12)
-    at Server.listen (node:net:2101:7)
-    at ExpressAdapter.listen (/Users/nikolabozic/Projects/qagent/node_modules/@nestjs/platform-express/adapters/express-adapter.js:95:32)
-    at /Users/nikolabozic/Projects/qagent/node_modules/@nestjs/core/nest-application.js:183:30
-    at new Promise (<anonymous>)
-    at NestApplication.listen (/Users/nikolabozic/Projects/qagent/node_modules/@nestjs/core/nest-application.js:173:16)
-    at async bootstrap (/Users/nikolabozic/Projects/qagent/apps/backend/src/main.ts:13:3) {
-  code: 'EADDRINUSE',
-  errno: -48,
-  syscall: 'listen',
-  address: '::',
-  port: 3001
-}
-
-Node.js v22.15.0
-[2J[3J[H[[90m8:37:43 AM[0m] File change detected. Starting incremental compilation...
-
-[[90m8:37:43 AM[0m] Found 0 errors. Watching for file changes.
-
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +5ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMulterModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +1ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUsersModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mSystemModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUploadModule dependencies initialized[39m[38;5;3m +1ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mGenerationModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/auth}:[39m[38;5;3m +2ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/login, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/register, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUsersController {/user}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/user/me, GET} route[39m[38;5;3m +1ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/user/usage, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUploadController {/upload}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/upload/extract, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mGenerationController {/generate}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/generate/test-suite, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/generate/refine, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mSystemController {/system}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/system/health, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/system/feedback, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62451  - [39m11/18/2025, 8:37:44 AM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +1ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+✅ Registered language provider: JavaScript/TypeScript
+✅ Registered language provider: Python
+✅ Registered language provider: C#
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +8ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMulterModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUsersModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mSystemModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[TestExecutionService] [39m[32mRegistered executor for language: csharp[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUploadModule dependencies initialized[39m[38;5;3m +0ms[39m
+🤖 AI Provider: openai (gpt-4-turbo-preview)
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTestExecutionModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mGenerationModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAnalysisModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/auth}:[39m[38;5;3m +2ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/login, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/register, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUsersController {/user}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/user/me, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/user/usage, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUploadController {/upload}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/upload/extract, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mGenerationController {/generate}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/generate/test-suite, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/generate/refine, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/generate/tests, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/generate/chat, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/generate/agent, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/generate/e2e, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mSystemController {/system}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/system/health, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/system/feedback, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAnalysisController {/analyze}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/analyze/workspace, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/analyze/enhanced, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/analyze/test-type-recommendations, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/analyze/setup-recommendations, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/analyze/setup/recommendations, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/analyze/flows/discover, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/analyze/journeys/discover, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/analyze/journeys/discover-and-enrich, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/analyze/holistic, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/analyze/journey-context, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/analyze/generate-test, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mTestExecutionController {/test}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/test/run, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/test/command, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/test/languages, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:18:26 AM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +0ms[39m
 
 ============================================================
 🚀 QAgent Backend Started
@@ -92,3 +64,1519 @@ Node.js v22.15.0
 🌍 Environment: development
 ============================================================
 
+🚀 API: Discover & Auto-Enrich: /Users/nikolabozic/Projects/truthy-frontend
+📊 Step 1: Discovering journeys...
+🧠 Smart Journey Discovery started...
+🔍 Smart discovery: found 232 source files
+✅ Discovered 22 page files (confidence > 50)
+   Top 5: index.js, index.js, index.js, index.js, index.js
+  📝 /components/Layout <- index.js (confidence: 70%)
+  📝 /ResetPassword <- index.js (confidence: 70%)
+  📝 /components/Header <- index.js (confidence: 65%)
+  📝 /components/Layout/Menu <- index.js (confidence: 60%)
+  📝 /profile <- index.js (confidence: 60%)
+  📝 /App <- index.js (confidence: 55%)
+  📝 /EmailTemplate <- index.js (confidence: 55%)
+  📝 /Permission <- index.js (confidence: 55%)
+  📝 /Role <- index.js (confidence: 55%)
+  📝 /Users <- index.js (confidence: 55%)
+  📝 /routes <- index.js (confidence: 55%)
+  📝 /permissiondenied <- index.js (confidence: 50%)
+  📝 /UserAccount/loginActivity <- loginActivity.js (confidence: 50%)
+  📝 /ForgotPassword <- index.js (confidence: 45%)
+  📝 /register <- index.js (confidence: 40%)
+  📝 /Users/userTable <- userTable.js (confidence: 40%)
+  📝 /components/Footer <- index.js (confidence: 35%)
+  📝 /home <- index.js (confidence: 35%)
+  📝 /login <- index.js (confidence: 35%)
+  📝 /PublicRoute <- index.js (confidence: 35%)
+  📝 /UserAccount/securityTab <- securityTab.js (confidence: 35%)
+  📝 /VerifyAccount <- index.js (confidence: 35%)
+
+✅ Total components for analysis: 22
+📦 Analyzed 22 components
+
+🔬 Running parallel journey discovery strategies...
+  • Strategy 1: Graph-based navigation analysis
+🔨 Building graph from 22 components...
+  ✅ Created 22 nodes
+  📍 /components/Layout: found 1 navigation(s) -> /dashboard
+    ⚠️  Target '/dashboard' not found in graph (from /components/Layout)
+  📍 /components/Header: found 3 navigation(s) -> /profile, /account-setting, /login
+    ⚠️  Target '/account-setting' not found in graph (from /components/Header)
+  📍 /profile: found 1 navigation(s) -> /account-setting
+    ⚠️  Target '/account-setting' not found in graph (from /profile)
+  📍 /EmailTemplate: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /EmailTemplate)
+  📍 /Permission: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Permission)
+  📍 /Role: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Role)
+  📍 /Users: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Users)
+  📍 /permissiondenied: found 1 navigation(s) -> /login
+  📍 /components/Footer: found 2 navigation(s) -> https://github.com/gobeam/truthy, https://github.com/gobeam/truthy
+    ⚠️  Target 'https://github.com/gobeam/truthy' not found in graph (from /components/Footer)
+    ⚠️  Target 'https://github.com/gobeam/truthy' not found in graph (from /components/Footer)
+  ✅ Created 3 edges (matched 3/12 navigations)
+🔍 DFS starting from 21 entry points: /components/Layout, /ResetPassword, /components/Header, /components/Layout/Menu, /App, /EmailTemplate, /Permission, /Role, /Users, /routes, /permissiondenied, /UserAccount/loginActivity, /ForgotPassword, /register, /Users/userTable, /components/Footer, /home, /login, /PublicRoute, /UserAccount/securityTab, /VerifyAccount
+    → Found 0 graph journeys
+  • Strategy 2: Form-based journey detection
+🔍 Form discovery: scanning 232 source files
+✅ Discovered 25 form files
+   Forms: useGetEmailTemplateForm.js, loginForm.js, useGetPermissionForm.js, registerForm.js, useGetRoleForm.js
+    → Found 10 form journeys
+  • Strategy 3: Intent-based synthesis (routes, auth, CRUD, workflows)
+🧠 Starting COMPLETE application understanding...
+  🔍 Analyzing application structure...
+📊 App Understanding Complete:
+  Routes: 14
+  Auth Boundaries: 6
+  Forms: 2
+  CRUD Entities: 5
+  Modals: 9
+  Navigation Patterns: 3
+  APIs: 0
+
+✅ Synthesized 7 intelligent journeys
+    → Found 7 synthesized journeys
+
+✅ Total discovered: 12 journeys (0 graph + 10 form)
+⚠️  Warnings:
+   - Found 17 disconnected routes that cannot be reached: /components/Layout, /ResetPassword, /components/Layout/Menu...
+   - Found 20 pages with no outbound navigation (potential dead ends)
+
+🎯 Merged Journeys (by priority):
+  1. 📧 Create Email Template (priority: 1, tags: form, critical)
+  2. 👤 User Login (priority: 1, tags: form, critical)
+  3. 🔒 Manage Permission (priority: 1, tags: form, critical)
+  4. 👥 User Registration (priority: 1, tags: form, critical)
+  5. 👥 Manage Role (priority: 1, tags: form, critical)
+  6. 👤 Update Profile (priority: 1, tags: form, critical)
+  7. 👤 Manage User (priority: 1, tags: form, critical)
+  8. 🎉 Complete User Onboarding (priority: 1, tags: workflow, onboarding, critical)
+  9. 🔑 Password Recovery (priority: 2, tags: error-recovery, authentication)
+  10. 🧭 Navigate: login → dashboard (priority: 3, tags: navigation)
+   ✅ Discovered 12 journeys
+
+⚡ Step 2: Auto-enriching critical journeys...
+   Enriching 8 of 12 journeys
+   🔍 Enriching: 📧 Create Email Template
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 📧 Create Email Template[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/EmailTemplate/editEmailTemplateModal.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👤 User Login
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 User Login[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/LoginPage/loginForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="username" (rules length: 168)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: <Formatt...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for username[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for username: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (rules-first): field="password" (rules length: 168)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: <Formatt...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for password[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for password: 2 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 2, Total validations: 2[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 🔒 Manage Permission
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🔒 Manage Permission[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Permission/createPermissionModal.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👥 User Registration
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👥 User Registration[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/RegisterPage/registerForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="email" (rules length: 270)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: (       ...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for email[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for email: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (name-first): field="confirmPassword" (rules length: 201)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             validator: (_, val, callback) =>               val                 ? callba...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] No rules parsed for confirmPassword[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="confirmPassword" (rules length: 270)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: (       ...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for confirmPassword[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for confirmPassword: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 4 (rules-first): field="accept" (rules length: 201)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             validator: (_, val, callback) =>               val                 ? callba...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] No rules parsed for accept[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 4, Total validations: 2[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👥 Manage Role
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👥 Manage Role[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Role/hooks/useGetRoleForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="name" (rules length: 139)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.descrip...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for name[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for name: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (rules-first): field="name" (rules length: 132)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.nameReq...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for name[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for name: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="description" (rules length: 139)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.descrip...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for description[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for description: 1 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 3, Total validations: 3[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 0 edge cases[39m
+      ✅ Components: 1, Edge cases: 0
+   🔍 Enriching: 👤 Update Profile
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 Update Profile[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/UserAccount/profileForm.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👤 Manage User
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 Manage User[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Users/hooks/useGetUserForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="username" (rules length: 134)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.statusR...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for username[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for username: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (name-first): field="roleId" (rules length: 132)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.roleReq...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for roleId[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for roleId: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="roleId" (rules length: 134)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.statusR...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for roleId[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for roleId: 1 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 3, Total validations: 3[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 0 edge cases[39m
+      ✅ Components: 1, Edge cases: 0
+   🔍 Enriching: 🎉 Complete User Onboarding
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🎉 Complete User Onboarding[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 3 components to analyze[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/PublicRoute[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: PublicRoute[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Email[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Email[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:01 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 0 components, 0 edge cases[39m
+      ✅ Components: 0, Edge cases: 0
+
+✅ Complete! 8 enriched, 4 discovery-only
+⏱️  Total time: 168ms
+🚀 API: Discover & Auto-Enrich: /Users/nikolabozic/Projects/truthy-frontend
+📊 Step 1: Discovering journeys...
+🧠 Smart Journey Discovery started...
+🔍 Smart discovery: found 232 source files
+✅ Discovered 22 page files (confidence > 50)
+   Top 5: index.js, index.js, index.js, index.js, index.js
+  📝 /components/Layout <- index.js (confidence: 70%)
+  📝 /ResetPassword <- index.js (confidence: 70%)
+  📝 /components/Header <- index.js (confidence: 65%)
+  📝 /components/Layout/Menu <- index.js (confidence: 60%)
+  📝 /profile <- index.js (confidence: 60%)
+  📝 /App <- index.js (confidence: 55%)
+  📝 /EmailTemplate <- index.js (confidence: 55%)
+  📝 /Permission <- index.js (confidence: 55%)
+  📝 /Role <- index.js (confidence: 55%)
+  📝 /Users <- index.js (confidence: 55%)
+  📝 /routes <- index.js (confidence: 55%)
+  📝 /permissiondenied <- index.js (confidence: 50%)
+  📝 /UserAccount/loginActivity <- loginActivity.js (confidence: 50%)
+  📝 /ForgotPassword <- index.js (confidence: 45%)
+  📝 /register <- index.js (confidence: 40%)
+  📝 /Users/userTable <- userTable.js (confidence: 40%)
+  📝 /components/Footer <- index.js (confidence: 35%)
+  📝 /home <- index.js (confidence: 35%)
+  📝 /login <- index.js (confidence: 35%)
+  📝 /PublicRoute <- index.js (confidence: 35%)
+  📝 /UserAccount/securityTab <- securityTab.js (confidence: 35%)
+  📝 /VerifyAccount <- index.js (confidence: 35%)
+
+✅ Total components for analysis: 22
+📦 Analyzed 22 components
+
+🔬 Running parallel journey discovery strategies...
+  • Strategy 1: Graph-based navigation analysis
+🔨 Building graph from 22 components...
+  ✅ Created 22 nodes
+  📍 /components/Layout: found 1 navigation(s) -> /dashboard
+    ⚠️  Target '/dashboard' not found in graph (from /components/Layout)
+  📍 /components/Header: found 3 navigation(s) -> /profile, /account-setting, /login
+    ⚠️  Target '/account-setting' not found in graph (from /components/Header)
+  📍 /profile: found 1 navigation(s) -> /account-setting
+    ⚠️  Target '/account-setting' not found in graph (from /profile)
+  📍 /EmailTemplate: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /EmailTemplate)
+  📍 /Permission: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Permission)
+  📍 /Role: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Role)
+  📍 /Users: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Users)
+  📍 /permissiondenied: found 1 navigation(s) -> /login
+  📍 /components/Footer: found 2 navigation(s) -> https://github.com/gobeam/truthy, https://github.com/gobeam/truthy
+    ⚠️  Target 'https://github.com/gobeam/truthy' not found in graph (from /components/Footer)
+    ⚠️  Target 'https://github.com/gobeam/truthy' not found in graph (from /components/Footer)
+  ✅ Created 3 edges (matched 3/12 navigations)
+🔍 DFS starting from 21 entry points: /components/Layout, /ResetPassword, /components/Header, /components/Layout/Menu, /App, /EmailTemplate, /Permission, /Role, /Users, /routes, /permissiondenied, /UserAccount/loginActivity, /ForgotPassword, /register, /Users/userTable, /components/Footer, /home, /login, /PublicRoute, /UserAccount/securityTab, /VerifyAccount
+    → Found 0 graph journeys
+  • Strategy 2: Form-based journey detection
+🔍 Form discovery: scanning 232 source files
+✅ Discovered 25 form files
+   Forms: useGetEmailTemplateForm.js, loginForm.js, useGetPermissionForm.js, registerForm.js, useGetRoleForm.js
+    → Found 10 form journeys
+  • Strategy 3: Intent-based synthesis (routes, auth, CRUD, workflows)
+🧠 Starting COMPLETE application understanding...
+  🔍 Analyzing application structure...
+📊 App Understanding Complete:
+  Routes: 14
+  Auth Boundaries: 6
+  Forms: 2
+  CRUD Entities: 5
+  Modals: 9
+  Navigation Patterns: 3
+  APIs: 0
+
+✅ Synthesized 7 intelligent journeys
+    → Found 7 synthesized journeys
+
+✅ Total discovered: 12 journeys (0 graph + 10 form)
+⚠️  Warnings:
+   - Found 17 disconnected routes that cannot be reached: /components/Layout, /ResetPassword, /components/Layout/Menu...
+   - Found 20 pages with no outbound navigation (potential dead ends)
+
+🎯 Merged Journeys (by priority):
+  1. 📧 Create Email Template (priority: 1, tags: form, critical)
+  2. 👤 User Login (priority: 1, tags: form, critical)
+  3. 🔒 Manage Permission (priority: 1, tags: form, critical)
+  4. 👥 User Registration (priority: 1, tags: form, critical)
+  5. 👥 Manage Role (priority: 1, tags: form, critical)
+  6. 👤 Update Profile (priority: 1, tags: form, critical)
+  7. 👤 Manage User (priority: 1, tags: form, critical)
+  8. 🎉 Complete User Onboarding (priority: 1, tags: workflow, onboarding, critical)
+  9. 🔑 Password Recovery (priority: 2, tags: error-recovery, authentication)
+  10. 🧭 Navigate: login → dashboard (priority: 3, tags: navigation)
+   ✅ Discovered 12 journeys
+
+⚡ Step 2: Auto-enriching critical journeys...
+   Enriching 8 of 12 journeys
+   🔍 Enriching: 📧 Create Email Template
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 📧 Create Email Template[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/EmailTemplate/editEmailTemplateModal.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👤 User Login
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 User Login[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/LoginPage/loginForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="username" (rules length: 168)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: <Formatt...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for username[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for username: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (rules-first): field="password" (rules length: 168)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: <Formatt...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for password[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for password: 2 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 2, Total validations: 2[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 🔒 Manage Permission
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🔒 Manage Permission[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Permission/createPermissionModal.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👥 User Registration
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👥 User Registration[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/RegisterPage/registerForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="email" (rules length: 270)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: (       ...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for email[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for email: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (name-first): field="confirmPassword" (rules length: 201)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             validator: (_, val, callback) =>               val                 ? callba...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] No rules parsed for confirmPassword[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="confirmPassword" (rules length: 270)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: (       ...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for confirmPassword[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for confirmPassword: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 4 (rules-first): field="accept" (rules length: 201)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             validator: (_, val, callback) =>               val                 ? callba...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] No rules parsed for accept[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 4, Total validations: 2[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👥 Manage Role
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👥 Manage Role[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Role/hooks/useGetRoleForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="name" (rules length: 139)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.descrip...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for name[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for name: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (rules-first): field="name" (rules length: 132)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.nameReq...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for name[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for name: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="description" (rules length: 139)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.descrip...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for description[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for description: 1 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 3, Total validations: 3[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 0 edge cases[39m
+      ✅ Components: 1, Edge cases: 0
+   🔍 Enriching: 👤 Update Profile
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 Update Profile[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/UserAccount/profileForm.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👤 Manage User
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 Manage User[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Users/hooks/useGetUserForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="username" (rules length: 134)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.statusR...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for username[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for username: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (name-first): field="roleId" (rules length: 132)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.roleReq...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for roleId[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for roleId: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="roleId" (rules length: 134)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.statusR...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for roleId[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for roleId: 1 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 3, Total validations: 3[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 0 edge cases[39m
+      ✅ Components: 1, Edge cases: 0
+   🔍 Enriching: 🎉 Complete User Onboarding
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🎉 Complete User Onboarding[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 3 components to analyze[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/PublicRoute[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: PublicRoute[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Email[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Email[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:22 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 0 components, 0 edge cases[39m
+      ✅ Components: 0, Edge cases: 0
+
+✅ Complete! 8 enriched, 4 discovery-only
+⏱️  Total time: 130ms
+🚀 API: Discover & Auto-Enrich: /Users/nikolabozic/Projects/truthy-frontend
+📊 Step 1: Discovering journeys...
+🧠 Smart Journey Discovery started...
+🔍 Smart discovery: found 232 source files
+✅ Discovered 22 page files (confidence > 50)
+   Top 5: index.js, index.js, index.js, index.js, index.js
+  📝 /components/Layout <- index.js (confidence: 70%)
+  📝 /ResetPassword <- index.js (confidence: 70%)
+  📝 /components/Header <- index.js (confidence: 65%)
+  📝 /components/Layout/Menu <- index.js (confidence: 60%)
+  📝 /profile <- index.js (confidence: 60%)
+  📝 /App <- index.js (confidence: 55%)
+  📝 /EmailTemplate <- index.js (confidence: 55%)
+  📝 /Permission <- index.js (confidence: 55%)
+  📝 /Role <- index.js (confidence: 55%)
+  📝 /Users <- index.js (confidence: 55%)
+  📝 /routes <- index.js (confidence: 55%)
+  📝 /permissiondenied <- index.js (confidence: 50%)
+  📝 /UserAccount/loginActivity <- loginActivity.js (confidence: 50%)
+  📝 /ForgotPassword <- index.js (confidence: 45%)
+  📝 /register <- index.js (confidence: 40%)
+  📝 /Users/userTable <- userTable.js (confidence: 40%)
+  📝 /components/Footer <- index.js (confidence: 35%)
+  📝 /home <- index.js (confidence: 35%)
+  📝 /login <- index.js (confidence: 35%)
+  📝 /PublicRoute <- index.js (confidence: 35%)
+  📝 /UserAccount/securityTab <- securityTab.js (confidence: 35%)
+  📝 /VerifyAccount <- index.js (confidence: 35%)
+
+✅ Total components for analysis: 22
+📦 Analyzed 22 components
+
+🔬 Running parallel journey discovery strategies...
+  • Strategy 1: Graph-based navigation analysis
+🔨 Building graph from 22 components...
+  ✅ Created 22 nodes
+  📍 /components/Layout: found 1 navigation(s) -> /dashboard
+    ⚠️  Target '/dashboard' not found in graph (from /components/Layout)
+  📍 /components/Header: found 3 navigation(s) -> /profile, /account-setting, /login
+    ⚠️  Target '/account-setting' not found in graph (from /components/Header)
+  📍 /profile: found 1 navigation(s) -> /account-setting
+    ⚠️  Target '/account-setting' not found in graph (from /profile)
+  📍 /EmailTemplate: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /EmailTemplate)
+  📍 /Permission: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Permission)
+  📍 /Role: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Role)
+  📍 /Users: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Users)
+  📍 /permissiondenied: found 1 navigation(s) -> /login
+  📍 /components/Footer: found 2 navigation(s) -> https://github.com/gobeam/truthy, https://github.com/gobeam/truthy
+    ⚠️  Target 'https://github.com/gobeam/truthy' not found in graph (from /components/Footer)
+    ⚠️  Target 'https://github.com/gobeam/truthy' not found in graph (from /components/Footer)
+  ✅ Created 3 edges (matched 3/12 navigations)
+🔍 DFS starting from 21 entry points: /components/Layout, /ResetPassword, /components/Header, /components/Layout/Menu, /App, /EmailTemplate, /Permission, /Role, /Users, /routes, /permissiondenied, /UserAccount/loginActivity, /ForgotPassword, /register, /Users/userTable, /components/Footer, /home, /login, /PublicRoute, /UserAccount/securityTab, /VerifyAccount
+    → Found 0 graph journeys
+  • Strategy 2: Form-based journey detection
+🔍 Form discovery: scanning 232 source files
+✅ Discovered 25 form files
+   Forms: useGetEmailTemplateForm.js, loginForm.js, useGetPermissionForm.js, registerForm.js, useGetRoleForm.js
+    → Found 10 form journeys
+  • Strategy 3: Intent-based synthesis (routes, auth, CRUD, workflows)
+🧠 Starting COMPLETE application understanding...
+  🔍 Analyzing application structure...
+📊 App Understanding Complete:
+  Routes: 14
+  Auth Boundaries: 6
+  Forms: 2
+  CRUD Entities: 5
+  Modals: 9
+  Navigation Patterns: 3
+  APIs: 0
+
+✅ Synthesized 7 intelligent journeys
+    → Found 7 synthesized journeys
+
+✅ Total discovered: 12 journeys (0 graph + 10 form)
+⚠️  Warnings:
+   - Found 17 disconnected routes that cannot be reached: /components/Layout, /ResetPassword, /components/Layout/Menu...
+   - Found 20 pages with no outbound navigation (potential dead ends)
+
+🎯 Merged Journeys (by priority):
+  1. 📧 Create Email Template (priority: 1, tags: form, critical)
+  2. 👤 User Login (priority: 1, tags: form, critical)
+  3. 🔒 Manage Permission (priority: 1, tags: form, critical)
+  4. 👥 User Registration (priority: 1, tags: form, critical)
+  5. 👥 Manage Role (priority: 1, tags: form, critical)
+  6. 👤 Update Profile (priority: 1, tags: form, critical)
+  7. 👤 Manage User (priority: 1, tags: form, critical)
+  8. 🎉 Complete User Onboarding (priority: 1, tags: workflow, onboarding, critical)
+  9. 🔑 Password Recovery (priority: 2, tags: error-recovery, authentication)
+  10. 🧭 Navigate: login → dashboard (priority: 3, tags: navigation)
+   ✅ Discovered 12 journeys
+
+⚡ Step 2: Auto-enriching critical journeys...
+   Enriching 8 of 12 journeys
+   🔍 Enriching: 📧 Create Email Template
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 📧 Create Email Template[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/EmailTemplate/editEmailTemplateModal.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👤 User Login
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 User Login[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/LoginPage/loginForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="username" (rules length: 168)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: <Formatt...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for username[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for username: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (rules-first): field="password" (rules length: 168)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: <Formatt...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for password[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for password: 2 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 2, Total validations: 2[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 🔒 Manage Permission
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🔒 Manage Permission[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Permission/createPermissionModal.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👥 User Registration
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👥 User Registration[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/RegisterPage/registerForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="email" (rules length: 270)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: (       ...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for email[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for email: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (name-first): field="confirmPassword" (rules length: 201)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             validator: (_, val, callback) =>               val                 ? callba...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] No rules parsed for confirmPassword[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="confirmPassword" (rules length: 270)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: (       ...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for confirmPassword[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for confirmPassword: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 4 (rules-first): field="accept" (rules length: 201)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             validator: (_, val, callback) =>               val                 ? callba...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] No rules parsed for accept[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 4, Total validations: 2[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👥 Manage Role
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👥 Manage Role[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Role/hooks/useGetRoleForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="name" (rules length: 139)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.descrip...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for name[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for name: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (rules-first): field="name" (rules length: 132)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.nameReq...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for name[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for name: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="description" (rules length: 139)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.descrip...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for description[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for description: 1 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 3, Total validations: 3[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 0 edge cases[39m
+      ✅ Components: 1, Edge cases: 0
+   🔍 Enriching: 👤 Update Profile
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 Update Profile[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/UserAccount/profileForm.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👤 Manage User
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 Manage User[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Users/hooks/useGetUserForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="username" (rules length: 134)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.statusR...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for username[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for username: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (name-first): field="roleId" (rules length: 132)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.roleReq...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for roleId[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for roleId: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="roleId" (rules length: 134)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.statusR...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for roleId[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for roleId: 1 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 3, Total validations: 3[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 0 edge cases[39m
+      ✅ Components: 1, Edge cases: 0
+   🔍 Enriching: 🎉 Complete User Onboarding
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🎉 Complete User Onboarding[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 3 components to analyze[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/PublicRoute[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: PublicRoute[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Email[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Email[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:19:34 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 0 components, 0 edge cases[39m
+      ✅ Components: 0, Edge cases: 0
+
+✅ Complete! 8 enriched, 4 discovery-only
+⏱️  Total time: 97ms
+🚀 API: Discover & Auto-Enrich: /Users/nikolabozic/Projects/truthy-frontend
+📊 Step 1: Discovering journeys...
+🧠 Smart Journey Discovery started...
+🔍 Smart discovery: found 232 source files
+✅ Discovered 22 page files (confidence > 50)
+   Top 5: index.js, index.js, index.js, index.js, index.js
+  📝 /components/Layout <- index.js (confidence: 70%)
+  📝 /ResetPassword <- index.js (confidence: 70%)
+  📝 /components/Header <- index.js (confidence: 65%)
+  📝 /components/Layout/Menu <- index.js (confidence: 60%)
+  📝 /profile <- index.js (confidence: 60%)
+  📝 /App <- index.js (confidence: 55%)
+  📝 /EmailTemplate <- index.js (confidence: 55%)
+  📝 /Permission <- index.js (confidence: 55%)
+  📝 /Role <- index.js (confidence: 55%)
+  📝 /Users <- index.js (confidence: 55%)
+  📝 /routes <- index.js (confidence: 55%)
+  📝 /permissiondenied <- index.js (confidence: 50%)
+  📝 /UserAccount/loginActivity <- loginActivity.js (confidence: 50%)
+  📝 /ForgotPassword <- index.js (confidence: 45%)
+  📝 /register <- index.js (confidence: 40%)
+  📝 /Users/userTable <- userTable.js (confidence: 40%)
+  📝 /components/Footer <- index.js (confidence: 35%)
+  📝 /home <- index.js (confidence: 35%)
+  📝 /login <- index.js (confidence: 35%)
+  📝 /PublicRoute <- index.js (confidence: 35%)
+  📝 /UserAccount/securityTab <- securityTab.js (confidence: 35%)
+  📝 /VerifyAccount <- index.js (confidence: 35%)
+
+✅ Total components for analysis: 22
+📦 Analyzed 22 components
+
+🔬 Running parallel journey discovery strategies...
+  • Strategy 1: Graph-based navigation analysis
+🔨 Building graph from 22 components...
+  ✅ Created 22 nodes
+  📍 /components/Layout: found 1 navigation(s) -> /dashboard
+    ⚠️  Target '/dashboard' not found in graph (from /components/Layout)
+  📍 /components/Header: found 3 navigation(s) -> /profile, /account-setting, /login
+    ⚠️  Target '/account-setting' not found in graph (from /components/Header)
+  📍 /profile: found 1 navigation(s) -> /account-setting
+    ⚠️  Target '/account-setting' not found in graph (from /profile)
+  📍 /EmailTemplate: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /EmailTemplate)
+  📍 /Permission: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Permission)
+  📍 /Role: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Role)
+  📍 /Users: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Users)
+  📍 /permissiondenied: found 1 navigation(s) -> /login
+  📍 /components/Footer: found 2 navigation(s) -> https://github.com/gobeam/truthy, https://github.com/gobeam/truthy
+    ⚠️  Target 'https://github.com/gobeam/truthy' not found in graph (from /components/Footer)
+    ⚠️  Target 'https://github.com/gobeam/truthy' not found in graph (from /components/Footer)
+  ✅ Created 3 edges (matched 3/12 navigations)
+🔍 DFS starting from 21 entry points: /components/Layout, /ResetPassword, /components/Header, /components/Layout/Menu, /App, /EmailTemplate, /Permission, /Role, /Users, /routes, /permissiondenied, /UserAccount/loginActivity, /ForgotPassword, /register, /Users/userTable, /components/Footer, /home, /login, /PublicRoute, /UserAccount/securityTab, /VerifyAccount
+    → Found 0 graph journeys
+  • Strategy 2: Form-based journey detection
+🔍 Form discovery: scanning 232 source files
+✅ Discovered 25 form files
+   Forms: useGetEmailTemplateForm.js, loginForm.js, useGetPermissionForm.js, registerForm.js, useGetRoleForm.js
+    → Found 10 form journeys
+  • Strategy 3: Intent-based synthesis (routes, auth, CRUD, workflows)
+🧠 Starting COMPLETE application understanding...
+  🔍 Analyzing application structure...
+📊 App Understanding Complete:
+  Routes: 14
+  Auth Boundaries: 6
+  Forms: 2
+  CRUD Entities: 5
+  Modals: 9
+  Navigation Patterns: 3
+  APIs: 0
+
+✅ Synthesized 7 intelligent journeys
+    → Found 7 synthesized journeys
+
+✅ Total discovered: 12 journeys (0 graph + 10 form)
+⚠️  Warnings:
+   - Found 17 disconnected routes that cannot be reached: /components/Layout, /ResetPassword, /components/Layout/Menu...
+   - Found 20 pages with no outbound navigation (potential dead ends)
+
+🎯 Merged Journeys (by priority):
+  1. 📧 Create Email Template (priority: 1, tags: form, critical)
+  2. 👤 User Login (priority: 1, tags: form, critical)
+  3. 🔒 Manage Permission (priority: 1, tags: form, critical)
+  4. 👥 User Registration (priority: 1, tags: form, critical)
+  5. 👥 Manage Role (priority: 1, tags: form, critical)
+  6. 👤 Update Profile (priority: 1, tags: form, critical)
+  7. 👤 Manage User (priority: 1, tags: form, critical)
+  8. 🎉 Complete User Onboarding (priority: 1, tags: workflow, onboarding, critical)
+  9. 🔑 Password Recovery (priority: 2, tags: error-recovery, authentication)
+  10. 🧭 Navigate: login → dashboard (priority: 3, tags: navigation)
+   ✅ Discovered 12 journeys
+
+⚡ Step 2: Auto-enriching critical journeys...
+   Enriching 8 of 12 journeys
+   🔍 Enriching: 📧 Create Email Template
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 📧 Create Email Template[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/EmailTemplate/editEmailTemplateModal.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👤 User Login
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 User Login[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/LoginPage/loginForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="username" (rules length: 168)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: <Formatt...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for username[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for username: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (rules-first): field="password" (rules length: 168)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: <Formatt...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for password[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for password: 2 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 2, Total validations: 2[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 🔒 Manage Permission
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🔒 Manage Permission[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Permission/createPermissionModal.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👥 User Registration
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👥 User Registration[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/RegisterPage/registerForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="email" (rules length: 270)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: (       ...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for email[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for email: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (name-first): field="confirmPassword" (rules length: 201)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             validator: (_, val, callback) =>               val                 ? callba...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] No rules parsed for confirmPassword[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="confirmPassword" (rules length: 270)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: (       ...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for confirmPassword[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for confirmPassword: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 4 (rules-first): field="accept" (rules length: 201)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             validator: (_, val, callback) =>               val                 ? callba...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] No rules parsed for accept[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 4, Total validations: 2[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👥 Manage Role
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👥 Manage Role[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Role/hooks/useGetRoleForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="name" (rules length: 139)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.descrip...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for name[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for name: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (rules-first): field="name" (rules length: 132)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.nameReq...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for name[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for name: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="description" (rules length: 139)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.descrip...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for description[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for description: 1 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 3, Total validations: 3[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 0 edge cases[39m
+      ✅ Components: 1, Edge cases: 0
+   🔍 Enriching: 👤 Update Profile
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 Update Profile[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/UserAccount/profileForm.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👤 Manage User
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 Manage User[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Users/hooks/useGetUserForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="username" (rules length: 134)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.statusR...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for username[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for username: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (name-first): field="roleId" (rules length: 132)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.roleReq...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for roleId[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for roleId: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="roleId" (rules length: 134)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.statusR...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for roleId[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for roleId: 1 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 3, Total validations: 3[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 0 edge cases[39m
+      ✅ Components: 1, Edge cases: 0
+   🔍 Enriching: 🎉 Complete User Onboarding
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🎉 Complete User Onboarding[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 3 components to analyze[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/PublicRoute[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: PublicRoute[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Email[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Email[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:20:45 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 0 components, 0 edge cases[39m
+      ✅ Components: 0, Edge cases: 0
+
+✅ Complete! 8 enriched, 4 discovery-only
+⏱️  Total time: 142ms
+[31m[Nest] 22276  - [39m12/29/2025, 7:21:38 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mCannot read properties of null (reading 'name')[39m
+TypeError: Cannot read properties of null (reading 'name')
+    at AnalysisController.generateTest (/Users/nikolabozic/Projects/qagent/apps/backend/dist/modules/analysis/analysis.controller.js:342:75)
+    at /Users/nikolabozic/Projects/qagent/node_modules/@nestjs/core/router/router-execution-context.js:38:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async /Users/nikolabozic/Projects/qagent/node_modules/@nestjs/core/router/router-execution-context.js:46:28
+    at async /Users/nikolabozic/Projects/qagent/node_modules/@nestjs/core/router/router-proxy.js:9:17
+🚀 API: Discover & Auto-Enrich: /Users/nikolabozic/Projects/truthy-frontend
+📊 Step 1: Discovering journeys...
+🧠 Smart Journey Discovery started...
+🔍 Smart discovery: found 232 source files
+✅ Discovered 22 page files (confidence > 50)
+   Top 5: index.js, index.js, index.js, index.js, index.js
+  📝 /components/Layout <- index.js (confidence: 70%)
+  📝 /ResetPassword <- index.js (confidence: 70%)
+  📝 /components/Header <- index.js (confidence: 65%)
+  📝 /components/Layout/Menu <- index.js (confidence: 60%)
+  📝 /profile <- index.js (confidence: 60%)
+  📝 /App <- index.js (confidence: 55%)
+  📝 /EmailTemplate <- index.js (confidence: 55%)
+  📝 /Permission <- index.js (confidence: 55%)
+  📝 /Role <- index.js (confidence: 55%)
+  📝 /Users <- index.js (confidence: 55%)
+  📝 /routes <- index.js (confidence: 55%)
+  📝 /permissiondenied <- index.js (confidence: 50%)
+  📝 /UserAccount/loginActivity <- loginActivity.js (confidence: 50%)
+  📝 /ForgotPassword <- index.js (confidence: 45%)
+  📝 /register <- index.js (confidence: 40%)
+  📝 /Users/userTable <- userTable.js (confidence: 40%)
+  📝 /components/Footer <- index.js (confidence: 35%)
+  📝 /home <- index.js (confidence: 35%)
+  📝 /login <- index.js (confidence: 35%)
+  📝 /PublicRoute <- index.js (confidence: 35%)
+  📝 /UserAccount/securityTab <- securityTab.js (confidence: 35%)
+  📝 /VerifyAccount <- index.js (confidence: 35%)
+
+✅ Total components for analysis: 22
+📦 Analyzed 22 components
+
+🔬 Running parallel journey discovery strategies...
+  • Strategy 1: Graph-based navigation analysis
+🔨 Building graph from 22 components...
+  ✅ Created 22 nodes
+  📍 /components/Layout: found 1 navigation(s) -> /dashboard
+    ⚠️  Target '/dashboard' not found in graph (from /components/Layout)
+  📍 /components/Header: found 3 navigation(s) -> /profile, /account-setting, /login
+    ⚠️  Target '/account-setting' not found in graph (from /components/Header)
+  📍 /profile: found 1 navigation(s) -> /account-setting
+    ⚠️  Target '/account-setting' not found in graph (from /profile)
+  📍 /EmailTemplate: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /EmailTemplate)
+  📍 /Permission: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Permission)
+  📍 /Role: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Role)
+  📍 /Users: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Users)
+  📍 /permissiondenied: found 1 navigation(s) -> /login
+  📍 /components/Footer: found 2 navigation(s) -> https://github.com/gobeam/truthy, https://github.com/gobeam/truthy
+    ⚠️  Target 'https://github.com/gobeam/truthy' not found in graph (from /components/Footer)
+    ⚠️  Target 'https://github.com/gobeam/truthy' not found in graph (from /components/Footer)
+  ✅ Created 3 edges (matched 3/12 navigations)
+🔍 DFS starting from 21 entry points: /components/Layout, /ResetPassword, /components/Header, /components/Layout/Menu, /App, /EmailTemplate, /Permission, /Role, /Users, /routes, /permissiondenied, /UserAccount/loginActivity, /ForgotPassword, /register, /Users/userTable, /components/Footer, /home, /login, /PublicRoute, /UserAccount/securityTab, /VerifyAccount
+    → Found 0 graph journeys
+  • Strategy 2: Form-based journey detection
+🔍 Form discovery: scanning 232 source files
+✅ Discovered 25 form files
+   Forms: useGetEmailTemplateForm.js, loginForm.js, useGetPermissionForm.js, registerForm.js, useGetRoleForm.js
+    → Found 10 form journeys
+  • Strategy 3: Intent-based synthesis (routes, auth, CRUD, workflows)
+🧠 Starting COMPLETE application understanding...
+  🔍 Analyzing application structure...
+📊 App Understanding Complete:
+  Routes: 14
+  Auth Boundaries: 6
+  Forms: 2
+  CRUD Entities: 5
+  Modals: 9
+  Navigation Patterns: 3
+  APIs: 0
+
+✅ Synthesized 7 intelligent journeys
+    → Found 7 synthesized journeys
+
+✅ Total discovered: 12 journeys (0 graph + 10 form)
+⚠️  Warnings:
+   - Found 17 disconnected routes that cannot be reached: /components/Layout, /ResetPassword, /components/Layout/Menu...
+   - Found 20 pages with no outbound navigation (potential dead ends)
+
+🎯 Merged Journeys (by priority):
+  1. 📧 Create Email Template (priority: 1, tags: form, critical)
+  2. 👤 User Login (priority: 1, tags: form, critical)
+  3. 🔒 Manage Permission (priority: 1, tags: form, critical)
+  4. 👥 User Registration (priority: 1, tags: form, critical)
+  5. 👥 Manage Role (priority: 1, tags: form, critical)
+  6. 👤 Update Profile (priority: 1, tags: form, critical)
+  7. 👤 Manage User (priority: 1, tags: form, critical)
+  8. 🎉 Complete User Onboarding (priority: 1, tags: workflow, onboarding, critical)
+  9. 🔑 Password Recovery (priority: 2, tags: error-recovery, authentication)
+  10. 🧭 Navigate: login → dashboard (priority: 3, tags: navigation)
+   ✅ Discovered 12 journeys
+
+⚡ Step 2: Auto-enriching critical journeys...
+   Enriching 8 of 12 journeys
+   🔍 Enriching: 📧 Create Email Template
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 📧 Create Email Template[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/EmailTemplate/editEmailTemplateModal.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👤 User Login
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 User Login[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/LoginPage/loginForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="username" (rules length: 168)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: <Formatt...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for username[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for username: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (rules-first): field="password" (rules length: 168)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: <Formatt...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for password[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for password: 2 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 2, Total validations: 2[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 🔒 Manage Permission
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🔒 Manage Permission[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Permission/createPermissionModal.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👥 User Registration
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👥 User Registration[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/RegisterPage/registerForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="email" (rules length: 270)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: (       ...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for email[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for email: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (name-first): field="confirmPassword" (rules length: 201)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             validator: (_, val, callback) =>               val                 ? callba...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] No rules parsed for confirmPassword[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="confirmPassword" (rules length: 270)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: (       ...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for confirmPassword[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for confirmPassword: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 4 (rules-first): field="accept" (rules length: 201)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             validator: (_, val, callback) =>               val                 ? callba...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] No rules parsed for accept[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 4, Total validations: 2[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👥 Manage Role
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👥 Manage Role[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Role/hooks/useGetRoleForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="name" (rules length: 139)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.descrip...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for name[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for name: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (rules-first): field="name" (rules length: 132)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.nameReq...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for name[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for name: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="description" (rules length: 139)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.descrip...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for description[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for description: 1 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 3, Total validations: 3[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 0 edge cases[39m
+      ✅ Components: 1, Edge cases: 0
+   🔍 Enriching: 👤 Update Profile
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 Update Profile[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/UserAccount/profileForm.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👤 Manage User
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 Manage User[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Users/hooks/useGetUserForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="username" (rules length: 134)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.statusR...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for username[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for username: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (name-first): field="roleId" (rules length: 132)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.roleReq...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for roleId[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for roleId: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="roleId" (rules length: 134)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.statusR...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for roleId[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for roleId: 1 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 3, Total validations: 3[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 0 edge cases[39m
+      ✅ Components: 1, Edge cases: 0
+   🔍 Enriching: 🎉 Complete User Onboarding
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🎉 Complete User Onboarding[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 3 components to analyze[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/PublicRoute[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: PublicRoute[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Email[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Email[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:23:26 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 0 components, 0 edge cases[39m
+      ✅ Components: 0, Edge cases: 0
+
+✅ Complete! 8 enriched, 4 discovery-only
+⏱️  Total time: 156ms
+🧪 API: Generate Complete Test Suite: 👤 User Login
+  ✅ Generated test: 👤-user-login.spec.ts
+  📊 Lines of code: 72
+🧪 API: Generate Complete Test Suite: 👤 User Login
+  ✅ Generated test: 👤-user-login.spec.ts
+  📊 Lines of code: 72
+🚀 API: Discover & Auto-Enrich: /Users/nikolabozic/Projects/react-redux-realworld-example-app
+📊 Step 1: Discovering journeys...
+🧠 Smart Journey Discovery started...
+🔍 Smart discovery: found 38 source files
+✅ Discovered 10 page files (confidence > 50)
+   Top 5: Login.js, Register.js, ArticleActions.js, ArticleMeta.js, ArticlePreview.js
+  📝 /login <- Login.js (confidence: 60%)
+  📝 /register <- Register.js (confidence: 60%)
+  📝 /article <- ArticleActions.js (confidence: 55%)
+  📝 /article <- ArticleMeta.js (confidence: 55%)
+  📝 /components/ArticlePreview <- ArticlePreview.js (confidence: 55%)
+  📝 /profile <- Profile.js (confidence: 55%)
+  📝 /components/ProfileFavorites <- ProfileFavorites.js (confidence: 55%)
+  📝 /components/App <- App.js (confidence: 45%)
+  📝 /editor <- Editor.js (confidence: 45%)
+  📝 /settings <- Settings.js (confidence: 45%)
+
+✅ Total components for analysis: 9
+📦 Analyzed 9 components
+
+🔬 Running parallel journey discovery strategies...
+  • Strategy 1: Graph-based navigation analysis
+🔨 Building graph from 9 components...
+Failed to parse component: Identifier 'ArticleActions' has already been declared. (45:7)
+  ✅ Created 9 nodes
+  📍 /login: found 1 navigation(s) -> /register
+  📍 /register: found 1 navigation(s) -> /login
+Failed to parse component: Identifier 'ArticleActions' has already been declared. (45:7)
+  📍 /profile: found 1 navigation(s) -> /settings
+  ✅ Created 3 edges (matched 3/3 navigations)
+🔍 DFS starting from 8 entry points: /login, /register, /article, /components/ArticlePreview, /profile, /components/ProfileFavorites, /components/App, /editor
+    → Found 0 graph journeys
+  • Strategy 2: Form-based journey detection
+🔍 Form discovery: scanning 38 source files
+✅ Discovered 4 form files
+   Forms: Editor.js, Login.js, Register.js, Settings.js
+    → Found 4 form journeys
+  • Strategy 3: Intent-based synthesis (routes, auth, CRUD, workflows)
+🧠 Starting COMPLETE application understanding...
+  🔍 Analyzing application structure...
+📊 App Understanding Complete:
+  Routes: 9
+  Auth Boundaries: 3
+  Forms: 0
+  CRUD Entities: 2
+  Modals: 0
+  Navigation Patterns: 2
+  APIs: 0
+
+✅ Synthesized 2 intelligent journeys
+    → Found 2 synthesized journeys
+
+✅ Total discovered: 6 journeys (0 graph + 4 form)
+⚠️  Warnings:
+   - Found 5 disconnected routes that cannot be reached: /article, /components/ArticlePreview, /components/ProfileFavorites...
+   - Found 1 critical cycle(s) that may cause infinite loops in tests
+   - Found 6 pages with no outbound navigation (potential dead ends)
+
+🎯 Merged Journeys (by priority):
+  1. 📋 Editor (priority: 1, tags: form, critical)
+  2. 👤 User Login (priority: 1, tags: form, critical)
+  3. 👥 User Registration (priority: 1, tags: form, critical)
+  4. 📋 Settings (priority: 1, tags: form, critical)
+  5. 🧭 Navigate: login → register (priority: 3, tags: navigation)
+  6. 🧭 Navigate: register → login (priority: 3, tags: navigation)
+   ✅ Discovered 6 journeys
+
+⚡ Step 2: Auto-enriching critical journeys...
+   Enriching 4 of 6 journeys
+   🔍 Enriching: 📋 Editor
+[32m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 📋 Editor[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: src/components/Editor.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 1 edge cases[39m
+      ✅ Components: 1, Edge cases: 1
+   🔍 Enriching: 👤 User Login
+[32m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 User Login[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: src/components/Login.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 1 edge cases[39m
+      ✅ Components: 1, Edge cases: 1
+   🔍 Enriching: 👥 User Registration
+[32m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👥 User Registration[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: src/components/Register.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 1 edge cases[39m
+      ✅ Components: 1, Edge cases: 1
+   🔍 Enriching: 📋 Settings
+[32m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 📋 Settings[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: src/components/Settings.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:24:48 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 1 edge cases[39m
+      ✅ Components: 1, Edge cases: 1
+
+✅ Complete! 4 enriched, 2 discovery-only
+⏱️  Total time: 113ms
+💚 Health check requested
+🚀 API: Discover & Auto-Enrich: /Users/nikolabozic/Projects/truthy-frontend
+📊 Step 1: Discovering journeys...
+🧠 Smart Journey Discovery started...
+🔍 Smart discovery: found 232 source files
+✅ Discovered 22 page files (confidence > 50)
+   Top 5: index.js, index.js, index.js, index.js, index.js
+  📝 /components/Layout <- index.js (confidence: 70%)
+  📝 /ResetPassword <- index.js (confidence: 70%)
+  📝 /components/Header <- index.js (confidence: 65%)
+  📝 /components/Layout/Menu <- index.js (confidence: 60%)
+  📝 /profile <- index.js (confidence: 60%)
+  📝 /App <- index.js (confidence: 55%)
+  📝 /EmailTemplate <- index.js (confidence: 55%)
+  📝 /Permission <- index.js (confidence: 55%)
+  📝 /Role <- index.js (confidence: 55%)
+  📝 /Users <- index.js (confidence: 55%)
+  📝 /routes <- index.js (confidence: 55%)
+  📝 /permissiondenied <- index.js (confidence: 50%)
+  📝 /UserAccount/loginActivity <- loginActivity.js (confidence: 50%)
+  📝 /ForgotPassword <- index.js (confidence: 45%)
+  📝 /register <- index.js (confidence: 40%)
+  📝 /Users/userTable <- userTable.js (confidence: 40%)
+  📝 /components/Footer <- index.js (confidence: 35%)
+  📝 /home <- index.js (confidence: 35%)
+  📝 /login <- index.js (confidence: 35%)
+  📝 /PublicRoute <- index.js (confidence: 35%)
+  📝 /UserAccount/securityTab <- securityTab.js (confidence: 35%)
+  📝 /VerifyAccount <- index.js (confidence: 35%)
+
+✅ Total components for analysis: 22
+📦 Analyzed 22 components
+
+🔬 Running parallel journey discovery strategies...
+  • Strategy 1: Graph-based navigation analysis
+🔨 Building graph from 22 components...
+  ✅ Created 22 nodes
+  📍 /components/Layout: found 1 navigation(s) -> /dashboard
+    ⚠️  Target '/dashboard' not found in graph (from /components/Layout)
+  📍 /components/Header: found 3 navigation(s) -> /profile, /account-setting, /login
+    ⚠️  Target '/account-setting' not found in graph (from /components/Header)
+  📍 /profile: found 1 navigation(s) -> /account-setting
+    ⚠️  Target '/account-setting' not found in graph (from /profile)
+  📍 /EmailTemplate: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /EmailTemplate)
+  📍 /Permission: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Permission)
+  📍 /Role: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Role)
+  📍 /Users: found 1 navigation(s) -> /
+    ⚠️  Target '/' not found in graph (from /Users)
+  📍 /permissiondenied: found 1 navigation(s) -> /login
+  📍 /components/Footer: found 2 navigation(s) -> https://github.com/gobeam/truthy, https://github.com/gobeam/truthy
+    ⚠️  Target 'https://github.com/gobeam/truthy' not found in graph (from /components/Footer)
+    ⚠️  Target 'https://github.com/gobeam/truthy' not found in graph (from /components/Footer)
+  ✅ Created 3 edges (matched 3/12 navigations)
+🔍 DFS starting from 21 entry points: /components/Layout, /ResetPassword, /components/Header, /components/Layout/Menu, /App, /EmailTemplate, /Permission, /Role, /Users, /routes, /permissiondenied, /UserAccount/loginActivity, /ForgotPassword, /register, /Users/userTable, /components/Footer, /home, /login, /PublicRoute, /UserAccount/securityTab, /VerifyAccount
+    → Found 0 graph journeys
+  • Strategy 2: Form-based journey detection
+🔍 Form discovery: scanning 232 source files
+✅ Discovered 25 form files
+   Forms: useGetEmailTemplateForm.js, loginForm.js, useGetPermissionForm.js, registerForm.js, useGetRoleForm.js
+    → Found 10 form journeys
+  • Strategy 3: Intent-based synthesis (routes, auth, CRUD, workflows)
+🧠 Starting COMPLETE application understanding...
+  🔍 Analyzing application structure...
+📊 App Understanding Complete:
+  Routes: 14
+  Auth Boundaries: 6
+  Forms: 2
+  CRUD Entities: 5
+  Modals: 9
+  Navigation Patterns: 3
+  APIs: 0
+
+✅ Synthesized 7 intelligent journeys
+    → Found 7 synthesized journeys
+
+✅ Total discovered: 12 journeys (0 graph + 10 form)
+⚠️  Warnings:
+   - Found 17 disconnected routes that cannot be reached: /components/Layout, /ResetPassword, /components/Layout/Menu...
+   - Found 20 pages with no outbound navigation (potential dead ends)
+
+🎯 Merged Journeys (by priority):
+  1. 📧 Create Email Template (priority: 1, tags: form, critical)
+  2. 👤 User Login (priority: 1, tags: form, critical)
+  3. 🔒 Manage Permission (priority: 1, tags: form, critical)
+  4. 👥 User Registration (priority: 1, tags: form, critical)
+  5. 👥 Manage Role (priority: 1, tags: form, critical)
+  6. 👤 Update Profile (priority: 1, tags: form, critical)
+  7. 👤 Manage User (priority: 1, tags: form, critical)
+  8. 🎉 Complete User Onboarding (priority: 1, tags: workflow, onboarding, critical)
+  9. 🔑 Password Recovery (priority: 2, tags: error-recovery, authentication)
+  10. 🧭 Navigate: login → dashboard (priority: 3, tags: navigation)
+   ✅ Discovered 12 journeys
+
+⚡ Step 2: Auto-enriching critical journeys...
+   Enriching 8 of 12 journeys
+   🔍 Enriching: 📧 Create Email Template
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 📧 Create Email Template[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/EmailTemplate/editEmailTemplateModal.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👤 User Login
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 User Login[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/LoginPage/loginForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="username" (rules length: 168)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: <Formatt...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for username[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for username: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (rules-first): field="password" (rules length: 168)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: <Formatt...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for password[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for password: 2 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 2, Total validations: 2[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 🔒 Manage Permission
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🔒 Manage Permission[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Permission/createPermissionModal.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👥 User Registration
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👥 User Registration[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/RegisterPage/registerForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="email" (rules length: 270)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: (       ...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for email[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for email: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (name-first): field="confirmPassword" (rules length: 201)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             validator: (_, val, callback) =>               val                 ? callba...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] No rules parsed for confirmPassword[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="confirmPassword" (rules length: 270)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: (       ...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for confirmPassword[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for confirmPassword: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 4 (rules-first): field="accept" (rules length: 201)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             validator: (_, val, callback) =>               val                 ? callba...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] No rules parsed for accept[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 4, Total validations: 2[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👥 Manage Role
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👥 Manage Role[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Role/hooks/useGetRoleForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="name" (rules length: 139)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.descrip...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for name[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for name: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (rules-first): field="name" (rules length: 132)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.nameReq...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for name[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for name: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="description" (rules length: 139)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.descrip...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for description[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for description: 1 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 3, Total validations: 3[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 0 edge cases[39m
+      ✅ Components: 1, Edge cases: 0
+   🔍 Enriching: 👤 Update Profile
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 Update Profile[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/UserAccount/profileForm.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+      ✅ Components: 1, Edge cases: 2
+   🔍 Enriching: 👤 Manage User
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 Manage User[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Users/hooks/useGetUserForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="username" (rules length: 134)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.statusR...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for username[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for username: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (name-first): field="roleId" (rules length: 132)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.roleReq...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for roleId[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for roleId: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="roleId" (rules length: 134)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.statusR...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for roleId[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for roleId: 1 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 3, Total validations: 3[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 0 edge cases[39m
+      ✅ Components: 1, Edge cases: 0
+   🔍 Enriching: 🎉 Complete User Onboarding
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🎉 Complete User Onboarding[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 3 components to analyze[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/PublicRoute[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: PublicRoute[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Email[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Email[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 0 components, 0 edge cases[39m
+      ✅ Components: 0, Edge cases: 0
+
+✅ Complete! 8 enriched, 4 discovery-only
+⏱️  Total time: 141ms
+🔍 API: Journey Context Analysis: 📧 Create Email Template
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 📧 Create Email Template[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/EmailTemplate/editEmailTemplateModal.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+   ✅ Analyzed 1 components
+   📊 Found 2 edge cases
+   🎯 Generated test data suggestions
+🔍 API: Journey Context Analysis: 👤 User Login
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 User Login[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/LoginPage/loginForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="username" (rules length: 168)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: <Formatt...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for username[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for username: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (rules-first): field="password" (rules length: 168)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: <Formatt...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for password[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for password: 2 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 2, Total validations: 2[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+   ✅ Analyzed 1 components
+   📊 Found 2 edge cases
+   🎯 Generated test data suggestions
+🔍 API: Journey Context Analysis: 🔒 Manage Permission
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🔒 Manage Permission[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Permission/createPermissionModal.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+   ✅ Analyzed 1 components
+   📊 Found 2 edge cases
+   🎯 Generated test data suggestions
+🔍 API: Journey Context Analysis: 👥 User Registration
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👥 User Registration[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/RegisterPage/registerForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="email" (rules length: 270)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: (       ...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for email[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for email: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (name-first): field="confirmPassword" (rules length: 201)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             validator: (_, val, callback) =>               val                 ? callba...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] No rules parsed for confirmPassword[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="confirmPassword" (rules length: 270)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             whitespace: true,             message: (       ...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for confirmPassword[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for confirmPassword: 2 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 4 (rules-first): field="accept" (rules length: 201)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             validator: (_, val, callback) =>               val                 ? callba...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] No rules parsed for accept[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 4, Total validations: 2[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+   ✅ Analyzed 1 components
+   📊 Found 2 edge cases
+   🎯 Generated test data suggestions
+🔍 API: Journey Context Analysis: 👥 Manage Role
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👥 Manage Role[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Role/hooks/useGetRoleForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="name" (rules length: 139)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.descrip...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for name[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for name: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (rules-first): field="name" (rules length: 132)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.nameReq...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for name[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for name: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="description" (rules length: 139)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.descrip...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for description[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for description: 1 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 3, Total validations: 3[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 0 edge cases[39m
+   ✅ Analyzed 1 components
+   📊 Found 0 edge cases
+   🎯 Generated test data suggestions
+🔍 API: Journey Context Analysis: 👤 Update Profile
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 Update Profile[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/UserAccount/profileForm.js[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 0, Total validations: 0[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 2 edge cases[39m
+   ✅ Analyzed 1 components
+   📊 Found 2 edge cases
+   🎯 Generated test data suggestions
+🔍 API: Journey Context Analysis: 👤 Manage User
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 👤 Manage User[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 1 components to analyze[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[HolisticFlowTracerService] [39m[95mAnalyzing component: app/containers/Users/hooks/useGetUserForm.js[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 1 (name-first): field="username" (rules length: 134)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.statusR...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for username[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for username: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 2 (name-first): field="roleId" (rules length: 132)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.roleReq...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for roleId[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for roleId: 1 rules[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Match 3 (rules-first): field="roleId" (rules length: 134)[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Rules preview:            {             required: true,             message: <FormattedMessage {...messages.statusR...[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added required rule for roleId[39m
+[95m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [95m  DEBUG[39m [38;5;3m[ValidationExtractorService] [39m[95m[RulesArray] Added validation for roleId: 1 rules[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[ValidationExtractorService] [39m[32m[RulesArray] Total matches: 3, Total validations: 3[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 1 components, 0 edge cases[39m
+   ✅ Analyzed 1 components
+   📊 Found 0 edge cases
+   🎯 Generated test data suggestions
+🔍 API: Journey Context Analysis: 🎉 Complete User Onboarding
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🎉 Complete User Onboarding[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 3 components to analyze[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/PublicRoute[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: PublicRoute[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Email[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Email[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 0 components, 0 edge cases[39m
+   ✅ Analyzed 0 components
+   📊 Found 0 edge cases
+   🎯 Generated test data suggestions
+🔍 API: Journey Context Analysis: 🔑 Password Recovery
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🔑 Password Recovery[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 2 components to analyze[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/PublicRoute[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: PublicRoute[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 0 components, 0 edge cases[39m
+   ✅ Analyzed 0 components
+   📊 Found 0 edge cases
+   🎯 Generated test data suggestions
+🔍 API: Journey Context Analysis: 🧭 Navigate: login → dashboard
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🧭 Navigate: login → dashboard[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 2 components to analyze[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Page[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Page[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 0 components, 0 edge cases[39m
+   ✅ Analyzed 0 components
+   📊 Found 0 edge cases
+   🎯 Generated test data suggestions
+🔍 API: Journey Context Analysis: 🧭 Navigate: login → register
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🧭 Navigate: login → register[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 2 components to analyze[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Page[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Page[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 0 components, 0 edge cases[39m
+   ✅ Analyzed 0 components
+   📊 Found 0 edge cases
+   🎯 Generated test data suggestions
+🔍 API: Journey Context Analysis: 🧭 Navigate: register → login
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mTracing journey: 🧭 Navigate: register → login[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mFound 2 components to analyze[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Browser[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[ComponentExtractorService] [39m[33mComponent file not found: /Users/nikolabozic/Projects/truthy-frontend/Page[39m
+[33m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [33m   WARN[39m [38;5;3m[HolisticFlowTracerService] [39m[33mComponent not found or empty: Page[39m
+[32m[Nest] 22276  - [39m12/29/2025, 7:36:21 AM [32m    LOG[39m [38;5;3m[HolisticFlowTracerService] [39m[32mJourney analysis complete: 0 components, 0 edge cases[39m
+   ✅ Analyzed 0 components
+   📊 Found 0 edge cases
+   🎯 Generated test data suggestions

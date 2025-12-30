@@ -58,4 +58,26 @@ export class GenerationController {
   }) {
     return this.generation.executeAgent(body);
   }
+
+  /**
+   * Generate E2E Playwright test from flow data
+   * Used by VS Code extension dashboard
+   */
+  @Post('e2e')
+  async generateE2E(@Body() body: {
+    flow: {
+      name: string;
+      description?: string;
+      routes?: string[];
+      components?: string[];
+    };
+    config: {
+      baseUrl: string;
+      selectorPolicy: string;
+      framework: string;
+    };
+    componentCode?: string; // Actual source code of components for better selector generation
+  }) {
+    return this.generation.generateE2EFromFlow(body);
+  }
 }

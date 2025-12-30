@@ -2,6 +2,14 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { EnhancedAnalysisResponse, TechnologyStack } from './types/enhanced-analysis.types';
 import {
+  getCoverageIcon,
+  getCoverageIconColor,
+  getCoverageStatusText,
+  getIconForPriority,
+  getIconColor,
+  getProgressBar
+} from './utils/coverage.utils';
+import {
   ProjectInfoBuilder, ProjectInfoNode,
   TestingSetupBuilder, TestingSetupNode,
   CoverageByTypeBuilder, CoverageByTypeNode,
@@ -205,11 +213,11 @@ export class CoverageTreeProvider implements vscode.TreeDataProvider<CoverageIte
     );
     summaryItem.contextValue = 'summary';
     // Use dynamic icon based on coverage percentage
-    const iconName = this.getCoverageIcon(this.report.coveragePercent);
-    summaryItem.iconPath = new vscode.ThemeIcon(iconName, this.getCoverageIconColor(this.report.coveragePercent));
+    const iconName = getCoverageIcon(this.report.coveragePercent);
+    summaryItem.iconPath = new vscode.ThemeIcon(iconName, getCoverageIconColor(this.report.coveragePercent));
     
     // Professional tooltip
-    const status = this.getCoverageStatusText(this.report.coveragePercent);
+    const status = getCoverageStatusText(this.report.coveragePercent);
     summaryItem.tooltip = new vscode.MarkdownString(
       `**Test Coverage Analysis**\n\n` +
       `Overall: ${status} (${this.report.coveragePercent}%)\n\n` +
@@ -450,7 +458,7 @@ export class CoverageTreeProvider implements vscode.TreeDataProvider<CoverageIte
 
     return gaps.map(gap => {
       const fileName = path.basename(gap.relativePath);
-      const icon = this.getIconForPriority(gap.priority, gap.hasTest);
+      const icon = getIconForPriority(gap.priority, gap.hasTest);
       
       // Clean filename without emoji badges
       const label = fileName;
@@ -462,7 +470,7 @@ export class CoverageTreeProvider implements vscode.TreeDataProvider<CoverageIte
       );
       
       item.contextValue = gap.hasTest ? 'fileWithTest' : 'fileWithoutTest';
-      item.iconPath = new vscode.ThemeIcon(icon, this.getIconColor(gap.priority, gap.hasTest));
+      item.iconPath = new vscode.ThemeIcon(icon, getIconColor(gap.priority, gap.hasTest));
       
       // Professional tooltip with structured info
       const priorityLabel = gap.priority.charAt(0).toUpperCase() + gap.priority.slice(1);
@@ -584,74 +592,7 @@ export class CoverageTreeProvider implements vscode.TreeDataProvider<CoverageIte
   }
 
   // Removed buildCriticalActionsCard in favor of buildQualityInbox
-
-  private getIconColor(priority: string, hasTest: boolean): vscode.ThemeColor | undefined {
-    if (hasTest) {
-      return new vscode.ThemeColor('testing.iconPassed');
-    }
-
-    switch (priority) {
-      case 'critical':
-        return new vscode.ThemeColor('testing.iconFailed');
-      case 'high':
-        return new vscode.ThemeColor('errorForeground');
-      case 'medium':
-        return new vscode.ThemeColor('editorWarning.foreground');
-      case 'low':
-        return new vscode.ThemeColor('editorInfo.foreground');
-      default:
-        return undefined;
-    }
-  }
-
-
-  private getCoverageIcon(percent: number): string {
-    if (percent >= 80) return 'check-all'; // Excellent
-    if (percent >= 60) return 'graph'; // Good
-    if (percent >= 40) return 'graph-line'; // Fair
-    return 'warning'; // Poor
-  }
-
-  /**
-   * Generate visual progress bar
-   * Example: "60% ████████░░"
-   */
-  private getProgressBar(percent: number): string {
-    const totalBlocks = 10;
-    const filledBlocks = Math.round((percent / 100) * totalBlocks);
-    const emptyBlocks = totalBlocks - filledBlocks;
-    
-    const filled = '█'.repeat(filledBlocks);
-    const empty = '░'.repeat(emptyBlocks);
-    
-    return `${percent}% ${filled}${empty}`;
-  }
-
-  private getCoverageIconColor(percent: number): vscode.ThemeColor {
-    if (percent >= 80) return new vscode.ThemeColor('testing.iconPassed');
-    if (percent >= 60) return new vscode.ThemeColor('charts.blue');
-    if (percent >= 40) return new vscode.ThemeColor('charts.orange');
-    return new vscode.ThemeColor('testing.iconFailed');
-  }
-
-  private getIconForPriority(priority: string, hasTest: boolean): string {
-    if (hasTest) {
-      return 'check';
-    }
-
-    switch (priority) {
-      case 'critical':
-        return 'flame';
-      case 'high':
-        return 'alert';
-      case 'medium':
-        return 'warning';
-      case 'low':
-        return 'info';
-      default:
-        return 'file';
-    }
-  }
+  // Helper methods (getCoverageIcon, getIconColor, etc.) moved to utils/coverage.utils.ts
 
   private getFrameworksChildren(): CoverageItem[] {
     if (!this.report) return [];
@@ -879,11 +820,11 @@ export class CoverageTreeProvider implements vscode.TreeDataProvider<CoverageIte
     );
     summaryItem.contextValue = 'summary';
     
-    const iconName = this.getCoverageIcon(coveragePercent);
-    summaryItem.iconPath = new vscode.ThemeIcon(iconName, this.getCoverageIconColor(coveragePercent));
+    const iconName = getCoverageIcon(coveragePercent);
+    summaryItem.iconPath = new vscode.ThemeIcon(iconName, getCoverageIconColor(coveragePercent));
     
     // Professional tooltip
-    const status = this.getCoverageStatusText(coveragePercent);
+    const status = getCoverageStatusText(coveragePercent);
     
     summaryItem.tooltip = new vscode.MarkdownString(
       `**Test Coverage Analysis**\n\n` +

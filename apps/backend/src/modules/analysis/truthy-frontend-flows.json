@@ -1,0 +1,98 @@
+[
+  {
+    "id": "1",
+    "name": "User Login",
+    "description": "User logs in with email and password",
+    "confidence": 95,
+    "routes": ["/login"],
+    "components": ["LoginPage"],
+    "filePath": "app/containers/LoginPage/index.js",
+    "testSuggestions": ["Test successful login", "Test invalid credentials"],
+    "requiresAuth": false,
+    "priority": "high"
+  },
+  {
+    "id": "2",
+    "name": "User Registration",
+    "description": "New user creates an account",
+    "confidence": 95,
+    "routes": ["/register"],
+    "components": ["RegisterPage"],
+    "filePath": "app/containers/RegisterPage/index.js",
+    "testSuggestions": ["Test account creation", "Test email verification"],
+    "requiresAuth": false,
+    "priority": "high"
+  },
+  {
+    "id": "3",
+    "name": "Forgot Password",
+    "description": "User requests password reset",
+    "confidence": 95,
+    "routes": ["/forgot-password"],
+    "components": ["ForgotPassword"],
+    "filePath": "app/containers/ForgotPassword/index.js",
+    "testSuggestions": ["Test password reset request"],
+    "requiresAuth": false,
+    "priority": "high"
+  },
+  {
+    "id": "4",
+    "name": "Dashboard",
+    "description": "Main dashboard view after login",
+    "confidence": 90,
+    "routes": ["/dashboard"],
+    "components": ["Dashboard"],
+    "filePath": "app/containers/Dashboard/index.js",
+    "testSuggestions": ["Test dashboard loads", "Test widgets display"],
+    "requiresAuth": true,
+    "priority": "medium"
+  },
+  {
+    "id": "5",
+    "name": "User Management",
+    "description": "Admin manages users",
+    "confidence": 90,
+    "routes": ["/users"],
+    "components": ["Users"],
+    "filePath": "app/containers/Users/index.js",
+    "testSuggestions": ["Test user list", "Test user search"],
+    "requiresAuth": true,
+    "priority": "medium"
+  },
+  {
+    "id": "6",
+    "name": "Roles Management",
+    "description": "Admin manages roles and permissions",
+    "confidence": 90,
+    "routes": ["/roles"],
+    "components": ["Role"],
+    "filePath": "app/containers/Role/index.js",
+    "testSuggestions": ["Test role list", "Test role creation"],
+    "requiresAuth": true,
+    "priority": "medium"
+  },
+  {
+    "id": "7",
+    "name": "Permissions Management",
+    "description": "Admin views and manages permissions",
+    "confidence": 90,
+    "routes": ["/permissions"],
+    "components": ["Permission"],
+    "filePath": "app/containers/Permission/index.js",
+    "testSuggestions": ["Test permissions list"],
+    "requiresAuth": true,
+    "priority": "medium"
+  },
+  {
+    "id": "8",
+    "name": "Email Templates",
+    "description": "Admin manages email templates",
+    "confidence": 90,
+    "routes": ["/email-templates"],
+    "components": ["EmailTemplate"],
+    "filePath": "app/containers/EmailTemplate/index.js",
+    "testSuggestions": ["Test template list"],
+    "requiresAuth": true,
+    "priority": "medium"
+  }
+]

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QAgenAI · VS Code Extension (Repo Scan + Impact + Self‑healing)</title>
+<style>
+  :root{--bg:#0b0c10;--panel:#111218;--muted:#94a3b8;--text:#e5e7eb;--border:#1f2635;--brand:#a855f7;--brand2:#6366f1;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6}
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#0b0c10 0,#0b0c10 60%,#0f1117 100%);color:var(--text);font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial}
+  .layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+  .side{border-right:1px solid var(--border);background:rgba(255,255,255,.02)}
+  .brand{padding:16px;border-bottom:1px solid var(--border);font-weight:800;background:linear-gradient(90deg,var(--brand),var(--brand2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .nav{display:flex;flex-direction:column;padding:8px}
+  .nav .item{padding:10px 12px;border-radius:10px;color:#cbd5e1;cursor:pointer;margin:4px}
+  .nav .item.active{background:rgba(168,85,247,.14);color:#e9d5ff;border:1px solid rgba(168,85,247,.35)}
+  .content{padding:18px}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .title{font-weight:800}
+  .btn{border:0;border-radius:10px;padding:9px 12px;font-weight:600;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+  .btn.p{background:linear-gradient(90deg,var(--brand),var(--brand2));color:white}
+  .btn.g{background:linear-gradient(90deg,#10b981,#22c55e);color:white}
+  .btn.gh{background:rgba(255,255,255,.06);border:1px solid var(--border);color:#e2e8f0}
+  .grid{display:grid;gap:12px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:1100px){.layout{grid-template-columns:1fr}.side{display:none}.g2,.g3{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px}
+  h3{margin:0 0 8px;font-size:14px}
+  .muted{color:var(--muted);font-size:12px}
+  .row{display:flex;align-items:center;gap:8px}
+  .badge{font-size:10px;border:1px solid var(--border);padding:2px 6px;border-radius:999px;color:#cbd5e1}
+  .pill{font-size:11px;border:1px solid var(--border);background:rgba(255,255,255,.04);padding:4px 8px;border-radius:999px;color:#cbd5e1}
+  .list{display:flex;flex-direction:column;gap:8px}
+  .itemr{display:flex;gap:10px;border:1px solid var(--border);background:#0c0f16;border-radius:10px;padding:10px}
+  .ring{width:72px;height:72px;border-radius:999px;background:conic-gradient(#22c55e 0 260deg,rgba(255,255,255,.1) 260deg);display:grid;place-items:center}
+  .ring .in{width:56px;height:56px;border-radius:999px;background:#0b0c10;display:grid;place-items:center;font-weight:800;color:#86efac}
+  .progress{height:6px;border-radius:8px;background:#131826;overflow:hidden}
+  .bar{height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));width:0%}
+  .right{margin-left:auto}
+  .link{color:#93c5fd;cursor:pointer}
+  .table{width:100%;border-collapse:separate;border-spacing:0 8px}
+  .tr{background:#0c0f16;border:1px solid var(--border);border-radius:10px;padding:8px}
+  .code{background:#0b0f14;border:1px solid #1b2331;border-radius:10px;padding:12px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center}
+  .modal .box{width:min(880px,92vw);background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px}
+  .modal.show{display:flex}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <div class="brand">⚡ QAgenAI · VS Code</div>
+    <div class="nav">
+      <div class="item active" onclick="view('dashboard')">Dashboard</div>
+      <div class="item" onclick="view('risk')">Risk Queue</div>
+      <div class="item" onclick="view('impact')">Impact Mode</div>
+      <div class="item" onclick="view('heal')">Self‑healing</div>
+      <div class="item" onclick="view('settings')">Settings</div>
+    </div>
+  </aside>
+  <main class="content">
+    <div class="top">
+      <div class="title" id="viewtitle">Dashboard</div>
+      <div class="row">
+        <button class="btn gh" onclick="scan()">🔍 Scan Repo</button>
+        <button class="btn p" onclick="openWizard()">🎯 Fix My Tests</button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard">
+      <div class="grid g3">
+        <div class="card">
+          <h3>Repo Snapshot</h3>
+          <div class="muted">Detected: React 18 · TypeScript · Jest · Playwright · NestJS</div>
+          <div class="row" style="margin-top:8px"><span class="pill">tests: 126</span><span class="pill">files: 312</span><span class="pill">last scan: just now</span></div>
+        </div>
+        <div class="card row" style="gap:12px">
+          <div class="ring"><div class="in" id="health">72%</div></div>
+          <div>
+            <h3>Test Health</h3>
+            <div class="muted">Goal 80% · 8% to go · ~15 tests</div>
+            <div class="progress" style="margin-top:6px"><div class="bar" id="healthbar" style="width:72%"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Quick Actions</h3>
+          <div class="row" style="gap:8px"><button class="btn gh" onclick="view('impact')">▶ Run Impacted</button><button class="btn gh" onclick="view('risk')">✨ Generate Critical</button><button class="btn gh" onclick="view('heal')">🔧 Self‑heal</button></div>
+        </div>
+      </div>
+
+      <div class="grid g2" style="margin-top:12px">
+        <div class="card">
+          <h3>🔥 Risk Queue</h3>
+          <div class="list">
+            <div class="itemr"><span class="badge">CRIT</span><div style="flex:1"><div>payment.service.ts <span class="muted">(NestJS Service · 0%)</span></div><div class="muted">High impact · 289 LOC · no tests</div></div><button class="btn gh" onclick="previewGen('payment.service.ts')">Preview</button><button class="btn p" onclick="gen('payment.service.ts')">Generate</button></div>
+            <div class="itemr"><span class="badge">CRIT</span><div style="flex:1"><div>CheckoutForm.tsx <span class="muted">(React · 12%)</span></div><div class="muted">High traffic component</div></div><button class="btn gh" onclick="previewGen('CheckoutForm.tsx')">Preview</button><button class="btn p" onclick="gen('CheckoutForm.tsx')">Generate</button></div>
+            <div class="itemr"><span class="badge">HIGH</span><div style="flex:1"><div>auth.controller.ts <span class="muted">(Controller · 0%)</span></div><div class="muted">Security critical</div></div><button class="btn gh" onclick="previewGen('auth.controller.ts')">Preview</button><button class="btn p" onclick="gen('auth.controller.ts')">Generate</button></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>🧠 Impact (git diff)</h3>
+          <div class="list">
+            <div class="itemr"><span class="badge">M</span><div style="flex:1"><div>src/services/payment.service.ts</div><div class="muted">Impacted tests: cart.service.test.ts, checkout.spec.ts</div></div><button class="btn gh" onclick="runImpacted()">Run impacted</button></div>
+            <div class="itemr"><span class="badge">M</span><div style="flex:1"><div>src/components/CheckoutForm.tsx</div><div class="muted">Impacted tests: checkout.spec.ts</div></div><button class="btn gh" onclick="runImpacted()">Run impacted</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3>🔧 Self‑healing Suggestions</h3>
+        <div class="list">
+          <div class="itemr"><span class="badge">FIX</span><div style="flex:1"><div>login.spec.ts</div><div class="muted">Replace .submit-btn → [data-testid="login-submit"]</div></div><button class="btn gh" onclick="openPatch('login.spec.ts')">Open PR patch</button></div>
+          <div class="itemr"><span class="badge">FIX</span><div style="flex:1"><div>checkout.spec.ts</div><div class="muted">Add stable testids to totals</div></div><button class="btn gh" onclick="openPatch('checkout.spec.ts')">Open PR patch</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RISK -->
+    <section id="risk" style="display:none">
+      <div class="card">
+        <h3>Risk Queue</h3>
+        <div class="muted">Prioritized by complexity × churn × business tags</div>
+        <table class="table" style="margin-top:8px">
+          <tr class="tr"><td class="badge">CRIT</td><td>payment.service.ts</td><td class="muted">no tests • 289 LOC</td><td class="right"><button class="btn gh" onclick="previewGen('payment.service.ts')">Preview</button> <button class="btn p" onclick="gen('payment.service.ts')">Generate</button></td></tr>
+          <tr class="tr"><td class="badge">HIGH</td><td>auth.controller.ts</td><td class="muted">security</td><td class="right"><button class="btn gh" onclick="previewGen('auth.controller.ts')">Preview</button> <button class="btn p" onclick="gen('auth.controller.ts')">Generate</button></td></tr>
+          <tr class="tr"><td class="badge">HIGH</td><td>CheckoutForm.tsx</td><td class="muted">traffic</td><td class="right"><button class="btn gh" onclick="previewGen('CheckoutForm.tsx')">Preview</button> <button class="btn p" onclick="gen('CheckoutForm.tsx')">Generate</button></td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- IMPACT -->
+    <section id="impact" style="display:none">
+      <div class="grid g2">
+        <div class="card">
+          <h3>Changed Files (git diff)</h3>
+          <div class="list">
+            <div class="itemr"><span class="badge">M</span><div style="flex:1">src/services/payment.service.ts</div><span class="pill">+45 −12</span></div>
+            <div class="itemr"><span class="badge">M</span><div style="flex:1">src/components/CheckoutForm.tsx</div><span class="pill">+23 −5</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Impacted Tests / Files</h3>
+          <div class="list">
+            <div class="itemr"><span class="badge">TEST</span><div style="flex:1">checkout.spec.ts</div><span class="pill">E2E</span></div>
+            <div class="itemr"><span class="badge">FILE</span><div style="flex:1">cart.service.test.ts</div><span class="pill">Unit</span></div>
+          </div>
+          <div class="row" style="margin-top:8px"><button class="btn gh" onclick="runImpacted()">▶ Run Impacted</button><button class="btn p" onclick="genImpacted()">✨ Generate for Impacted</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HEAL -->
+    <section id="heal" style="display:none">
+      <div class="card">
+        <h3>Self‑healing</h3>
+        <div class="muted">Detected brittle selectors and failing assertions</div>
+        <div class="grid g2" style="margin-top:8px">
+          <div class="card">
+            <h3>Suggestion</h3>
+            <div class="code" id="patchcode">diff --git a/tests/login.spec.ts b/tests/login.spec.ts
+--- a/tests/login.spec.ts
++++ b/tests/login.spec.ts
+- await page.click('.submit-btn')
++ await page.click('[data-testid="login-submit"]')</div>
+            <div class="row" style="margin-top:8px"><button class="btn gh" onclick="copyPatch()">Copy patch</button><button class="btn p" onclick="createPR()">Create PR</button></div>
+          </div>
+          <div class="card">
+            <h3>Why</h3>
+            <div class="muted">Text/CSS selector was unstable across 3 runs. testid provides stable target and improves flake rate.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="settings" style="display:none">
+      <div class="card">
+        <h3>Settings</h3>
+        <div class="grid g2">
+          <div>
+            <div class="muted">Test Framework</div>
+            <select><option>Jest</option><option>Vitest</option></select>
+          </div>
+          <div>
+            <div class="muted">E2E</div>
+            <select><option>Playwright</option><option disabled>Cypress (soon)</option></select>
+          </div>
+          <div>
+            <div class="muted">Selector policy</div>
+            <select><option>Prefer testid</option><option>Prefer role/label</option><option>Mixed</option></select>
+          </div>
+          <div>
+            <div class="muted">Auto‑scan on git pull</div>
+            <select><option>Enabled</option><option>Disabled</option></select>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- PREVIEW MODAL -->
+<div class="modal" id="preview">
+  <div class="box">
+    <div class="row" style="justify-content:space-between"><h3>Preview Generation</h3><a class="link" onclick="closePreview()">Close</a></div>
+    <div class="muted">File: <span id="pf"></span></div>
+    <div class="grid g2" style="margin-top:10px">
+      <div class="card">
+        <h3>Will generate</h3>
+        <ul class="muted">
+          <li>✔ 12 test cases</li>
+          <li>✔ POM / fixtures</li>
+          <li>✔ Stable selectors</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Estimated impact</h3>
+        <div class="row"><div class="ring"><div class="in" id="lift">+9%</div></div><div><div class="muted">Coverage lift</div><div class="muted">~35s generate</div></div></div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:8px"><button class="btn gh" onclick="genNow()">Generate locally</button><button class="btn p" onclick="createPR()">Generate as PR</button></div>
+  </div>
+</div>
+
+<!-- WIZARD (Fix My Tests) -->
+<div class="modal" id="wizard">
+  <div class="box">
+    <div class="row" style="justify-content:space-between"><h3>Fix My Tests</h3><a class="link" onclick="closeWizard()">Close</a></div>
+    <div class="muted">Scanning repository…</div>
+    <div class="progress" style="margin:8px 0 12px"><div class="bar" id="scanbar"></div></div>
+    <div class="list">
+      <div class="itemr"><span class="badge">CRIT</span><div style="flex:1">payment.service.ts</div><button class="btn p" onclick="previewGen('payment.service.ts')">Preview</button></div>
+      <div class="itemr"><span class="badge">CRIT</span><div style="flex:1">auth.controller.ts</div><button class="btn p" onclick="previewGen('auth.controller.ts')">Preview</button></div>
+      <div class="itemr"><span class="badge">HIGH</span><div style="flex:1">CheckoutForm.tsx</div><button class="btn p" onclick="previewGen('CheckoutForm.tsx')">Preview</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function view(id){document.querySelector('#viewtitle').textContent=id.charAt(0).toUpperCase()+id.slice(1);['dashboard','risk','impact','heal','settings'].forEach(v=>document.getElementById(v).style.display=v===id?'block':'none');document.querySelectorAll('.nav .item').forEach(el=>el.classList.toggle('active',el.textContent.toLowerCase().includes(id)))}
+  function scan(){const b=document.getElementById('scanbar');const wiz=document.getElementById('wizard');wiz.classList.add('show');let p=0;const it=setInterval(()=>{p+=12;b.style.width=p+'%';if(p>=100){clearInterval(it);wiz.classList.remove('show');document.getElementById('health').textContent='74%';document.getElementById('healthbar').style.width='74%';}},140)}
+  function openWizard(){document.getElementById('wizard').classList.add('show');scan()}
+  function closeWizard(){document.getElementById('wizard').classList.remove('show')}
+  function previewGen(file){document.getElementById('pf').textContent=file;document.getElementById('lift').textContent='+9%';document.getElementById('preview').classList.add('show')}
+  function closePreview(){document.getElementById('preview').classList.remove('show')}
+  function gen(file){previewGen(file)}
+  function genNow(){alert('Generated locally: tests created');closePreview()}
+  function createPR(){alert('Opened PR with tests/patch');closePreview()}
+  function runImpacted(){alert('Running impacted tests…\nPASS checkout.spec.ts\nPASS cart.service.test.ts')}
+  function genImpacted(){alert('Generated tests for impacted files');}
+  function openPatch(){view('heal')}
+  function copyPatch(){navigator.clipboard.writeText(document.getElementById('patchcode').innerText);alert('Patch copied')}
+</script>
+</body>
+</html>

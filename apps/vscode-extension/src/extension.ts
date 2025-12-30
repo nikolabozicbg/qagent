@@ -1,672 +1,413 @@
 import * as vscode from 'vscode';
-import { CoverageTreeProvider } from './coverageTreeProvider';
-import { CoverageWebviewProvider } from './webviews/coverage.webview';
-import { ChatPanelProvider } from './providers/chat-panel.provider';
-import { CoverageCodeLensProvider, TestCodeLensProvider } from './providers';
-import { registerTestCodeLensCommands } from './commands/testCodeLens.commands';
-import { StatusBarService } from './services/statusBar.service';
-import { TestQualityAnalyzerService, TestQualityReport } from './services/test-quality-analyzer.service';
-import { registerCommands } from './commands';
-import { AppLauncherService } from './services/app-launcher.service';
-import { RouteCrawlerService } from './services/route-crawler.service';
-import { UserFlowGeneratorService } from './services/user-flow-generator.service';
-import { OpenAPIParserService } from './services/openapi-parser.service';
-import { TestPreviewWebviewProvider, PreviewAction } from './webviews/test-preview.webview';
-import { FlowStateService } from './services/flow-state.service';
+import { ServiceContainer } from './container';
 
-export function activate(context: vscode.ExtensionContext) {
-    console.log('QAgenAI extension is now active!');
+let container: ServiceContainer;
+let outputChannel: vscode.OutputChannel;
 
-    // Coverage TreeView provider (kept for backwards compatibility and data source)
-    const coverageProvider = new CoverageTreeProvider();
-    
-    // Coverage WebView provider (modern UI)
-    const coverageWebviewProvider = new CoverageWebviewProvider(context.extensionUri);
-    
-    // Test Quality Analyzer service
-    const testQualityAnalyzer = new TestQualityAnalyzerService();
-    let lastQualityReport: TestQualityReport | undefined;
-    
-    // Dynamic Analysis services
-    const appLauncher = new AppLauncherService();
-    const routeCrawler = new RouteCrawlerService();
-    const flowGenerator = new UserFlowGeneratorService();
-    const openApiParser = new OpenAPIParserService();
-    const testPreviewProvider = new TestPreviewWebviewProvider(context.extensionUri);
-    const flowStateService = new FlowStateService(context);
-    
-    // Store last flow analysis globally for generate commands
-    let lastFlowAnalysis: any = null;
-    
-    // Subscribe to app status changes
-    appLauncher.onStatusChange((status) => {
-        coverageWebviewProvider.updateAppStatus(status);
-    });
-    
-    // Register coverage webview
-    context.subscriptions.push(
-        vscode.window.registerWebviewViewProvider(
-            CoverageWebviewProvider.viewType,
-            coverageWebviewProvider
-        )
-    );
-    
-    // Connect coverage provider data to webview
-    coverageProvider.onDidChangeData((stacks) => {
-        coverageWebviewProvider.updateData(stacks, lastQualityReport);
-    });
-    
-    // When webview becomes visible, sync existing data
-    const syncExistingData = () => {
-        const stacks = coverageProvider.getStacks();
-        if (stacks.length > 0) {
-            coverageWebviewProvider.updateData(stacks, lastQualityReport);
+// Global logger
+export function log(message: string, ...args: unknown[]) {
+  const timestamp = new Date().toISOString().split('T')[1].slice(0, 12);
+  const formatted = `[${timestamp}] ${message}`;
+  console.log(formatted, ...args);
+  outputChannel?.appendLine(args.length > 0 ? `${formatted} ${JSON.stringify(args)}` : formatted);
+}
+
+export async function activate(context: vscode.ExtensionContext) {
+  // Create output channel for debugging
+  outputChannel = vscode.window.createOutputChannel('QAgenAI');
+  outputChannel.show(true);
+  
+  log('QAgenAI extension activating...');
+
+  // Initialize service container
+  container = new ServiceContainer(context);
+
+  // Check if onboarding is completed
+  const onboardingCompleted = context.globalState.get<boolean>('qagenai.onboardingCompleted', false);
+
+  if (!onboardingCompleted) {
+    // Show onboarding wizard on first run
+    await container.showOnboarding();
+  } else {
+    // Show dashboard for returning users
+    await container.showDashboard();
+  }
+
+  // Register commands
+  registerCommands(context);
+
+  console.log('QAgenAI extension activated!');
+}
+
+function registerCommands(context: vscode.ExtensionContext) {
+  // Show Dashboard command
+  context.subscriptions.push(
+    vscode.commands.registerCommand('qagenai.showDashboard', async () => {
+      await container.showDashboard();
+    })
+  );
+
+  // Focus Dashboard view (used after onboarding)
+  context.subscriptions.push(
+    vscode.commands.registerCommand('qagenai.dashboard.focus', () => {
+      container.dashboardProvider.focus();
+    })
+  );
+
+  // Start Onboarding command (for re-running setup)
+  context.subscriptions.push(
+    vscode.commands.registerCommand('qagenai.startOnboarding', async () => {
+      await container.showOnboarding();
+    })
+  );
+
+  // Reset onboarding (for testing)
+  context.subscriptions.push(
+    vscode.commands.registerCommand('qagenai.resetOnboarding', async () => {
+      await context.globalState.update('qagenai.onboardingCompleted', false);
+      await context.globalState.update('qagenai.onboardingState', undefined);
+      vscode.window.showInformationMessage('Onboarding reset. Reload window to see wizard.');
+    })
+  );
+
+  // Reset all flows to draft status
+  context.subscriptions.push(
+    vscode.commands.registerCommand('qagenai.resetFlowsToDraft', async () => {
+      // Flows are stored in workspaceState under 'qagenai.dashboardFlows'
+      const flows = context.workspaceState.get<Array<{ id: string; status: string }>>('qagenai.dashboardFlows');
+      if (flows && flows.length > 0) {
+        const resetFlows = flows.map(flow => ({ ...flow, status: 'draft' }));
+        await context.workspaceState.update('qagenai.dashboardFlows', resetFlows);
+        await container.dashboardProvider.refresh();
+        vscode.window.showInformationMessage(`✅ Reset ${flows.length} flows to draft. Refresh dashboard to see changes.`);
+      } else {
+        // Maybe flows are still in onboarding state, not yet migrated
+        vscode.window.showWarningMessage('No flows found. Try clicking refresh in dashboard first.');
+      }
+    })
+  );
+
+  // Nuclear option: clear all QAgenAI data
+  context.subscriptions.push(
+    vscode.commands.registerCommand('qagenai.clearAllData', async () => {
+      await context.workspaceState.update('qagenai.dashboardFlows', undefined);
+      await context.globalState.update('qagenai.onboardingState', undefined);
+      await context.globalState.update('qagenai.onboardingCompleted', false);
+      await container.dashboardProvider.refresh();
+      vscode.window.showInformationMessage('🗑️ All QAgenAI data cleared. Reload window to start fresh.');
+    })
+  );
+
+  // ✨ LIVE SMART DISCOVERY (Real-time WebSocket)
+  context.subscriptions.push(
+    vscode.commands.registerCommand('qagenai.liveSmartDiscovery', async () => {
+      const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+      if (!workspaceRoot) {
+        vscode.window.showErrorMessage('No workspace folder found.');
+        return;
+      }
+
+      log('Starting live smart discovery...');
+      
+      try {
+        // Import discovery service
+        const { DiscoveryLiveService } = await import('./services/websocket');
+        
+        // Import backend API service
+        const { BackendAPIService } = await import('./services/backend-api.service');
+        const backendAPI = new BackendAPIService();
+        
+        // Check backend availability
+        const isAvailable = await backendAPI.isAvailable();
+        if (!isAvailable) {
+          vscode.window.showErrorMessage('Backend is not running. Please start the backend service.');
+          return;
         }
-    };
-    // Call sync after a short delay to allow webview to initialize
-    setTimeout(syncExistingData, 3000);
-    
-    // Register Test Quality commands
-    context.subscriptions.push(
-        vscode.commands.registerCommand('qagenai.analyzeTestQuality', async () => {
-            const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-            if (!workspaceFolder) {
-                vscode.window.showWarningMessage('No workspace folder open');
-                return;
-            }
-            
-            vscode.window.withProgress(
-                {
-                    location: vscode.ProgressLocation.Notification,
-                    title: 'Analyzing test quality...',
-                    cancellable: false
-                },
-                async () => {
-                    try {
-                        lastQualityReport = await testQualityAnalyzer.analyzeWorkspace(workspaceFolder.uri.fsPath);
-                        coverageWebviewProvider.updateQualityReport(lastQualityReport);
-                        
-                        const scoreEmoji = lastQualityReport.overallScore >= 80 ? '🟢' : 
-                                          lastQualityReport.overallScore >= 60 ? '🟡' : '🔴';
-                        vscode.window.showInformationMessage(
-                            `Test Quality: ${lastQualityReport.overallScore}% ${scoreEmoji} | ` +
-                            `${lastQualityReport.totalTests} tests analyzed`
-                        );
-                    } catch (error) {
-                        vscode.window.showErrorMessage(`Failed to analyze test quality: ${error}`);
-                    }
-                }
-            );
-        })
-    );
-    
-    context.subscriptions.push(
-        vscode.commands.registerCommand('qagenai.showQualityReport', async () => {
-            if (!lastQualityReport) {
-                vscode.window.showWarningMessage('No quality report available. Run "Analyze Tests" first.');
-                return;
-            }
-            
-            // Create and show a webview panel with detailed report
-            const panel = vscode.window.createWebviewPanel(
-                'testQualityReport',
-                'Test Quality Report',
-                vscode.ViewColumn.One,
-                { enableScripts: true }
-            );
-            
-            panel.webview.html = getQualityReportHtml(lastQualityReport);
-        })
-    );
-    
-    // ========== Dynamic Analysis Commands ==========
-    
-    // Scan App - Start dev server and crawl routes
-    context.subscriptions.push(
-        vscode.commands.registerCommand('qagenai.scanApp', async () => {
-            const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-            if (!workspaceFolder) {
-                vscode.window.showWarningMessage('No workspace folder open');
-                return;
-            }
-            
-            const workspacePath = workspaceFolder.uri.fsPath;
-            
-            vscode.window.withProgress(
-                {
-                    location: vscode.ProgressLocation.Notification,
-                    title: 'Scanning Application...',
-                    cancellable: true
-                },
-                async (progress, token) => {
-                    try {
-                        // Step 1: Detect dev server config
-                        progress.report({ message: 'Detecting framework...' });
-                        const config = await appLauncher.detectConfig(workspacePath);
-                        
-                        if (!config) {
-                            vscode.window.showWarningMessage('Could not detect dev server. Make sure package.json has a "dev" script.');
-                            return;
-                        }
-                        
-                        // Check if server is already running
-                        const alreadyRunning = await appLauncher.isServerRunning();
-                        
-                        if (!alreadyRunning) {
-                            // Step 2: Start dev server
-                            progress.report({ message: `Starting ${config.framework} server...` });
-                            const started = await appLauncher.start(workspacePath);
-                            
-                            if (!started) {
-                                vscode.window.showErrorMessage('Failed to start dev server');
-                                return;
-                            }
-                        }
-                        
-                        if (token.isCancellationRequested) {
-                            await appLauncher.stop();
-                            return;
-                        }
-                        
-                        // Step 3: Crawl routes
-                        progress.report({ message: 'Discovering routes...' });
-                        const crawlResult = await routeCrawler.crawl(config.url, {
-                            maxDepth: 3,
-                            maxRoutes: 30,
-                            captureScreenshots: false // Disable for speed
-                        });
-                        
-                        // Step 4: Generate user flows
-                        progress.report({ message: 'Analyzing user flows...' });
-                        const flowAnalysis = flowGenerator.generateFlows(crawlResult);
-                        lastFlowAnalysis = flowAnalysis; // Store for later use
-                        
-                        // Load flow states and pass to webview
-                        const flowStates = await flowStateService.getAllFlowStates();
-                        
-                        // Update webview
-                        coverageWebviewProvider.updateFlowAnalysis(flowAnalysis, crawlResult, flowStates);
-                        
-                        // Show summary
-                        vscode.window.showInformationMessage(
-                            `🔍 Discovered ${crawlResult.routes.length} routes, ${flowAnalysis.flows.length} user flows, ${crawlResult.totalElements} elements`
-                        );
-                        
-                        // Also check for OpenAPI spec
-                        const specPath = await openApiParser.findSpecFile(workspacePath);
-                        if (specPath) {
-                            const apiSpec = await openApiParser.parseSpec(specPath, workspacePath);
-                            if (apiSpec) {
-                                coverageWebviewProvider.updateApiSpec(apiSpec);
-                            }
-                        }
-                        
-                    } catch (error) {
-                        vscode.window.showErrorMessage(`Scan failed: ${error}`);
-                        await appLauncher.stop();
-                    }
-                }
-            );
-        })
-    );
-    
-    // Stop App
-    context.subscriptions.push(
-        vscode.commands.registerCommand('qagenai.stopApp', async () => {
-            await appLauncher.stop();
-            vscode.window.showInformationMessage('Dev server stopped');
-        })
-    );
-    
-    // Generate Flow Test
-    context.subscriptions.push(
-        vscode.commands.registerCommand('qagenai.generateFlowTest', async (flowId: string) => {
-            const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-            if (!workspaceFolder) {
-                vscode.window.showWarningMessage('No workspace folder open');
-                return;
-            }
-            
-            if (!lastFlowAnalysis) {
-                vscode.window.showWarningMessage('No flow analysis available. Run "Scan App" first.');
-                return;
-            }
-            
-            // Find flow by ID
-            const flow = lastFlowAnalysis.flows.find((f: any) => f.id === flowId);
-            if (!flow) {
-                vscode.window.showErrorMessage(`Flow not found: ${flowId}`);
-                return;
-            }
-            
-            const config = await appLauncher.detectConfig(workspaceFolder.uri.fsPath);
-            if (!config) {
-                vscode.window.showErrorMessage('Could not detect project configuration');
-                return;
-            }
-            
-            // Generate test code
-            const testCode = flowGenerator.generateTestCode(flow, config.url);
-            const testFilePath = `e2e/${flowId}.spec.ts`;
-            
-            // Show unified preview with flow data
-            const result = await testPreviewProvider.showPreview({
-                testCode,
-                testFilePath,
-                sourceFilePath: flow.routes[0] || '/',
-                framework: 'Playwright',
-                testType: 'E2E Flow',
-                flowData: {
-                    flowId: flow.id,
-                    flowName: flow.name,
-                    flowType: flow.type,
-                    icon: flow.icon,
-                    routes: flow.routes,
-                    steps: flow.steps.map((s: any) => ({ ...s, selected: true })),
-                    relatedFiles: flow.relatedFiles.map((f: any) => ({ ...f, selected: !f.tested })),
-                    priority: flow.priority,
-                    coverage: {
-                        testedFiles: flow.testedFiles,
-                        totalFiles: flow.totalFiles
-                    }
-                }
-            });
-            
-            // Handle user action
-            if (result.action === PreviewAction.CREATE && result.code) {
-                const testFileUri = vscode.Uri.file(`${workspaceFolder.uri.fsPath}/${testFilePath}`);
-                await vscode.workspace.fs.writeFile(testFileUri, Buffer.from(result.code, 'utf8'));
-                await vscode.window.showTextDocument(testFileUri);
-                
-                // Save flow state
-                await flowStateService.updateFlowState(flowId, {
-                    status: 'generated',
-                    testFilePath: testFilePath,
-                    generatedAt: Date.now()
-                });
-                
-                // Refresh webview with updated states
-                const flowStates = await flowStateService.getAllFlowStates();
-                coverageWebviewProvider.updateFlowAnalysis(lastFlowAnalysis, null, flowStates);
-                
-                // Also refresh coverage data to update Overview tab
-                vscode.commands.executeCommand('qagenai.analyzeWorkspace');
-                
-                vscode.window.showInformationMessage(`✅ Created test file: ${testFilePath}`);
-                
-                // Show celebration for first flow test
-                const allStates = await flowStateService.getAllStates();
-                const generatedCount = allStates.filter(s => s.status !== 'untested').length;
-                if (generatedCount === 1) {
-                    vscode.window.showInformationMessage('🎉 Great start! Your first E2E test is ready.');
-                }
-            }
-        })
-    );
-    
-    // Generate API Test
-    context.subscriptions.push(
-        vscode.commands.registerCommand('qagenai.generateApiTest', async (endpointId: string) => {
-            // TODO: Implement API test generation
-            vscode.window.showInformationMessage(`Generating test for endpoint: ${endpointId}`);
-        })
-    );
-    
-    // Generate All API Tests
-    context.subscriptions.push(
-        vscode.commands.registerCommand('qagenai.generateAllApiTests', async () => {
-            // TODO: Implement batch API test generation
-            vscode.window.showInformationMessage('Generating all API tests...');
-        })
-    );
-    
-    // Generate Tests for File
-    context.subscriptions.push(
-        vscode.commands.registerCommand('qagenai.generateTests', async (filePath: string, options?: { testType?: string }) => {
-            const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-            if (!workspaceFolder) {
-                vscode.window.showWarningMessage('No workspace folder open');
-                return;
-            }
-            
-            const testType = options?.testType || 'component';
-            
-            // Validate framework is installed
-            const stacks = coverageProvider.getStacks();
-            const hasFramework = stacks.some(stack => 
-                stack.testTypes.some(tt => 
-                    tt.status === 'installed' && 
-                    (testType === 'e2e' ? tt.testType === 'e2e' : tt.testType !== 'e2e')
-                )
-            );
-            
-            if (!hasFramework) {
-                const frameworkName = testType === 'e2e' ? 'Playwright' : 'Jest';
-                const action = await vscode.window.showWarningMessage(
-                    `${frameworkName} is not installed. Install it first to generate ${testType} tests.`,
-                    'Install Now',
-                    'Cancel'
-                );
-                
-                if (action === 'Install Now') {
-                    vscode.commands.executeCommand('qagenai.installTestFramework', frameworkName);
-                }
-                return;
-            }
-            
-            // Show progress
-            await vscode.window.withProgress(
-                {
-                    location: vscode.ProgressLocation.Notification,
-                    title: `Generating ${testType} test...`,
-                    cancellable: false
-                },
-                async (progress) => {
-                    try {
-                        progress.report({ message: 'Analyzing file...' });
-                        
-                        // TODO: Call actual test generation service
-                        await new Promise(resolve => setTimeout(resolve, 1500));
-                        
-                        progress.report({ message: 'Generating test code...' });
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                        
-                        // Refresh coverage to show new test
-                        vscode.commands.executeCommand('qagenai.analyzeWorkspace');
-                        
-                        vscode.window.showInformationMessage(`✅ Generated ${testType} test successfully!`);
-                    } catch (error) {
-                        vscode.window.showErrorMessage(`Failed to generate test: ${error}`);
-                    }
-                }
-            );
-        })
-    );
-    
-    // Generate All Tests By Type (batch) - uses existing command with type parameter
-    // Note: The base generateAllTests command is registered in commands/index.ts
-    
-    // Cleanup on deactivation
-    context.subscriptions.push({
-        dispose: () => {
-            appLauncher.dispose();
-            routeCrawler.dispose();
-        }
-    });
-    
-    // Status Bar service
-    const statusBarService = new StatusBarService();
-    context.subscriptions.push(statusBarService);
-    
-    // CodeLens provider for in-editor coverage indicators
-    const codeLensProvider = new CoverageCodeLensProvider();
-    context.subscriptions.push(
-        vscode.languages.registerCodeLensProvider(
-            [
-                { scheme: 'file', language: 'typescript' },
-                { scheme: 'file', language: 'javascript' },
-                { scheme: 'file', language: 'typescriptreact' },
-                { scheme: 'file', language: 'javascriptreact' },
-                { scheme: 'file', language: 'python' },
-                { scheme: 'file', language: 'go' },
-                { scheme: 'file', language: 'java' },
-                { scheme: 'file', language: 'csharp' }
-            ],
-            codeLensProvider
-        )
-    );
-    
-    // Test CodeLens provider - shows "⚡ Generate Test" above functions
-    const testCodeLensProvider = new TestCodeLensProvider();
-    context.subscriptions.push(
-        vscode.languages.registerCodeLensProvider(
-            [
-                { scheme: 'file', language: 'typescript' },
-                { scheme: 'file', language: 'javascript' },
-                { scheme: 'file', language: 'typescriptreact' },
-                { scheme: 'file', language: 'javascriptreact' }
-            ],
-            testCodeLensProvider
-        )
-    );
-    
-    // Register TestCodeLens commands
-    registerTestCodeLensCommands(context);
-    
-    // Chat panel provider (temporarily disabled - using Coverage panel as primary UI)
-    const chatProvider = new ChatPanelProvider(context.extensionUri, coverageProvider);
-
-    // Register chat panel view
-    // TODO: Re-enable when chat is needed as separate feature
-    // context.subscriptions.push(
-    //     vscode.window.registerWebviewViewProvider('qagenai.chatView', chatProvider)
-    // );
-
-    // File watcher to auto re-analyze when tests are created
-    const testFileWatcher = vscode.workspace.createFileSystemWatcher(
-        '**/*.{spec,test}.{ts,tsx,js,jsx}'
-    );
-    
-    testFileWatcher.onDidCreate(() => {
-        console.log('🧪 Test file created - re-analyzing workspace...');
-        setTimeout(() => {
-            vscode.commands.executeCommand('qagenai.analyzeWorkspace');
+        
+        const discoveryService = new DiscoveryLiveService();
+        
+        // Start WebSocket connection first
+        log('Connecting to WebSocket...');
+        
+        // Start live discovery with real-time updates
+        // This will connect WebSocket and trigger the HTTP endpoint
+        const discoveryPromise = discoveryService.startDiscovery({
+          workspacePath: workspaceRoot,
+          title: '🧠 Smart Discovery in Progress',
+          timeout: 120000 // 2 minutes
+        });
+        
+        // Trigger actual discovery via HTTP endpoint (after 1 sec for WebSocket to connect)
+        setTimeout(async () => {
+          log('Triggering discovery via HTTP endpoint...');
+          try {
+            await backendAPI.discoverJourneysHolistic(workspaceRoot);
+          } catch (error) {
+            log('Discovery endpoint error:', error);
+          }
         }, 1000);
-    });
-    
-    context.subscriptions.push(testFileWatcher);
-
-    // Coverage file watcher to auto-refresh CodeLens when coverage changes
-    const coverageFileWatcher = vscode.workspace.createFileSystemWatcher(
-        '**/coverage/**/*.{info,json,xml}'
-    );
-    
-    const refreshCoverageCodeLens = () => {
-        console.log('📊 Coverage file changed - refreshing CodeLens...');
-        codeLensProvider.refresh();
         
-        // Also re-analyze workspace to update TreeView
-        setTimeout(() => {
-            vscode.commands.executeCommand('qagenai.analyzeWorkspace');
-        }, 500);
-    };
-    
-    coverageFileWatcher.onDidChange(refreshCoverageCodeLens);
-    coverageFileWatcher.onDidCreate(refreshCoverageCodeLens);
-    coverageFileWatcher.onDidDelete(() => {
-        console.log('📊 Coverage file deleted - clearing CodeLens...');
-        codeLensProvider.clearCoverageData();
-    });
-    
-    context.subscriptions.push(coverageFileWatcher);
+        const result = await discoveryPromise;
+        
+        if (result.success && result.summary) {
+          const { totalJourneys, estimatedCoverage, analysisTime } = result.summary;
+          
+          vscode.window.showInformationMessage(
+            `✅ Discovery complete! Found ${totalJourneys} journeys (${Math.round(estimatedCoverage)}% coverage) in ${Math.round(analysisTime / 1000)}s`
+          );
+          
+          log(`Discovery completed: ${totalJourneys} journeys, ${estimatedCoverage}% coverage`);
+          
+          // Refresh dashboard with new data
+          await container.dashboardProvider.refresh();
+        }
+      } catch (error) {
+        log('Live discovery failed:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        vscode.window.showErrorMessage(`Discovery failed: ${errorMessage}`);
+      }
+    })
+  );
 
-    // Auto-re-analyze when workspace folder changes (switching projects)
-    context.subscriptions.push(
-        vscode.workspace.onDidChangeWorkspaceFolders(() => {
-            console.log('📁 Workspace folder changed - re-analyzing...');
-            setTimeout(() => {
-                vscode.commands.executeCommand('qagenai.analyzeWorkspace');
-            }, 1000);
-        })
-    );
-    
-    // Auto-analyze coverage when file is opened
-    context.subscriptions.push(
-        vscode.window.onDidChangeActiveTextEditor(async (editor) => {
-            if (!editor) return;
+  // ✨ SMART E2E JOURNEY GENERATION
+  context.subscriptions.push(
+    vscode.commands.registerCommand('qagenai.generateSmartE2E', async () => {
+      const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+      if (!workspaceRoot) {
+        vscode.window.showErrorMessage('No workspace folder found.');
+        return;
+      }
+
+      log('Starting smart E2E journey generation...');
+      
+      await vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: '🧠 Analyzing application...',
+        cancellable: false
+      }, async (progress) => {
+        try {
+          progress.report({ message: 'Discovering components and interactions' });
+          
+          // Import services
+          const { BackendAPIService } = await import('./services/backend-api.service');
+          const { JourneyTestGeneratorService } = await import('./services/journey-test-generator.service');
+          
+          const backendAPI = new BackendAPIService();
+          const testGenerator = new JourneyTestGeneratorService();
+          
+          // Check backend availability
+          const isAvailable = await backendAPI.isAvailable();
+          if (!isAvailable) {
+            vscode.window.showErrorMessage('Backend is not running. Please start the backend service.');
+            return;
+          }
+          
+          // Discover journeys via holistic analysis
+          progress.report({ message: 'Synthesizing E2E journeys' });
+          const journeys = await backendAPI.discoverJourneysHolistic(workspaceRoot);
+          
+          if (journeys.length === 0) {
+            vscode.window.showWarningMessage('No E2E journeys discovered.');
+            return;
+          }
+          log(`Discovered ${journeys.length} E2E journeys`);
+          
+          // Show user-friendly journey picker with enriched data
+          const items = journeys.map(j => {
+            const priorityIcon = j.priority === 1 ? '🔴' : j.priority === 2 ? '🟡' : '🟢';
+            const statusIcon = j.status === 'enriched' ? '✅' : '🔍';
             
-            const document = editor.document;
-            const filePath = document.uri.fsPath;
-            
-            // Only analyze source files (not test files, not node_modules)
-            if (
-                !filePath.includes('node_modules') &&
-                !filePath.includes('.test.') &&
-                !filePath.includes('.spec.') &&
-                (filePath.endsWith('.ts') || filePath.endsWith('.tsx') ||
-                 filePath.endsWith('.js') || filePath.endsWith('.jsx') ||
-                 filePath.endsWith('.py') || filePath.endsWith('.go') ||
-                 filePath.endsWith('.java') || filePath.endsWith('.cs'))
-            ) {
-                // Trigger coverage analysis for this file
-                setTimeout(() => {
-                    vscode.commands.executeCommand('qagenai.analyzeCoverage', filePath);
-                }, 500);
+            // Build description with enriched data
+            let desc = `${priorityIcon} Priority ${j.priority}`;
+            if (j.enrichedData) {
+              const data = j.enrichedData;
+              desc += ` | 🧪 ${data.estimatedTestCases} tests (~${data.estimatedCodeLines} lines)`;
             }
-        })
-    );
-
-    // Register all commands
-    registerCommands(context, chatProvider, coverageProvider, statusBarService, codeLensProvider);
-
-    // Auto-analyze on activation
-    setTimeout(() => {
-        vscode.commands.executeCommand('qagenai.analyzeWorkspace');
-    }, 2000);
-
-    // Register command to show coverage view (for status bar click)
-    context.subscriptions.push(
-        vscode.commands.registerCommand('qagenai.showCoverageView', () => {
-            vscode.commands.executeCommand('qagenai.coverageView.focus');
-        })
-    );
-}
-
-export function deactivate() {}
-
-/**
- * Generate HTML for the detailed quality report panel
- */
-function getQualityReportHtml(report: TestQualityReport): string {
-    const scoreColor = report.overallScore >= 80 ? '#22c55e' : 
-                      report.overallScore >= 60 ? '#eab308' : '#ef4444';
-    
-    const filesHtml = report.files.map(file => {
-        const testsHtml = file.tests.map(test => {
-            const statusIcon = test.status === 'good' ? '✓' : test.status === 'warning' ? '!' : '✗';
-            const statusColor = test.status === 'good' ? '#22c55e' : test.status === 'warning' ? '#eab308' : '#ef4444';
-            const issuesHtml = test.issues.map(issue => `
-                <div style="padding: 4px 0 4px 24px; font-size: 12px; color: rgba(255,255,255,0.6);">
-                    → ${escapeHtml(issue.message)}${issue.suggestion ? ` - <em>${escapeHtml(issue.suggestion)}</em>` : ''}
-                </div>
-            `).join('');
             
-            return `
-                <div style="padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="color: ${statusColor}; font-weight: bold;">${statusIcon}</span>
-                        <span style="flex: 1;">${escapeHtml(test.name)}</span>
-                        <span style="font-size: 12px; color: rgba(255,255,255,0.5);">Line ${test.line}</span>
-                        <span style="font-size: 12px; font-weight: 600; color: ${statusColor};">${test.score}%</span>
-                    </div>
-                    ${issuesHtml}
-                </div>
-            `;
-        }).join('');
+            // Build detail with field/API info
+            let detail = j.description;
+            if (j.enrichedData && j.enrichedData.components.length > 0) {
+              const comp = j.enrichedData.components[0];
+              detail += `\n📝 ${comp.fields?.length || 0} fields | ✅ ${comp.validations?.length || 0} validations | 🌐 ${comp.apis?.length || 0} APIs`;
+            }
+            
+            return {
+              label: `${statusIcon} ${j.name}`,
+              description: desc,
+              detail,
+              picked: j.priority === 1, // Auto-select critical journeys
+              journey: j
+            };
+          });
+          
+          const selected = await vscode.window.showQuickPick(items, {
+            canPickMany: true,
+            title: `🎯 Select Journeys to Generate`,
+            placeHolder: `${journeys.length} journeys discovered - critical journeys pre-selected`
+          });
+          
+          if (!selected || selected.length === 0) {
+            vscode.window.showInformationMessage('No journeys selected.');
+            return;
+          }
+          
+          // Generate tests using backend API (not local generator)
+          progress.report({ message: `Generating ${selected.length} test files` });
+          const selectedJourneys = selected.map(s => s.journey);
+          
+          const generatedPaths: string[] = [];
+          for (const journey of selectedJourneys) {
+            try {
+              // Call backend API to generate test
+              const testResult = await backendAPI.generateTestForJourney(journey, workspaceRoot);
+              
+              // DEBUG: Log first validation test name
+              const validationLines = testResult.testCode.split('\n').filter(l => l.includes("test('Validation"));
+              log(`DEBUG: First validation test from backend: ${validationLines[0]?.trim().substring(0, 100)}`);
+              
+              if (testResult.success) {
+                // Save test file
+                const fs = await import('fs');
+                const path = await import('path');
+                const testDir = path.join(workspaceRoot, 'tests');
+                if (!fs.existsSync(testDir)) {
+                  fs.mkdirSync(testDir, { recursive: true });
+                }
+                const testPath = path.join(testDir, testResult.fileName);
+                fs.writeFileSync(testPath, testResult.testCode, 'utf-8');
+                generatedPaths.push(testPath);
+                log(`Generated test: ${testResult.fileName} (${testResult.stats?.testCases} tests)`);
+              }
+            } catch (error) {
+              log(`Failed to generate test for ${journey.name}:`, error);
+            }
+          }
+          
+          log(`Generated ${generatedPaths.length} test files`);
+          
+          // Show summary
+          const summary = testGenerator.generateTestSummary(selectedJourneys);
+          const choice = await vscode.window.showInformationMessage(
+            `✅ ${summary}\n\nTests saved to: tests/e2e/`,
+            'Open Tests Folder',
+            'Done'
+          );
+          
+          if (choice === 'Open Tests Folder') {
+            const path = await import('path');
+            const testsFolder = vscode.Uri.file(path.join(workspaceRoot, 'tests', 'e2e'));
+            await vscode.commands.executeCommand('revealFileInOS', testsFolder);
+          }
+          
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          log('Smart E2E generation failed:', error);
+          vscode.window.showErrorMessage(`Smart E2E generation failed: ${errorMessage}`);
+        }
+      });
+    })
+  );
+
+  // 💣 NUCLEAR RESET: Delete EVERYTHING (framework, config, tests, state)
+  context.subscriptions.push(
+    vscode.commands.registerCommand('qagenai.nuclearReset', async () => {
+      const choice = await vscode.window.showWarningMessage(
+        '💣 NUCLEAR RESET: This will DELETE:\n\n' +
+        '- All extension state\n' +
+        '- Playwright configuration (playwright.config.ts)\n' +
+        '- Playwright dependencies from package.json\n' +
+        '- All generated test files (tests/ folder)\n\n' +
+        'This action CANNOT be undone!',
+        { modal: true },
+        'YES, DELETE EVERYTHING',
+        'Cancel'
+      );
+
+      if (choice !== 'YES, DELETE EVERYTHING') {
+        vscode.window.showInformationMessage('Nuclear reset cancelled.');
+        return;
+      }
+
+      const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+      if (!workspaceRoot) {
+        vscode.window.showErrorMessage('No workspace folder found.');
+        return;
+      }
+
+      log('Starting nuclear reset...');
+      
+      try {
+        const fs = await import('fs');
+        const path = await import('path');
         
-        const fileScoreColor = file.totalScore >= 80 ? '#22c55e' : file.totalScore >= 60 ? '#eab308' : '#ef4444';
+        let deletedItems: string[] = [];
         
-        return `
-            <div style="margin-bottom: 16px; background: rgba(255,255,255,0.03); border-radius: 8px; overflow: hidden;">
-                <div style="padding: 12px 16px; background: rgba(255,255,255,0.05); display: flex; align-items: center; gap: 8px;">
-                    <span style="font-weight: 600;">${escapeHtml(file.fileName)}</span>
-                    <span style="font-size: 12px; color: rgba(255,255,255,0.5);">${file.tests.length} tests</span>
-                    <span style="margin-left: auto; font-weight: 600; color: ${fileScoreColor};">${file.totalScore}%</span>
-                </div>
-                ${testsHtml}
-            </div>
-        `;
-    }).join('');
-    
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Quality Report</title>
-    <style>
-        body {
-            font-family: var(--vscode-font-family);
-            color: rgba(255,255,255,0.9);
-            background: #1e1e1e;
-            padding: 24px;
-            line-height: 1.5;
+        // 1. Delete Playwright config
+        const playwrightConfig = path.join(workspaceRoot, 'playwright.config.ts');
+        if (fs.existsSync(playwrightConfig)) {
+          fs.unlinkSync(playwrightConfig);
+          deletedItems.push('playwright.config.ts');
+          log('Deleted playwright.config.ts');
         }
-        .header {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+        
+        // 2. Delete tests folder
+        const testsFolder = path.join(workspaceRoot, 'tests');
+        if (fs.existsSync(testsFolder)) {
+          fs.rmSync(testsFolder, { recursive: true, force: true });
+          deletedItems.push('tests/ folder');
+          log('Deleted tests/ folder');
         }
-        .score-circle {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: 700;
-            color: ${scoreColor};
-            border: 4px solid ${scoreColor};
+        
+        // 3. Remove Playwright from package.json
+        const packageJsonPath = path.join(workspaceRoot, 'package.json');
+        if (fs.existsSync(packageJsonPath)) {
+          const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+          let modified = false;
+          
+          if (packageJson.devDependencies?.['@playwright/test']) {
+            delete packageJson.devDependencies['@playwright/test'];
+            deletedItems.push('Playwright from devDependencies');
+            modified = true;
+          }
+          
+          if (packageJson.dependencies?.['@playwright/test']) {
+            delete packageJson.dependencies['@playwright/test'];
+            modified = true;
+          }
+          
+          if (modified) {
+            fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+            log('Removed Playwright from package.json');
+          }
         }
-        .summary {
-            display: flex;
-            gap: 24px;
-            margin-bottom: 24px;
-        }
-        .stat {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .stat-num {
-            font-size: 20px;
-            font-weight: 700;
-        }
-        .stat-label {
-            font-size: 12px;
-            color: rgba(255,255,255,0.5);
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <div class="score-circle">${report.overallScore}%</div>
-        <div>
-            <h1 style="margin: 0 0 8px 0; font-size: 20px;">Test Quality Report</h1>
-            <p style="margin: 0; color: rgba(255,255,255,0.5);">${report.totalTests} tests in ${report.files.length} files</p>
-        </div>
-    </div>
-    
-    <div class="summary">
-        <div class="stat">
-            <span class="stat-num" style="color: #22c55e;">${report.goodTests}</span>
-            <span class="stat-label">✓ Good tests</span>
-        </div>
-        <div class="stat">
-            <span class="stat-num" style="color: #eab308;">${report.warningTests}</span>
-            <span class="stat-label">! Warnings</span>
-        </div>
-        <div class="stat">
-            <span class="stat-num" style="color: #ef4444;">${report.errorTests}</span>
-            <span class="stat-label">✗ Errors</span>
-        </div>
-    </div>
-    
-    <h2 style="font-size: 14px; margin-bottom: 12px; color: rgba(255,255,255,0.7);">FILES</h2>
-    ${filesHtml}
-</body>
-</html>`;
+        
+        // 4. Clear all extension state
+        await context.workspaceState.update('qagenai.dashboardFlows', undefined);
+        await context.globalState.update('qagenai.onboardingState', undefined);
+        await context.globalState.update('qagenai.onboardingCompleted', false);
+        deletedItems.push('All extension state');
+        log('Cleared extension state');
+        
+        await container.dashboardProvider.refresh();
+        
+        vscode.window.showInformationMessage(
+          `💣 Nuclear reset complete!\n\nDeleted:\n${deletedItems.map(i => '  • ' + i).join('\n')}\n\nReload window for fresh start.`,
+          'Reload Window'
+        ).then(choice => {
+          if (choice === 'Reload Window') {
+            vscode.commands.executeCommand('workbench.action.reloadWindow');
+          }
+        });
+        
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        log('Nuclear reset error:', error);
+        vscode.window.showErrorMessage(`Nuclear reset failed: ${errorMessage}`);
+      }
+    })
+  );
 }
 
-function escapeHtml(text: string): string {
-    return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+export function deactivate() {
+  console.log('QAgenAI extension deactivated');
 }
