@@ -736,6 +736,7 @@ export class OnboardingWizardPanel {
     const selectedCount = this.selectedJourneyIds.size;
     const totalCount = this.discoveredJourneys.length;
     const categories = this.categorizeJourneys();
+    const { detectedTechnologies } = this.scanDetails;
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -796,6 +797,32 @@ export class OnboardingWizardPanel {
           </div>
         </div>
       </div>
+
+      <!-- Technology Stack -->
+      ${detectedTechnologies.length > 0 ? `
+      <div class="results-tech-stack">
+        <div class="tech-stack-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+            <rect x="3" y="3" width="7" height="7" rx="1" stroke="#7b2ff7" stroke-width="2"/>
+            <rect x="14" y="3" width="7" height="7" rx="1" stroke="#00d4ff" stroke-width="2"/>
+            <rect x="3" y="14" width="7" height="7" rx="1" stroke="#00d4ff" stroke-width="2"/>
+            <rect x="14" y="14" width="7" height="7" rx="1" stroke="#7b2ff7" stroke-width="2"/>
+          </svg>
+          Technology Stack
+        </div>
+        <div class="results-tech-badges">
+          ${detectedTechnologies.map((tech, i) => `
+            <div class="results-tech-badge">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="6" stroke="#00d4ff" stroke-width="1.5"/>
+                <path d="M5 8l2 2 4-4" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              ${tech}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
 
       <!-- Selection Info -->
       <div class="selection-info">
@@ -2091,6 +2118,57 @@ export class OnboardingWizardPanel {
       .subtitle-hero .highlight {
         color: #00d4ff;
         font-weight: 700;
+      }
+
+      /* Results Tech Stack */
+      .results-tech-stack {
+        max-width: 700px;
+        margin: 0 auto 32px auto;
+        padding: 20px 24px;
+        background: linear-gradient(135deg, rgba(123, 47, 247, 0.08), rgba(0, 212, 255, 0.08));
+        border: 1px solid rgba(123, 47, 247, 0.3);
+        border-radius: 12px;
+      }
+
+      .tech-stack-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #7b2ff7;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+      }
+
+      .results-tech-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .results-tech-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 16px;
+        font-size: 13px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
+        transition: all 0.2s;
+      }
+
+      .results-tech-badge:hover {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
+        transform: translateY(-2px);
+      }
+
+      .results-tech-badge svg {
+        flex-shrink: 0;
       }
 
       /* Progress Bar Header */
