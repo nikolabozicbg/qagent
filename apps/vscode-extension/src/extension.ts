@@ -112,14 +112,16 @@ function registerCommands(context: vscode.ExtensionContext) {
       log('Starting live smart discovery...');
       
       try {
-        // Close any open editors/wizards for clean UX
-        await vscode.commands.executeCommand('workbench.action.closeAllEditors');
+        // Check if wizard is already open - don't close it!
+        const { OnboardingWizardPanel } = await import('./webviews/onboarding-wizard.webview');
+        const wizardIsOpen = OnboardingWizardPanel.currentPanel !== undefined;
         
-        // Start discovery in unified view
-        await container.mainViewProvider.startDiscovery();
-        
-        // Focus QAgenAI sidebar
-        await vscode.commands.executeCommand('workbench.view.extension.qagenai');
+        if (!wizardIsOpen) {
+          // Only close editors and start unified view if wizard is NOT open
+          await vscode.commands.executeCommand('workbench.action.closeAllEditors');
+          await container.mainViewProvider.startDiscovery();
+          await vscode.commands.executeCommand('workbench.view.extension.qagenai');
+        }
         
         // Import discovery service
         const { DiscoveryLiveService } = await import('./services/websocket');
@@ -139,6 +141,26 @@ function registerCommands(context: vscode.ExtensionContext) {
         
         // Start WebSocket connection first
         log('Connecting to WebSocket...');
+        
+        // Setup progress callback to update wizard
+        discoveryService.onProgress((progress) => {
+          if (OnboardingWizardPanel.currentPanel && progress.type === 'component') {
+            const data = progress.data;
+            OnboardingWizardPanel.currentPanel.updateProgress({
+              components: data.componentsCount || 0,
+              routes: data.routesCount || 0,
+              apis: data.apisCount || 0,
+              forms: 0, // Not in progress data
+              framework: data.framework || null,
+              elapsed: Date.now() - (data.startTime || Date.now())
+            });
+            
+            // Update detected technologies
+            if (data.framework) {
+              OnboardingWizardPanel.currentPanel.updateDetectedTechnologies([data.framework]);
+            }
+          }
+        });
         
         // Start live discovery with real-time updates
         // This will connect WebSocket and trigger the HTTP endpoint
@@ -185,7 +207,6 @@ function registerCommands(context: vscode.ExtensionContext) {
             }));
             
             // Show results in wizard if active, otherwise in unified view
-            const { OnboardingWizardPanel } = await import('./webviews/onboarding-wizard.webview');
             if (OnboardingWizardPanel.currentPanel) {
               OnboardingWizardPanel.currentPanel.showResults(discoveredFlows);
             } else {

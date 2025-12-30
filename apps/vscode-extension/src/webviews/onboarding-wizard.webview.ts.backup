@@ -205,21 +205,22 @@ export class OnboardingWizardPanel {
     }
   }
 
-  private renderProgressBar(current: number, total: number): string {
-    const percentage = ((current - 1) / (total - 1)) * 100;
-    const stepNames = ['Configure', 'Smart Scan', 'Results'];
-    
+  private renderStepper(): string {
+    const steps = [
+      { name: 'Setup', active: this.step === 'setup', complete: this.step !== 'setup' },
+      { name: 'Scan', active: this.step === 'discovering', complete: this.step === 'results' },
+      { name: 'Results', active: this.step === 'results', complete: false }
+    ];
+
     return `
-      <div class="progress-bar-header">
-        <div class="progress-step-info">
-          <span class="step-current">Step ${current}</span>
-          <span class="step-divider">/</span>
-          <span class="step-total">${total}</span>
-          <span class="step-name"> · ${stepNames[current - 1]}</span>
-        </div>
-        <div class="progress-bar-track">
-          <div class="progress-bar-fill" style="width: ${percentage}%"></div>
-        </div>
+      <div class="stepper">
+        ${steps.map((s, i) => `
+          <div class="step ${s.active ? 'active' : ''} ${s.complete ? 'complete' : ''}">
+            <div class="step-circle">${s.complete ? '✓' : i + 1}</div>
+            <div class="step-label">${s.name}</div>
+          </div>
+          ${i < steps.length - 1 ? '<div class="step-line"></div>' : ''}
+        `).join('')}
       </div>
     `;
   }
@@ -240,10 +241,9 @@ export class OnboardingWizardPanel {
     <div class="wizard-content setup">
       ${this.renderProgressBar(1, 3)}
       
-      <div class="hero-section">
-        <h1 class="title-hero">Configure Your Application</h1>
-        <p class="subtitle-hero">Select your project type and testing approach to begin the smart scan</p>
-      </div>
+      <h1 class="title-hero">Configure Your Application</h1>
+      <p class="subtitle-hero">Select your project type and testing approach</p>
+      <p class="subtitle-hero">Tell us about your application</p>
       
       <div class="config-section">
         <div class="config-label">
@@ -356,14 +356,11 @@ export class OnboardingWizardPanel {
 <body>
   <div class="wizard-container">
     <div class="wizard-content discovering">
-      ${this.renderProgressBar(2, 3)}
+      ${this.renderStepper()}
       
-      <div class="scan-icon-container">
-        <div class="scan-icon pulsing">🧠</div>
-        <div class="scan-ring"></div>
-      </div>
-      <h1 class="title-hero">Analyzing Your Application</h1>
-      <p class="subtitle-hero typing-text">Discovering user journeys and interactions...</p>
+      <div class="icon-pulse">🔍</div>
+      <h1 class="title-hero">Smart Scan in Progress</h1>
+      <p class="subtitle-hero">Analyzing your ${this.config.projectType} application</p>
       
       ${framework ? `<div class="framework-badge">${frameworkIcon} ${framework} Detected</div>` : ''}
       
@@ -417,7 +414,7 @@ export class OnboardingWizardPanel {
         <div class="tech-detected">
           <div class="tech-label">🛠️ Detected Technologies</div>
           <div class="tech-badges">
-            ${detectedTechnologies.map((tech, i) => `<span class="tech-badge" style="animation-delay: ${i * 0.1}s">${tech}</span>`).join('')}
+            ${detectedTechnologies.map(tech => `<span class="tech-badge">${tech}</span>`).join('')}
           </div>
         </div>
       ` : ''}
@@ -426,30 +423,6 @@ export class OnboardingWizardPanel {
       <div class="elapsed-time">${(elapsed / 1000).toFixed(1)}s elapsed</div>
     </div>
   </div>
-  
-  <script>
-    // Animate counters
-    const counters = document.querySelectorAll('.progress-number');
-    counters.forEach((counter, index) => {
-      const target = parseInt(counter.textContent);
-      let current = 0;
-      const increment = Math.ceil(target / 20);
-      const duration = 1000;
-      const stepTime = duration / 20;
-      
-      setTimeout(() => {
-        const timer = setInterval(() => {
-          current += increment;
-          if (current >= target) {
-            counter.textContent = target;
-            clearInterval(timer);
-          } else {
-            counter.textContent = current;
-          }
-        }, stepTime);
-      }, index * 150); // Stagger animation
-    });
-  </script>
 </body>
 </html>`;
   }
@@ -470,7 +443,7 @@ export class OnboardingWizardPanel {
 <body>
   <div class="wizard-container">
     <div class="wizard-content results">
-      ${this.renderProgressBar(3, 3)}
+      ${this.renderStepper()}
       
       <div class="icon-success">✨</div>
       <h1 class="title-hero">Discovery Complete!</h1>
@@ -868,28 +841,9 @@ export class OnboardingWizardPanel {
       }
 
       .progress-number {
-        font-size: 48px;
-        font-weight: 800;
-        margin-bottom: 16px;
-        background: linear-gradient(135deg, #00d4ff 0%, #7b2ff7 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        animation: counterPulse 0.3s ease-out;
-      }
-      
-      @keyframes counterPulse {
-        0% {
-          transform: scale(0.8);
-          opacity: 0;
-        }
-        50% {
-          transform: scale(1.1);
-        }
-        100% {
-          transform: scale(1);
-          opacity: 1;
-        }
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 12px;
       }
 
       .progress-bar-container {
@@ -999,58 +953,7 @@ export class OnboardingWizardPanel {
         color: var(--vscode-descriptionForeground);
       }
 
-      /* Progress Bar Header */
-      .progress-bar-header {
-        width: 100%;
-        margin-bottom: 56px;
-        padding: 0 24px;
-      }
-      
-      .progress-step-info {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 16px;
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.7);
-      }
-      
-      .step-current {
-        font-weight: 700;
-        color: #00d4ff;
-        font-size: 16px;
-      }
-      
-      .step-divider {
-        color: rgba(255, 255, 255, 0.3);
-      }
-      
-      .step-total {
-        color: rgba(255, 255, 255, 0.5);
-      }
-      
-      .step-name {
-        color: rgba(255, 255, 255, 0.9);
-        font-weight: 600;
-      }
-      
-      .progress-bar-track {
-        height: 6px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        overflow: hidden;
-        position: relative;
-      }
-      
-      .progress-bar-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #7b2ff7 0%, #00d4ff 100%);
-        border-radius: 10px;
-        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 0 20px rgba(123, 47, 247, 0.6);
-      }
-
-      /* Old Stepper - Keep for backwards compatibility */
+      /* Stepper */
       .stepper {
         display: flex;
         align-items: center;
@@ -1142,18 +1045,14 @@ export class OnboardingWizardPanel {
       }
 
       .radio-card {
-        min-height: 180px;
-        padding: 32px 24px;
+        padding: 24px 20px;
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(20px);
         border: 2px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
+        border-radius: 12px;
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.3s;
         position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
       }
 
       .radio-card input[type="radio"] {
@@ -1162,9 +1061,9 @@ export class OnboardingWizardPanel {
       }
 
       .radio-card:hover {
-        border-color: rgba(123, 47, 247, 0.6);
-        transform: translateY(-4px) scale(1.02);
-        box-shadow: 0 15px 40px rgba(123, 47, 247, 0.3);
+        border-color: rgba(123, 47, 247, 0.5);
+        transform: translateY(-4px);
+        box-shadow: 0 10px 30px rgba(123, 47, 247, 0.2);
       }
 
       .radio-card.selected {
@@ -1192,94 +1091,20 @@ export class OnboardingWizardPanel {
       }
 
       .radio-icon {
-        font-size: 48px;
-        margin-bottom: 16px;
-        filter: drop-shadow(0 4px 15px rgba(123, 47, 247, 0.4));
+        font-size: 36px;
+        margin-bottom: 8px;
+        filter: drop-shadow(0 2px 10px rgba(123, 47, 247, 0.3));
       }
 
       .radio-title {
-        font-size: 22px;
+        font-size: 16px;
         font-weight: 700;
-        color: rgba(255, 255, 255, 0.95);
-        margin-bottom: 8px;
-        letter-spacing: -0.5px;
+        color: #ffffff;
       }
 
       .radio-desc {
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.65);
-        font-weight: 400;
-      }
-      /* Scan Icon Container */
-      .scan-icon-container {
-        position: relative;
-        width: 120px;
-        height: 120px;
-        margin: 0 auto 32px;
-      }
-      
-      .scan-icon {
-        font-size: 80px;
-        position: relative;
-        z-index: 2;
-      }
-      
-      .scan-icon.pulsing {
-        animation: scanPulse 2s ease-in-out infinite;
-      }
-      
-      @keyframes scanPulse {
-        0%, 100% { 
-          transform: scale(1);
-          filter: drop-shadow(0 0 20px rgba(123, 47, 247, 0.5));
-        }
-        50% { 
-          transform: scale(1.1);
-          filter: drop-shadow(0 0 40px rgba(123, 47, 247, 0.8));
-        }
-      }
-      
-      .scan-ring {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 100%;
-        height: 100%;
-        border: 3px solid rgba(123, 47, 247, 0.3);
-        border-radius: 50%;
-        animation: scanRing 2s ease-out infinite;
-      }
-      
-      @keyframes scanRing {
-        0% {
-          transform: translate(-50%, -50%) scale(0.8);
-          opacity: 1;
-        }
-        100% {
-          transform: translate(-50%, -50%) scale(1.5);
-          opacity: 0;
-        }
-      }
-      
-      /* Typing Text Animation */
-      .typing-text {
-        position: relative;
-        display: inline-block;
-      }
-      
-      .typing-text::after {
-        content: '|';
-        animation: blink 1s step-end infinite;
-      }
-      
-      @keyframes blink {
-        50% { opacity: 0; }
-      }
-      
-      /* Hero Section */
-      .hero-section {
-        margin-bottom: 48px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
       }
 
       /* Detected Technologies */
@@ -1305,27 +1130,15 @@ export class OnboardingWizardPanel {
       }
 
       .tech-badge {
-        padding: 10px 20px;
-        background: linear-gradient(135deg, rgba(123, 47, 247, 0.25), rgba(0, 212, 255, 0.25));
-        border: 1px solid rgba(123, 47, 247, 0.4);
-        border-radius: 24px;
-        font-size: 14px;
-        font-weight: 600;
+        padding: 8px 16px;
+        background: linear-gradient(135deg, rgba(123, 47, 247, 0.2), rgba(0, 212, 255, 0.2));
+        border: 1px solid rgba(123, 47, 247, 0.3);
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
         color: #ffffff;
-        box-shadow: 0 4px 15px rgba(123, 47, 247, 0.3);
-        animation: techBadgeFadeIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-        transform-origin: top center;
-      }
-      
-      @keyframes techBadgeFadeIn {
-        0% {
-          opacity: 0;
-          transform: translateY(-20px) scale(0.8);
-        }
-        100% {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-        }
+        box-shadow: 0 2px 10px rgba(123, 47, 247, 0.2);
+        animation: fadeIn 0.3s;
       }
     `;
   }
