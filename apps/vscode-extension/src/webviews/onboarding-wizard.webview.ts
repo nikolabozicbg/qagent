@@ -577,9 +577,49 @@ export class OnboardingWizardPanel {
         <div class="main-progress-label">${progress}% complete</div>
       </div>
       
-      <!-- Status Message -->
-      <div class="scan-status-message">
-        ${statusMessage}
+      <!-- Scanning Activity Display -->
+      <div class="scanning-activity">
+        <div class="activity-header">
+          <div class="activity-pulse"></div>
+          <span class="activity-title">Real-time Analysis</span>
+        </div>
+        <div class="activity-items">
+          ${components > 0 ? `
+          <div class="activity-item ${components >= 10 ? 'complete' : 'scanning'}">
+            <div class="activity-status">${components >= 10 ? '✓' : '⟳'}</div>
+            <div class="activity-text">Scanning React components...</div>
+            <div class="activity-count">${components}</div>
+          </div>
+          ` : ''}
+          ${routes > 0 ? `
+          <div class="activity-item ${routes >= 5 ? 'complete' : 'scanning'}">
+            <div class="activity-status">${routes >= 5 ? '✓' : '⟳'}</div>
+            <div class="activity-text">Mapping application routes...</div>
+            <div class="activity-count">${routes}</div>
+          </div>
+          ` : ''}
+          ${apis > 0 ? `
+          <div class="activity-item ${apis >= 15 ? 'complete' : 'scanning'}">
+            <div class="activity-status">${apis >= 15 ? '✓' : '⟳'}</div>
+            <div class="activity-text">Detecting API endpoints...</div>
+            <div class="activity-count">${apis}</div>
+          </div>
+          ` : ''}
+          ${forms > 0 ? `
+          <div class="activity-item ${forms >= 4 ? 'complete' : 'scanning'}">
+            <div class="activity-status">${forms >= 4 ? '✓' : '⟳'}</div>
+            <div class="activity-text">Analyzing form structures...</div>
+            <div class="activity-count">${forms}</div>
+          </div>
+          ` : ''}
+          ${detectedTechnologies.length > 0 ? `
+          <div class="activity-item complete">
+            <div class="activity-status">✓</div>
+            <div class="activity-text">Identifying tech stack...</div>
+            <div class="activity-count">${detectedTechnologies.length}</div>
+          </div>
+          ` : ''}
+        </div>
       </div>
       
       <!-- Discovered So Far Section -->
@@ -618,8 +658,38 @@ export class OnboardingWizardPanel {
         </div>
       </div>
       
-      <!-- Tech Stack Badges -->
-      ${detectedTechnologies.length > 0 ? this.renderTechBadges(detectedTechnologies) : ''}
+      <!-- Tech Stack Section -->
+      ${detectedTechnologies.length > 0 ? `
+      <div class="tech-stack-section">
+        <div class="tech-stack-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+            <rect x="3" y="3" width="7" height="7" rx="1" stroke="#7b2ff7" stroke-width="2"/>
+            <rect x="14" y="3" width="7" height="7" rx="1" stroke="#00d4ff" stroke-width="2"/>
+            <rect x="3" y="14" width="7" height="7" rx="1" stroke="#00d4ff" stroke-width="2"/>
+            <rect x="14" y="14" width="7" height="7" rx="1" stroke="#7b2ff7" stroke-width="2"/>
+          </svg>
+          Technology Stack
+        </div>
+        <div class="tech-badges-grid">
+          ${detectedTechnologies.map((tech, i) => `
+            <div class="tech-badge" style="animation-delay: ${i * 0.15}s">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="6" stroke="#00d4ff" stroke-width="2"/>
+                <path d="M5 8l2 2 4-4" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span class="tech-badge-text">${tech}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : `
+      <div class="tech-stack-section scanning">
+        <div class="scanning-indicator">
+          <div class="scanning-pulse"></div>
+          <div class="scanning-text">Detecting technologies...</div>
+        </div>
+      </div>
+      `}
       
       <!-- Smart Insights Section -->
       ${components > 5 ? `
@@ -1452,17 +1522,180 @@ export class OnboardingWizardPanel {
         animation: fadeInLeft 0.6s ease-out;
       }
 
-      /* Tech Badges Section */
-      .tech-badges-section {
+      /* Scanning Activity Section */
+      .scanning-activity {
+        margin: 40px auto;
+        max-width: 650px;
+        padding: 24px;
+        background: rgba(0, 212, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 16px;
+      }
+
+      .activity-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .activity-pulse {
+        width: 12px;
+        height: 12px;
+        background: #00d4ff;
+        border-radius: 50%;
+        animation: activityPulse 1.5s ease-in-out infinite;
+      }
+
+      @keyframes activityPulse {
+        0%, 100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.4;
+          transform: scale(1.2);
+        }
+      }
+
+      .activity-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #00d4ff;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .activity-items {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        transition: all 0.3s;
+        animation: slideInRight 0.4s ease-out;
+      }
+
+      @keyframes slideInRight {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .activity-item.scanning {
+        background: rgba(123, 47, 247, 0.1);
+        border-left: 3px solid #7b2ff7;
+      }
+
+      .activity-item.complete {
+        background: rgba(16, 185, 129, 0.1);
+        border-left: 3px solid #10b981;
+      }
+
+      .activity-status {
+        font-size: 20px;
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .activity-item.scanning .activity-status {
+        color: #7b2ff7;
+        animation: rotate 1.5s linear infinite;
+      }
+
+      @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      .activity-item.complete .activity-status {
+        color: #10b981;
+      }
+
+      .activity-text {
+        flex: 1;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .activity-count {
+        font-size: 16px;
+        font-weight: 700;
+        color: #00d4ff;
+        min-width: 32px;
+        text-align: right;
+      }
+
+      /* Tech Stack Section */
+      .tech-stack-section {
         margin: 32px auto;
-        max-width: 600px;
+        max-width: 650px;
+        padding: 24px;
+        background: rgba(123, 47, 247, 0.05);
+        border: 1px solid rgba(123, 47, 247, 0.2);
+        border-radius: 16px;
+      }
+
+      .tech-stack-header {
+        font-size: 16px;
+        font-weight: 700;
+        color: #7b2ff7;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
       }
 
       .tech-badges-grid {
         display: flex;
         flex-wrap: wrap;
-        gap: 12px;
-        justify-content: center;
+        gap: 10px;
+      }
+
+      .tech-stack-section.scanning {
+        text-align: center;
+        padding: 32px;
+      }
+
+      .scanning-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .scanning-pulse {
+        width: 48px;
+        height: 48px;
+        border: 3px solid #7b2ff7;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: rotate 1s linear infinite;
+      }
+
+      .scanning-text {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 500;
       }
 
       .tech-badge {
