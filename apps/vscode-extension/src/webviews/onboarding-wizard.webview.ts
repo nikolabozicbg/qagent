@@ -219,14 +219,22 @@ export class OnboardingWizardPanel {
       log(`[OnboardingWizard] Added flow: ${journey.name}`);
     }
     
+    log('[OnboardingWizard] Opening dashboard...');
+    
     // Focus dashboard in sidebar FIRST (before closing wizard)
     await vscode.commands.executeCommand('workbench.view.extension.qagenai');
+    log('[OnboardingWizard] Sidebar view opened');
     
-    // Small delay to ensure view is loaded
-    await new Promise(resolve => setTimeout(resolve, 300));
+    // Longer delay to ensure view is fully loaded
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    log('[OnboardingWizard] Delay complete, refreshing dashboard');
     
     // Trigger dashboard refresh
     await vscode.commands.executeCommand('qagenai.showDashboard');
+    log('[OnboardingWizard] Dashboard refresh command sent');
+    
+    // Another delay before closing wizard
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     // Show success message
     vscode.window.showInformationMessage(
@@ -234,7 +242,9 @@ export class OnboardingWizardPanel {
     );
     
     // Close the wizard panel LAST
+    log('[OnboardingWizard] Closing wizard panel');
     this.panel.dispose();
+    log('[OnboardingWizard] Wizard closed, dashboard should be visible');
   }
 
   private getJourneyPriority(journey: DiscoveredFlow): 'critical' | 'high' | 'standard' {
