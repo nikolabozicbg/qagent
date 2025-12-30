@@ -187,10 +187,22 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
    * Refresh dashboard
    */
   public async refresh(): Promise<void> {
+    log('[UnifiedMainView] Refreshing - reinitializing state');
+    
+    // Always reinitialize state to check for new flows
+    await this.initializeState();
+    
+    // If we now have flows, load dashboard data
     if (this.state === 'dashboard') {
+      log('[UnifiedMainView] Loading dashboard data');
       this.dashboardData = await this.dashboardService.getDashboardData();
-      await this.render();
+    } else {
+      log('[UnifiedMainView] No flows found, staying in welcome state');
     }
+    
+    // Always render
+    await this.render();
+    log('[UnifiedMainView] Refresh complete, state:', this.state);
   }
 
   // ===============================
