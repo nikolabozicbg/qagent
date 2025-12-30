@@ -110,10 +110,16 @@ function registerCommands(context: vscode.ExtensionContext) {
       log('Starting live smart discovery...');
       
       try {
+        // Close any open editors/wizards for clean UX
+        await vscode.commands.executeCommand('workbench.action.closeAllEditors');
+        
         // Show discovery progress view
         const progressProvider = container.discoveryProgressProvider;
         await progressProvider.startDiscovery();
         progressProvider.show();
+        
+        // Focus QAgenAI sidebar
+        await vscode.commands.executeCommand('workbench.view.extension.qagenai');
         
         // Import discovery service
         const { DiscoveryLiveService } = await import('./services/websocket');
