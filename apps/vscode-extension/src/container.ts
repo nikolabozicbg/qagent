@@ -2,9 +2,7 @@ import * as vscode from 'vscode';
 import { OnboardingService } from './services/onboarding.service';
 import { DashboardService } from './services/dashboard.service';
 import { TestGenerationService } from './services/test-generation.service';
-import { DashboardWebviewProvider } from './webviews/dashboard.webview';
-import { DiscoveryResultsWebviewProvider } from './webviews/discovery-results.webview';
-import { DiscoveryProgressWebviewProvider } from './webviews/discovery-progress.webview';
+import { UnifiedMainViewProvider } from './webviews/unified-main.webview';
 import { DiscoveredFlow } from './types';
 
 /**
@@ -17,9 +15,7 @@ export class ServiceContainer {
   private _onboardingService?: OnboardingService;
   private _dashboardService?: DashboardService;
   private _testGenerationService?: TestGenerationService;
-  private _dashboardProvider?: DashboardWebviewProvider;
-  private _discoveryResultsProvider?: DiscoveryResultsWebviewProvider;
-  private _discoveryProgressProvider?: DiscoveryProgressWebviewProvider;
+  private _mainViewProvider?: UnifiedMainViewProvider;
 
   constructor(private readonly context: vscode.ExtensionContext) {
     this.registerProviders();
@@ -50,36 +46,15 @@ export class ServiceContainer {
     return this._testGenerationService;
   }
 
-  get dashboardProvider(): DashboardWebviewProvider {
-    if (!this._dashboardProvider) {
-      this._dashboardProvider = new DashboardWebviewProvider(
+  get mainViewProvider(): UnifiedMainViewProvider {
+    if (!this._mainViewProvider) {
+      this._mainViewProvider = new UnifiedMainViewProvider(
         this.context,
         this.dashboardService,
         this.testGenerationService
       );
     }
-    return this._dashboardProvider;
-  }
-
-  get discoveryResultsProvider(): DiscoveryResultsWebviewProvider {
-    if (!this._discoveryResultsProvider) {
-      this._discoveryResultsProvider = new DiscoveryResultsWebviewProvider(
-        this.context,
-        async (journeyIds: string[]) => {
-          // Handle test generation from discovery results
-          vscode.window.showInformationMessage(`Generating tests for ${journeyIds.length} journeys...`);
-          // TODO: Implement test generation
-        }
-      );
-    }
-    return this._discoveryResultsProvider;
-  }
-
-  get discoveryProgressProvider(): DiscoveryProgressWebviewProvider {
-    if (!this._discoveryProgressProvider) {
-      this._discoveryProgressProvider = new DiscoveryProgressWebviewProvider(this.context);
-    }
-    return this._discoveryProgressProvider;
+    return this._mainViewProvider;
   }
 
   // ============================================
@@ -87,27 +62,11 @@ export class ServiceContainer {
   // ============================================
 
   private registerProviders(): void {
-    // Register dashboard webview provider
+    // Register unified main webview provider
     this.context.subscriptions.push(
       vscode.window.registerWebviewViewProvider(
-        DashboardWebviewProvider.viewType,
-        this.dashboardProvider
-      )
-    );
-    
-    // Register discovery results webview provider
-    this.context.subscriptions.push(
-      vscode.window.registerWebviewViewProvider(
-        DiscoveryResultsWebviewProvider.viewType,
-        this.discoveryResultsProvider
-      )
-    );
-    
-    // Register discovery progress webview provider
-    this.context.subscriptions.push(
-      vscode.window.registerWebviewViewProvider(
-        DiscoveryProgressWebviewProvider.viewType,
-        this.discoveryProgressProvider
+        UnifiedMainViewProvider.viewType,
+        this.mainViewProvider
       )
     );
   }
@@ -127,8 +86,8 @@ export class ServiceContainer {
    * Show main dashboard
    */
   async showDashboard(): Promise<void> {
-    // Focus the QAgenAI sidebar view
-    await vscode.commands.executeCommand('qagenai.dashboard.focus');
+    // Focus the unified main view
+    await vscode.commands.executeCommand('qagenai.main.focus');
   }
 
   /**
@@ -143,7 +102,6 @@ export class ServiceContainer {
    * Show discovery results screen
    */
   async showDiscoveryResults(journeys: DiscoveredFlow[], projectInfo?: any): Promise<void> {
-    this.discoveryResultsProvider.updateJourneys(journeys, projectInfo);
-    this.discoveryResultsProvider.show();
+    await this.mainViewProvider.showResults(journeys);
   }
 }

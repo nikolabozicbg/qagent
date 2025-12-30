@@ -47,10 +47,10 @@ function registerCommands(context: vscode.ExtensionContext) {
     })
   );
 
-  // Focus Dashboard view (used after onboarding)
+  // Focus main view (used after onboarding)
   context.subscriptions.push(
-    vscode.commands.registerCommand('qagenai.dashboard.focus', () => {
-      container.dashboardProvider.focus();
+    vscode.commands.registerCommand('qagenai.main.focus', () => {
+      // Focus is handled by the unified view itself
     })
   );
 
@@ -78,7 +78,7 @@ function registerCommands(context: vscode.ExtensionContext) {
       if (flows && flows.length > 0) {
         const resetFlows = flows.map(flow => ({ ...flow, status: 'draft' }));
         await context.workspaceState.update('qagenai.dashboardFlows', resetFlows);
-        await container.dashboardProvider.refresh();
+        await container.mainViewProvider.refresh();
         vscode.window.showInformationMessage(`✅ Reset ${flows.length} flows to draft. Refresh dashboard to see changes.`);
       } else {
         // Maybe flows are still in onboarding state, not yet migrated
@@ -93,7 +93,7 @@ function registerCommands(context: vscode.ExtensionContext) {
       await context.workspaceState.update('qagenai.dashboardFlows', undefined);
       await context.globalState.update('qagenai.onboardingState', undefined);
       await context.globalState.update('qagenai.onboardingCompleted', false);
-      await container.dashboardProvider.refresh();
+      await container.mainViewProvider.refresh();
       vscode.window.showInformationMessage('🗑️ All QAgenAI data cleared. Reload window to start fresh.');
     })
   );
@@ -113,10 +113,8 @@ function registerCommands(context: vscode.ExtensionContext) {
         // Close any open editors/wizards for clean UX
         await vscode.commands.executeCommand('workbench.action.closeAllEditors');
         
-        // Show discovery progress view
-        const progressProvider = container.discoveryProgressProvider;
-        await progressProvider.startDiscovery();
-        progressProvider.show();
+        // Start discovery in unified view
+        await container.mainViewProvider.startDiscovery();
         
         // Focus QAgenAI sidebar
         await vscode.commands.executeCommand('workbench.view.extension.qagenai');
@@ -194,7 +192,7 @@ function registerCommands(context: vscode.ExtensionContext) {
           }
           
           // Refresh dashboard with new data
-          await container.dashboardProvider.refresh();
+          await container.mainViewProvider.refresh();
         }
       } catch (error) {
         log('Live discovery failed:', error);
@@ -423,7 +421,7 @@ function registerCommands(context: vscode.ExtensionContext) {
         deletedItems.push('All extension state');
         log('Cleared extension state');
         
-        await container.dashboardProvider.refresh();
+        await container.mainViewProvider.refresh();
         
         vscode.window.showInformationMessage(
           `💣 Nuclear reset complete!\n\nDeleted:\n${deletedItems.map(i => '  • ' + i).join('\n')}\n\nReload window for fresh start.`,

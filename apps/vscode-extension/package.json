@@ -83,18 +83,8 @@
       "qagenai": [
         {
           "type": "webview",
-          "id": "qagenai.dashboard",
-          "name": "Dashboard"
-        },
-        {
-          "type": "webview",
-          "id": "qagenai.discoveryResults",
-          "name": "Discovery Results"
-        },
-        {
-          "type": "webview",
-          "id": "qagenai.discoveryProgress",
-          "name": "Discovery Progress"
+          "id": "qagenai.main",
+          "name": "QAgent"
         }
       ]
     },
