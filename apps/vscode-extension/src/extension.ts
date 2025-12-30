@@ -142,28 +142,7 @@ function registerCommands(context: vscode.ExtensionContext) {
         // Start WebSocket connection first
         log('Connecting to WebSocket...');
         
-        // Setup progress callback to update wizard
-        discoveryService.onProgress((progress) => {
-          if (OnboardingWizardPanel.currentPanel && progress.type === 'component') {
-            const data = progress.data;
-            OnboardingWizardPanel.currentPanel.updateProgress({
-              components: data.componentsCount || 0,
-              routes: data.routesCount || 0,
-              apis: data.apisCount || 0,
-              forms: 0, // Not in progress data
-              framework: data.framework || null,
-              elapsed: Date.now() - (data.startTime || Date.now())
-            });
-            
-            // Update detected technologies
-            if (data.framework) {
-              OnboardingWizardPanel.currentPanel.updateDetectedTechnologies([data.framework]);
-            }
-          }
-        });
-        
         // Start live discovery with real-time updates
-        // This will connect WebSocket and trigger the HTTP endpoint
         const discoveryPromise = discoveryService.startDiscovery({
           workspacePath: workspaceRoot,
           title: '🧠 Smart Discovery in Progress',
@@ -224,6 +203,16 @@ function registerCommands(context: vscode.ExtensionContext) {
         }
       } catch (error) {
         log('Live discovery failed:', error);
+        
+        // Detailed error logging
+        if (error instanceof Error) {
+          log('Error name:', error.name);
+          log('Error message:', error.message);
+          log('Error stack:', error.stack);
+        } else {
+          log('Error object:', JSON.stringify(error, null, 2));
+        }
+        
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         vscode.window.showErrorMessage(`Discovery failed: ${errorMessage}`);
       }
