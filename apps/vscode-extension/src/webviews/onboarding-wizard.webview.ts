@@ -16,9 +16,15 @@ export class OnboardingWizardPanel {
   private readonly panel: vscode.WebviewPanel;
   private disposables: vscode.Disposable[] = [];
   
-  private step: 'welcome' | 'discovering' | 'results' = 'welcome';
+  private step: 'setup' | 'discovering' | 'results' = 'setup';
   private discoveredJourneys: DiscoveredFlow[] = [];
   private selectedJourneyIds: Set<string> = new Set();
+  
+  private config = {
+    projectType: 'frontend' as 'frontend' | 'backend' | 'fullstack',
+    framework: 'auto' as string,
+    testType: 'e2e' as 'e2e' | 'unit' | 'integration'
+  };
   
   private discoveryProgress = {
     components: 0,
@@ -27,6 +33,13 @@ export class OnboardingWizardPanel {
     forms: 0,
     framework: null as string | null,
     elapsed: 0
+  };
+  
+  private scanDetails = {
+    detectedTechnologies: [] as string[],
+    componentsScanned: [] as string[],
+    routesScanned: [] as string[],
+    apisScanned: [] as string[]
   };
 
   public static show(context: vscode.ExtensionContext) {
@@ -66,6 +79,10 @@ export class OnboardingWizardPanel {
     this.panel.webview.onDidReceiveMessage(
       async message => {
         switch (message.command) {
+          case 'updateConfig':
+            this.config = { ...this.config, ...message.data };
+            this.update();
+            break;
           case 'startDiscovery':
             await this.startDiscovery();
             break;
@@ -174,8 +191,8 @@ export class OnboardingWizardPanel {
 
   private getHtmlContent(): string {
     switch (this.step) {
-      case 'welcome':
-        return this.renderWelcome();
+      case 'setup':
+        return this.renderSetup();
       case 'discovering':
         return this.renderDiscovering();
       case 'results':
@@ -183,60 +200,133 @@ export class OnboardingWizardPanel {
     }
   }
 
-  private renderWelcome(): string {
+  private renderStepper(): string {
+    const steps = [
+      { name: 'Setup', active: this.step === 'setup', complete: this.step !== 'setup' },
+      { name: 'Scan', active: this.step === 'discovering', complete: this.step === 'results' },
+      { name: 'Results', active: this.step === 'results', complete: false }
+    ];
+
+    return `
+      <div class="stepper">
+        ${steps.map((s, i) => `
+          <div class="step ${s.active ? 'active' : ''} ${s.complete ? 'complete' : ''}">
+            <div class="step-circle">${s.complete ? '✓' : i + 1}</div>
+            <div class="step-label">${s.name}</div>
+          </div>
+          ${i < steps.length - 1 ? '<div class="step-line"></div>' : ''}
+        `).join('')}
+      </div>
+    `;
+  }
+
+  private renderSetup(): string {
+    const { projectType, testType } = this.config;
+    
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to QAgent</title>
+  <title>QAgent Setup</title>
   <style>${this.getStyles()}</style>
 </head>
 <body>
   <div class="wizard-container">
-    <div class="wizard-content welcome">
-      <div class="icon-large">🚀</div>
-      <h1 class="title-hero">Welcome to QAgent</h1>
-      <p class="subtitle-hero">Premium AI-powered E2E test generation</p>
+    <div class="wizard-content setup">
+      ${this.renderStepper()}
       
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">🧠</div>
-          <h3>Smart Analysis</h3>
-          <p>AI discovers user journeys automatically</p>
+      <div class="icon-large">⚙️</div>
+      <h1 class="title-hero">Configure Your Project</h1>
+      <p class="subtitle-hero">Tell us about your application</p>
+      
+      <div class="config-section">
+        <div class="config-label">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10 2C5.589 2 2 5.589 2 10s3.589 8 8 8 8-3.589 8-8-3.589-8-8-8zm0 14c-3.309 0-6-2.691-6-6s2.691-6 6-6 6 2.691 6 6-2.691 6-6 6z"/>
+            <path d="M10 6c-.552 0-1 .448-1 1v3c0 .552.448 1 1 1s1-.448 1-1V7c0-.552-.448-1-1-1z"/>
+          </svg>
+          Project Type
         </div>
-        <div class="feature-card">
-          <div class="feature-icon">⚡</div>
-          <h3>Lightning Fast</h3>
-          <p>Full scan in 2-5 seconds</p>
+        <div class="radio-group">
+          <label class="radio-card ${projectType === 'frontend' ? 'selected' : ''}" onclick="updateConfig('projectType', 'frontend')">
+            <input type="radio" name="projectType" value="frontend" ${projectType === 'frontend' ? 'checked' : ''}>
+            <div class="radio-content">
+              <div class="radio-icon">🎨</div>
+              <div class="radio-title">Frontend</div>
+              <div class="radio-desc">React, Vue, Angular apps</div>
+            </div>
+          </label>
+          <label class="radio-card ${projectType === 'backend' ? 'selected' : ''}" onclick="updateConfig('projectType', 'backend')">
+            <input type="radio" name="projectType" value="backend" ${projectType === 'backend' ? 'checked' : ''}>
+            <div class="radio-content">
+              <div class="radio-icon">⚙️</div>
+              <div class="radio-title">Backend</div>
+              <div class="radio-desc">APIs & Services</div>
+            </div>
+          </label>
+          <label class="radio-card ${projectType === 'fullstack' ? 'selected' : ''}" onclick="updateConfig('projectType', 'fullstack')">
+            <input type="radio" name="projectType" value="fullstack" ${projectType === 'fullstack' ? 'checked' : ''}>
+            <div class="radio-content">
+              <div class="radio-icon">🔧</div>
+              <div class="radio-title">Fullstack</div>
+              <div class="radio-desc">Complete application</div>
+            </div>
+          </label>
         </div>
-        <div class="feature-card">
-          <div class="feature-icon">🎯</div>
-          <h3>Cutting-Edge</h3>
-          <p>Premium UX with real-time feedback</p>
+      </div>
+
+      <div class="config-section">
+        <div class="config-label">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M16 4H4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 10H4V6h12v8z"/>
+          </svg>
+          Test Type
+        </div>
+        <div class="radio-group">
+          <label class="radio-card ${testType === 'e2e' ? 'selected' : ''}" onclick="updateConfig('testType', 'e2e')">
+            <input type="radio" name="testType" value="e2e" ${testType === 'e2e' ? 'checked' : ''}>
+            <div class="radio-content">
+              <div class="radio-icon">🎯</div>
+              <div class="radio-title">E2E Tests</div>
+              <div class="radio-desc">Full user journey testing</div>
+            </div>
+          </label>
+          <label class="radio-card disabled">
+            <input type="radio" name="testType" value="unit" disabled>
+            <div class="radio-content">
+              <div class="radio-icon">🧪</div>
+              <div class="radio-title">Unit Tests</div>
+              <div class="radio-desc">Coming soon...</div>
+            </div>
+          </label>
+          <label class="radio-card disabled">
+            <input type="radio" name="testType" value="integration" disabled>
+            <div class="radio-content">
+              <div class="radio-icon">🔗</div>
+              <div class="radio-title">Integration</div>
+              <div class="radio-desc">Coming soon...</div>
+            </div>
+          </label>
         </div>
       </div>
 
       <button class="btn-hero" onclick="startDiscovery()">
-        🔍 Start Smart Discovery
+        🚀 Start Smart Scan
       </button>
-      
-      <div class="scan-info">
-        <h4>What We'll Scan:</h4>
-        <div class="scan-items">
-          <span class="scan-item">📦 React Components</span>
-          <span class="scan-item">🛣️ Application Routes</span>
-          <span class="scan-item">🌐 API Endpoints</span>
-          <span class="scan-item">📝 Forms & Inputs</span>
-          <span class="scan-item">🔐 Auth Flows</span>
-          <span class="scan-item">💳 Payment Flows</span>
-        </div>
-      </div>
     </div>
   </div>
 
   <script>
     const vscode = acquireVsCodeApi();
+    
+    function updateConfig(key, value) {
+      vscode.postMessage({ 
+        command: 'updateConfig', 
+        data: { [key]: value } 
+      });
+    }
+    
     function startDiscovery() {
       vscode.postMessage({ command: 'startDiscovery' });
     }
