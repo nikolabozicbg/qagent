@@ -30,10 +30,10 @@ export async function activate(context: vscode.ExtensionContext) {
     // First time: show full-screen premium wizard
     const { OnboardingWizardPanel } = await import('./webviews/onboarding-wizard.webview');
     OnboardingWizardPanel.show(context);
+  } else {
+    // Show dashboard only if user has flows
+    await container.showDashboard();
   }
-  
-  // Always show dashboard in sidebar (it will be empty first time, populated after wizard)
-  await container.showDashboard();
 
   // Register commands
   registerCommands(context);

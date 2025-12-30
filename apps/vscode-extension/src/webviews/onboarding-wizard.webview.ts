@@ -459,31 +459,36 @@ export class OnboardingWizardPanel {
     <div class="wizard-content discovering">
       ${this.renderProgressBar(2, 3)}
       
-      <div class="scan-icon-container">
-        <div class="scan-icon pulsing">🧠</div>
-        <div class="scan-ring"></div>
+      <div class="scan-hero">
+        <div class="scan-icon-container">
+          <div class="scan-icon pulsing">🧠</div>
+          <div class="scan-ring"></div>
+        </div>
+        <h1 class="title-hero">Smart Discovery Running</h1>
+        <p class="subtitle-hero">Analyzing your ${this.config.projectType.toUpperCase()} application for ${this.config.testType.toUpperCase()} test generation</p>
       </div>
-      <h1 class="title-hero">Analyzing Your Application</h1>
-      <p class="subtitle-hero typing-text">Discovering user journeys and interactions...</p>
+      
+      <div class="scan-status-message">
+        ${components === 0 ? '🔍 Initializing scan engine...' : 
+          components < 10 ? '📦 Scanning React components...' :
+          components < 20 ? '🛣️ Mapping application routes...' :
+          components < 30 ? '🌐 Detecting API endpoints...' :
+          '✨ Synthesizing user journeys...'}
+      </div>
       
       <div class="tech-stack-card">
-        <div class="tech-stack-title">🔍 Detected Technologies</div>
+        <div class="tech-stack-header">
+          <div class="tech-stack-title">🛠️ Detected Tech Stack</div>
+          <div class="tech-count">${detectedTechnologies.length} technologies</div>
+        </div>
         <div class="tech-stack-grid">
           ${detectedTechnologies.length > 0 ? detectedTechnologies.map((tech, i) => `
             <div class="tech-item" style="animation-delay: ${i * 0.15}s">
               <div class="tech-item-icon">✓</div>
               <div class="tech-item-name">${tech}</div>
             </div>
-          `).join('') : '<div class="tech-placeholder">Scanning...</div>'}
+          `).join('') : '<div class="tech-placeholder"><div class="loading-spinner"></div>Detecting...</div>'}
         </div>
-      </div>
-      
-      <div class="scan-status-message">
-        ${components === 0 ? '🔍 Initializing scan...' : 
-          components < 10 ? '📦 Analyzing components...' :
-          components < 20 ? '🛣️ Mapping routes...' :
-          components < 30 ? '🌐 Detecting API calls...' :
-          '✨ Discovering user journeys...'}
       </div>
       
       <div class="progress-section">
@@ -1372,12 +1377,18 @@ export class OnboardingWizardPanel {
         color: rgba(255, 255, 255, 0.65);
         font-weight: 400;
       }
+      /* Scan Hero Section */
+      .scan-hero {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      
       /* Scan Icon Container */
       .scan-icon-container {
         position: relative;
         width: 120px;
         height: 120px;
-        margin: 0 auto 32px;
+        margin: 0 auto 24px;
       }
       
       .scan-icon {
@@ -1456,12 +1467,27 @@ export class OnboardingWizardPanel {
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
       }
       
+      .tech-stack-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+      
       .tech-stack-title {
         font-size: 18px;
         font-weight: 700;
-        margin-bottom: 24px;
-        text-align: center;
         color: rgba(255, 255, 255, 0.95);
+      }
+      
+      .tech-count {
+        font-size: 14px;
+        padding: 4px 12px;
+        background: rgba(0, 212, 255, 0.15);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 12px;
+        color: #00d4ff;
+        font-weight: 600;
       }
       
       .tech-stack-grid {
@@ -1513,10 +1539,28 @@ export class OnboardingWizardPanel {
       }
       
       .tech-placeholder {
+        grid-column: 1 / -1;
         text-align: center;
-        padding: 20px;
+        padding: 30px;
         color: rgba(255, 255, 255, 0.5);
         font-style: italic;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+      }
+      
+      .loading-spinner {
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(0, 212, 255, 0.2);
+        border-top-color: #00d4ff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
       }
       
       /* Scan Status Message */
