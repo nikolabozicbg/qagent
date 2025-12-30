@@ -187,8 +187,8 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
       case 'toggleJourney':
         this.toggleJourneySelection(message.data as string);
         break;
-      case 'generateTests':
-        await this.generateTestsFromResults();
+      case 'addToDashboard':
+        await this.addJourneysToDashboard();
         break;
 
       // Dashboard
@@ -226,42 +226,31 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
     this.render();
   }
 
-  private async generateTestsFromResults(): Promise<void> {
+  private async addJourneysToDashboard(): Promise<void> {
     const selectedIds = Array.from(this.selectedJourneyIds);
     if (selectedIds.length === 0) {
       vscode.window.showWarningMessage('Please select at least one journey');
       return;
     }
 
-    // Show progress
-    await vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Notification,
-        title: `Generating ${selectedIds.length} tests...`,
-        cancellable: false,
-      },
-      async (progress) => {
-        for (let i = 0; i < selectedIds.length; i++) {
-          const journeyId = selectedIds[i];
-          const journey = this.discoveredJourneys.find(j => j.id === journeyId);
-          if (!journey) continue;
+    // Add journeys to dashboard (as draft flows)
+    for (const journeyId of selectedIds) {
+      const journey = this.discoveredJourneys.find(j => j.id === journeyId);
+      if (!journey) continue;
 
-          progress.report({ 
-            increment: (100 / selectedIds.length), 
-            message: `Generating: ${journey.name}` 
-          });
+      await this.dashboardService.addFlow({ 
+        name: journey.name,
+        journeyData: journey
+      });
+    }
 
-          // Add to dashboard
-          await this.dashboardService.addFlow({ 
-            name: journey.name,
-            journeyData: journey
-          });
-        }
-
-        // Transition to dashboard
-        await this.transitionToDashboard();
-      }
+    // Show success message
+    vscode.window.showInformationMessage(
+      `✅ Added ${selectedIds.length} journey${selectedIds.length !== 1 ? 's' : ''} to dashboard`
     );
+
+    // Transition to dashboard
+    await this.transitionToDashboard();
   }
 
   private async generateFlowTest(flowId: string): Promise<void> {
@@ -506,10 +495,10 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
     ${this.renderJourneyCategory('Standard', '⚙️', categories.standard)}
 
     <div class="action-zone">
-      <button class="btn-huge primary" onclick="send('generateTests')" ${selectedCount === 0 ? 'disabled' : ''}>
-        🚀 Generate ${selectedCount} Test${selectedCount !== 1 ? 's' : ''}
+      <button class="btn-huge primary" onclick="send('addToDashboard')" ${selectedCount === 0 ? 'disabled' : ''}>
+        ➕ Add ${selectedCount} to Dashboard
       </button>
-      <p class="hint">~${selectedCount * 30}s estimated</p>
+      <p class="hint">Generate tests from dashboard</p>
     </div>
   </div>
 
