@@ -670,24 +670,74 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
   private renderDashboard(): string {
     const flows = this.dashboardData?.flows?.items || [];
     const healthScore = this.calculateHealthScore(flows);
+    
+    // Generate insights from current flows
+    const insights = this.generateDashboardInsights(flows);
+    const criticalFlows = flows.filter(f => this.isFlowCritical(f.name));
+    const highValueFlows = flows.filter(f => !this.isFlowCritical(f.name) && this.isFlowHighValue(f.name));
+    const generatedCount = flows.filter(f => f.status === 'generated' || f.status === 'passing').length;
+    const coverage = flows.length > 0 ? Math.round((generatedCount / flows.length) * 100) : 0;
 
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QAgent</title>
+  <title>QAgent Dashboard</title>
   <style>${this.getStyles()}</style>
 </head>
 <body>
   <div class="state-container dashboard">
-    <div class="dashboard-header">
-      <div class="health-badge">
-        <div class="health-score">${healthScore}</div>
-        <div class="health-label">Health Score</div>
+    <!-- Main Dashboard Cards -->
+    <div class="dashboard-cards">
+      <!-- Health Score Card -->
+      <div class="dashboard-card health-card">
+        <div class="health-score-large">${healthScore}</div>
+        <div class="health-label">HEALTH SCORE</div>
+        <div class="health-description">
+          ${healthScore >= 75 ? '🟢 Excellent coverage' : healthScore >= 50 ? '🟡 Good progress' : '🔴 Needs attention'}
+        </div>
+      </div>
+
+      <!-- Project Insights Card -->
+      <div class="dashboard-card insights-card">
+        <div class="card-header">
+          <h3>📊 Project Insights</h3>
+        </div>
+        <div class="insights-grid">
+          <div class="insight-item">
+            <div class="insight-icon">📚</div>
+            <div class="insight-content">
+              <div class="insight-value">${flows.length}</div>
+              <div class="insight-label">Total Flows</div>
+            </div>
+          </div>
+          <div class="insight-item critical">
+            <div class="insight-icon">🔴</div>
+            <div class="insight-content">
+              <div class="insight-value">${criticalFlows.length}</div>
+              <div class="insight-label">Critical Paths</div>
+            </div>
+          </div>
+          <div class="insight-item high-value">
+            <div class="insight-icon">🟡</div>
+            <div class="insight-content">
+              <div class="insight-value">${highValueFlows.length}</div>
+              <div class="insight-label">High Value</div>
+            </div>
+          </div>
+          <div class="insight-item coverage">
+            <div class="insight-icon">📈</div>
+            <div class="insight-content">
+              <div class="insight-value">~${coverage}%</div>
+              <div class="insight-label">Coverage Est</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
+    <!-- Flows Section -->
     <div class="flows-section">
       <div class="section-header">
         <h2>📚 Flows (${flows.length})</h2>
@@ -746,6 +796,34 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
     const passScore = flows.length > 0 ? (passingCount / flows.length) * 50 : 0;
     
     return Math.round(generationScore + passScore);
+  }
+
+  private isFlowCritical(flowName: string): boolean {
+    const name = flowName.toLowerCase();
+    return name.includes('login') || name.includes('auth') || name.includes('payment') || 
+           name.includes('checkout') || name.includes('registration');
+  }
+
+  private isFlowHighValue(flowName: string): boolean {
+    const name = flowName.toLowerCase();
+    return name.includes('profile') || name.includes('settings') || name.includes('account') ||
+           name.includes('transaction') || name.includes('user');
+  }
+
+  private generateDashboardInsights(flows: DashboardFlow[]): any {
+    const criticalCount = flows.filter(f => this.isFlowCritical(f.name)).length;
+    const generatedCount = flows.filter(f => f.status === 'generated' || f.status === 'passing').length;
+    
+    return {
+      totalFlows: flows.length,
+      criticalPaths: criticalCount,
+      testCoverage: flows.length > 0 ? Math.round((generatedCount / flows.length) * 100) : 0,
+      recommendations: [
+        criticalCount > 0 ? `Focus on ${criticalCount} critical paths` : 'Start by discovering critical paths',
+        'Generate tests for high-value flows',
+        'Run tests regularly to maintain coverage'
+      ]
+    };
   }
 
   private getFrameworkIcon(framework: string | null): string {
@@ -1186,6 +1264,143 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
         margin-bottom: 20px;
       }
 
+      /* Dashboard Cards Layout */
+      .dashboard-cards {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .dashboard-card {
+        background: var(--vscode-input-background);
+        border: 1px solid var(--vscode-panel-border);
+        border-radius: 12px;
+        padding: 24px;
+        transition: all 0.2s;
+      }
+
+      .dashboard-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+      }
+
+      /* Health Card */
+      .health-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+        border: 1px solid rgba(16, 185, 129, 0.3);
+      }
+
+      .health-score-large {
+        font-size: 72px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #10b981, #059669);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+        margin-bottom: 8px;
+      }
+
+      .health-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--vscode-descriptionForeground);
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      .health-description {
+        font-size: 13px;
+        color: var(--vscode-descriptionForeground);
+      }
+
+      /* Insights Card */
+      .insights-card {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card-header {
+        margin-bottom: 16px;
+      }
+
+      .card-header h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+      }
+
+      .insight-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 16px;
+        background: var(--vscode-editor-background);
+        border-radius: 8px;
+        text-align: center;
+        transition: all 0.2s;
+      }
+
+      .insight-item:hover {
+        transform: translateY(-2px);
+        background: var(--vscode-list-hoverBackground);
+      }
+
+      .insight-item.critical {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+        border: 1px solid rgba(239, 68, 68, 0.3);
+      }
+
+      .insight-item.high-value {
+        background: linear-gradient(135deg, rgba(251, 146, 60, 0.1), rgba(251, 146, 60, 0.05));
+        border: 1px solid rgba(251, 146, 60, 0.3);
+      }
+
+      .insight-item.coverage {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+        border: 1px solid rgba(59, 130, 246, 0.3);
+      }
+
+      .insight-icon {
+        font-size: 24px;
+        line-height: 1;
+      }
+
+      .insight-content {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .insight-value {
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      .insight-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--vscode-descriptionForeground);
+      }
+
+      /* Old styles (kept for compatibility) */
       .health-badge {
         display: inline-block;
         padding: 12px 24px;
@@ -1197,13 +1412,6 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
         font-size: 32px;
         font-weight: 700;
         color: var(--vscode-badge-foreground);
-      }
-
-      .health-label {
-        font-size: 11px;
-        text-transform: uppercase;
-        color: var(--vscode-descriptionForeground);
-        margin-top: 4px;
       }
 
       .flows-section {
