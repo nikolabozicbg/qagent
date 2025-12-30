@@ -90,6 +90,11 @@
           "type": "webview",
           "id": "qagenai.discoveryResults",
           "name": "Discovery Results"
+        },
+        {
+          "type": "webview",
+          "id": "qagenai.discoveryProgress",
+          "name": "Discovery Progress"
         }
       ]
     },

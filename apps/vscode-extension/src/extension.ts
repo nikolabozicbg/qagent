@@ -110,6 +110,11 @@ function registerCommands(context: vscode.ExtensionContext) {
       log('Starting live smart discovery...');
       
       try {
+        // Show discovery progress view
+        const progressProvider = container.discoveryProgressProvider;
+        await progressProvider.startDiscovery();
+        progressProvider.show();
+        
         // Import discovery service
         const { DiscoveryLiveService } = await import('./services/websocket');
         

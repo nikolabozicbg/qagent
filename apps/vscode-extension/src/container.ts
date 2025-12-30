@@ -4,6 +4,7 @@ import { DashboardService } from './services/dashboard.service';
 import { TestGenerationService } from './services/test-generation.service';
 import { DashboardWebviewProvider } from './webviews/dashboard.webview';
 import { DiscoveryResultsWebviewProvider } from './webviews/discovery-results.webview';
+import { DiscoveryProgressWebviewProvider } from './webviews/discovery-progress.webview';
 import { DiscoveredFlow } from './types';
 
 /**
@@ -18,6 +19,7 @@ export class ServiceContainer {
   private _testGenerationService?: TestGenerationService;
   private _dashboardProvider?: DashboardWebviewProvider;
   private _discoveryResultsProvider?: DiscoveryResultsWebviewProvider;
+  private _discoveryProgressProvider?: DiscoveryProgressWebviewProvider;
 
   constructor(private readonly context: vscode.ExtensionContext) {
     this.registerProviders();
@@ -73,6 +75,13 @@ export class ServiceContainer {
     return this._discoveryResultsProvider;
   }
 
+  get discoveryProgressProvider(): DiscoveryProgressWebviewProvider {
+    if (!this._discoveryProgressProvider) {
+      this._discoveryProgressProvider = new DiscoveryProgressWebviewProvider(this.context);
+    }
+    return this._discoveryProgressProvider;
+  }
+
   // ============================================
   // Provider Registration
   // ============================================
@@ -91,6 +100,14 @@ export class ServiceContainer {
       vscode.window.registerWebviewViewProvider(
         DiscoveryResultsWebviewProvider.viewType,
         this.discoveryResultsProvider
+      )
+    );
+    
+    // Register discovery progress webview provider
+    this.context.subscriptions.push(
+      vscode.window.registerWebviewViewProvider(
+        DiscoveryProgressWebviewProvider.viewType,
+        this.discoveryProgressProvider
       )
     );
   }
