@@ -584,38 +584,42 @@ export class OnboardingWizardPanel {
       
       <!-- Discovered So Far Section -->
       <div class="discovered-section">
-        <div class="discovered-header">📊 Discovered so far:</div>
+        <div class="discovered-header">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+            <path d="M9 17H7A5 5 0 017 7h2M15 7h2a5 5 0 010 10h-2M8 12h8" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Discovered so far
+        </div>
         <div class="discovered-list">
-          ${framework ? `
-          <div class="discovered-item">
-            <span class="check-icon">✓</span>
-            <span class="discovered-text">${framework}${detectedTechnologies.length > 1 ? ' + ' + detectedTechnologies.slice(1, 3).join(' + ') : ''}</span>
-          </div>
-          ` : ''}
           ${components > 0 ? `
           <div class="discovered-item">
             <span class="check-icon">✓</span>
-            <span class="discovered-text">${components} components, ${routes} routes</span>
+            <span class="discovered-text"><strong>${components}</strong> components, <strong>${routes}</strong> routes</span>
           </div>
           ` : ''}
           ${apis > 0 ? `
           <div class="discovered-item">
             <span class="check-icon">✓</span>
-            <span class="discovered-text">${apis} API endpoints</span>
+            <span class="discovered-text"><strong>${apis}</strong> API endpoints</span>
           </div>
           ` : ''}
           ${forms > 0 ? `
           <div class="discovered-item">
             <span class="check-icon">✓</span>
-            <span class="discovered-text">${forms} forms (${Math.max(0, forms - 2)} with validation)</span>
+            <span class="discovered-text"><strong>${forms}</strong> forms <span class="meta">(${Math.max(0, forms - 2)} with validation)</span></span>
           </div>
           ` : ''}
           <div class="discovered-item warning">
-            <span class="check-icon">⚠</span>
-            <span class="discovered-text">No tests found</span>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display: inline-block; vertical-align: middle;">
+              <path d="M10 7v4m0 2h.01M10 18a8 8 0 100-16 8 8 0 000 16z" stroke="#fbbf24" stroke-width="2"/>
+            </svg>
+            <span class="discovered-text">No existing tests found</span>
           </div>
         </div>
       </div>
+      
+      <!-- Tech Stack Badges -->
+      ${detectedTechnologies.length > 0 ? this.renderTechBadges(detectedTechnologies) : ''}
       
       <!-- Smart Insights Section -->
       ${components > 5 ? `
@@ -678,14 +682,31 @@ export class OnboardingWizardPanel {
       
       <!-- Success Header -->
       <div class="results-hero">
-        <div class="icon-success">✨</div>
-        <h1 class="title-hero">Discovery Complete!</h1>
-        <p class="subtitle-hero">Found ${totalCount} user journey${totalCount !== 1 ? 's' : ''} ready for testing</p>
+        <div class="icon-success">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="url(#successGradient)" stroke-width="2"/>
+            <path d="M8 12l2 2 4-4" stroke="url(#successGradient)" stroke-width="2.5" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="successGradient" x1="0" y1="0" x2="24" y2="24">
+                <stop offset="0%" stop-color="#10b981"/>
+                <stop offset="100%" stop-color="#00d4ff"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <h1 class="title-hero">Smart Analysis Complete</h1>
+        <p class="subtitle-hero">Discovered <span class="highlight">${totalCount} critical user flow${totalCount !== 1 ? 's' : ''}</span> in your application</p>
       </div>
 
       <!-- Project Overview Card -->
       <div class="results-overview-card">
-        <div class="overview-title">📋 Project Overview</div>
+        <div class="overview-title">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+            <rect x="4" y="4" width="16" height="16" rx="2" stroke="#00d4ff" stroke-width="2"/>
+            <path d="M8 10h8M8 14h4" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Analysis Summary
+        </div>
         <div class="overview-grid">
           <div class="overview-stat">
             <div class="stat-number blue">${totalCount}</div>
@@ -722,8 +743,13 @@ export class OnboardingWizardPanel {
       <!-- Action Button -->
       <div class="action-footer">
         <button class="btn-hero" onclick="addToDashboard()" ${selectedCount === 0 ? 'disabled' : ''}>
-          ✅ Add ${selectedCount || 'Selected'} to Dashboard
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+            <path d="M7 10l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Add to Dashboard
+          ${selectedCount > 0 ? `<span class="count-badge">${selectedCount}</span>` : ''}
         </button>
+        <div class="action-hint">${selectedCount === 0 ? 'Select at least one flow to continue' : `${selectedCount} flow${selectedCount !== 1 ? 's' : ''} selected and ready`}</div>
       </div>
     </div>
   </div>
@@ -851,6 +877,36 @@ export class OnboardingWizardPanel {
       'angular': '🅰️',
     };
     return icons[framework.toLowerCase()] || '📦';
+  }
+
+  // Premium SVG Icons
+  private getSvgIcon(type: string): string {
+    const icons: Record<string, string> = {
+      'scan': `<svg width="48" height="48" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="url(#gradient1)" stroke="url(#gradient1)" stroke-width="2"/><defs><linearGradient id="gradient1" x1="0" y1="0" x2="24" y2="24"><stop offset="0%" stop-color="#00d4ff"/><stop offset="100%" stop-color="#7b2ff7"/></linearGradient></defs></svg>`,
+      'check': `<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7 10l2 2 4-4" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/></svg>`,
+      'warning': `<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 7v4m0 2h.01M10 18a8 8 0 100-16 8 8 0 000 16z" stroke="#fbbf24" stroke-width="2"/></svg>`,
+      'component': `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="#00d4ff" stroke-width="2"/><path d="M12 8v8m-4-4h8" stroke="#00d4ff" stroke-width="2"/></svg>`,
+      'api': `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#7b2ff7" stroke-width="2"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4" stroke="#7b2ff7" stroke-width="2"/></svg>`,
+      'route': `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6l6 6-6 6" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/></svg>`,
+    };
+    return icons[type] || '';
+  }
+
+  private renderTechBadges(technologies: string[]): string {
+    if (technologies.length === 0) return '';
+    
+    return `
+      <div class="tech-badges-section">
+        <div class="tech-badges-grid">
+          ${technologies.map((tech, i) => `
+            <div class="tech-badge" style="animation-delay: ${i * 0.1}s">
+              <div class="tech-badge-icon">✓</div>
+              <div class="tech-badge-text">${tech}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
   }
 
   private getStyles(): string {
@@ -1396,6 +1452,73 @@ export class OnboardingWizardPanel {
         animation: fadeInLeft 0.6s ease-out;
       }
 
+      /* Tech Badges Section */
+      .tech-badges-section {
+        margin: 32px auto;
+        max-width: 600px;
+      }
+
+      .tech-badges-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+      }
+
+      .tech-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(123, 47, 247, 0.1));
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #ffffff;
+        opacity: 0;
+        animation: techBadgeIn 0.5s ease-out forwards;
+        transition: all 0.3s;
+      }
+
+      @keyframes techBadgeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px) scale(0.8);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .tech-badge:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+        border-color: #00d4ff;
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(123, 47, 247, 0.2));
+      }
+
+      .tech-badge-icon {
+        font-size: 16px;
+        color: #00d4ff;
+        font-weight: 700;
+      }
+
+      .tech-badge-text {
+        line-height: 1;
+      }
+
+      .discovered-text strong {
+        color: #00d4ff;
+        font-weight: 700;
+      }
+
+      .discovered-text .meta {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 13px;
+      }
+
       .scan-status {
         font-size: 16px;
         color: var(--vscode-textLink-foreground);
@@ -1708,6 +1831,33 @@ export class OnboardingWizardPanel {
       .action-footer {
         margin-top: 56px;
         text-align: center;
+      }
+
+      .count-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 24px;
+        height: 24px;
+        padding: 0 8px;
+        margin-left: 12px;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      .action-hint {
+        margin-top: 16px;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 500;
+      }
+
+      .subtitle-hero .highlight {
+        color: #00d4ff;
+        font-weight: 700;
       }
 
       /* Progress Bar Header */
