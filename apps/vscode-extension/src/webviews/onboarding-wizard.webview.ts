@@ -415,10 +415,32 @@ export class OnboardingWizardPanel {
       }
 
       body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: var(--vscode-editor-background);
-        color: var(--vscode-editor-foreground);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+        color: #ffffff;
         overflow-x: hidden;
+        position: relative;
+      }
+
+      /* Animated background particles */
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+          radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(55, 178, 255, 0.15) 0%, transparent 50%),
+          radial-gradient(circle at 40% 20%, rgba(180, 58, 252, 0.1) 0%, transparent 50%);
+        animation: float 20s ease-in-out infinite;
+        pointer-events: none;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-20px) scale(1.05); }
       }
 
       .wizard-container {
@@ -427,6 +449,8 @@ export class OnboardingWizardPanel {
         align-items: center;
         justify-content: center;
         padding: 40px 20px;
+        position: relative;
+        z-index: 1;
       }
 
       .wizard-content {
@@ -460,18 +484,30 @@ export class OnboardingWizardPanel {
 
       /* Typography */
       .title-hero {
-        font-size: 48px;
-        font-weight: 700;
-        margin-bottom: 16px;
-        background: linear-gradient(135deg, var(--vscode-textLink-foreground), var(--vscode-textLink-activeForeground));
+        font-size: 56px;
+        font-weight: 800;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #00d4ff 0%, #7b2ff7 50%, #f107a3 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -1px;
+        line-height: 1.1;
+        text-shadow: 0 0 60px rgba(123, 47, 247, 0.5);
+        animation: shimmer 3s ease-in-out infinite;
+      }
+
+      @keyframes shimmer {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
       }
 
       .subtitle-hero {
-        font-size: 20px;
-        color: var(--vscode-descriptionForeground);
-        margin-bottom: 48px;
+        font-size: 22px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 56px;
+        font-weight: 400;
+        letter-spacing: 0.3px;
       }
 
       /* Features Grid */
@@ -479,59 +515,121 @@ export class OnboardingWizardPanel {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 24px;
-        margin: 48px 0;
+        margin: 56px 0;
       }
 
       .feature-card {
-        padding: 24px;
-        background: var(--vscode-input-background);
-        border: 1px solid var(--vscode-panel-border);
-        border-radius: 12px;
-        transition: transform 0.2s;
+        padding: 32px 24px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(123, 47, 247, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+        opacity: 0;
+        transition: opacity 0.3s;
       }
 
       .feature-card:hover {
-        transform: translateY(-4px);
+        transform: translateY(-8px) scale(1.02);
+        border-color: rgba(123, 47, 247, 0.5);
+        box-shadow: 0 20px 60px rgba(123, 47, 247, 0.3), 0 0 0 1px rgba(123, 47, 247, 0.2);
+      }
+
+      .feature-card:hover::before {
+        opacity: 1;
       }
 
       .feature-icon {
-        font-size: 40px;
-        margin-bottom: 16px;
+        font-size: 48px;
+        margin-bottom: 20px;
+        filter: drop-shadow(0 4px 20px rgba(123, 47, 247, 0.4));
+        transition: transform 0.3s;
+      }
+
+      .feature-card:hover .feature-icon {
+        transform: scale(1.1) rotate(5deg);
       }
 
       .feature-card h3 {
-        font-size: 18px;
-        margin-bottom: 8px;
+        font-size: 20px;
+        margin-bottom: 12px;
+        font-weight: 700;
+        color: #ffffff;
       }
 
       .feature-card p {
-        font-size: 14px;
-        color: var(--vscode-descriptionForeground);
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.6;
       }
 
       /* Button */
       .btn-hero {
-        font-size: 18px;
-        padding: 20px 48px;
-        background: var(--vscode-button-background);
-        color: var(--vscode-button-foreground);
+        font-size: 20px;
+        padding: 24px 56px;
+        background: linear-gradient(135deg, #7b2ff7 0%, #f107a3 100%);
+        color: #ffffff;
         border: none;
-        border-radius: 12px;
+        border-radius: 16px;
         cursor: pointer;
-        font-weight: 600;
-        transition: all 0.2s;
-        margin: 32px 0;
+        font-weight: 700;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        margin: 48px 0;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 
+          0 10px 40px rgba(123, 47, 247, 0.5),
+          0 0 0 1px rgba(255, 255, 255, 0.1),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      .btn-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s;
+      }
+
+      .btn-hero:hover::before {
+        left: 100%;
       }
 
       .btn-hero:hover {
-        background: var(--vscode-button-hoverBackground);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 
+          0 20px 60px rgba(123, 47, 247, 0.7),
+          0 0 0 1px rgba(255, 255, 255, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      }
+
+      .btn-hero:active {
+        transform: translateY(-2px) scale(1.02);
       }
 
       .btn-hero:disabled {
-        opacity: 0.5;
+        opacity: 0.4;
         cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
       }
 
       /* Scan Info */
@@ -581,11 +679,38 @@ export class OnboardingWizardPanel {
       }
 
       .progress-card {
-        padding: 24px;
-        background: var(--vscode-input-background);
-        border: 1px solid var(--vscode-panel-border);
-        border-radius: 12px;
+        padding: 28px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
         text-align: left;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .progress-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #7b2ff7, #00d4ff);
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .progress-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(123, 47, 247, 0.4);
+        box-shadow: 0 10px 40px rgba(123, 47, 247, 0.2);
+      }
+
+      .progress-card:hover::before {
+        opacity: 1;
       }
 
       .progress-header {
@@ -611,17 +736,41 @@ export class OnboardingWizardPanel {
       }
 
       .progress-bar-container {
-        height: 8px;
-        background: var(--vscode-editor-background);
-        border-radius: 4px;
+        height: 10px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
         overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
       }
 
       .progress-bar-fill {
         height: 100%;
-        background: var(--vscode-progressBar-background);
-        transition: width 0.3s;
-        border-radius: 4px;
+        background: linear-gradient(90deg, #7b2ff7 0%, #00d4ff 50%, #7b2ff7 100%);
+        background-size: 200% 100%;
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 10px;
+        box-shadow: 
+          0 0 20px rgba(123, 47, 247, 0.6),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        animation: progressShine 2s linear infinite;
+        position: relative;
+      }
+
+      .progress-bar-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        animation: shimmer 1.5s infinite;
+      }
+
+      @keyframes progressShine {
+        0% { background-position: 0% 0%; }
+        100% { background-position: 200% 0%; }
       }
 
       .scan-status {
