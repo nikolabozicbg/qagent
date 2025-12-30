@@ -315,7 +315,12 @@ export class OnboardingWizardPanel {
           <label class="radio-card ${projectType === 'frontend' ? 'selected' : ''}" onclick="updateConfig('projectType', 'frontend')">
             <input type="radio" name="projectType" value="frontend" ${projectType === 'frontend' ? 'checked' : ''}>
             <div class="radio-content">
-              <div class="radio-icon">🎨</div>
+              <div class="radio-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <path d="M9 9h6M9 13h6M9 17h4"/>
+                </svg>
+              </div>
               <div class="radio-title">Frontend</div>
               <div class="radio-desc">React, Vue, Angular apps</div>
             </div>
@@ -323,7 +328,16 @@ export class OnboardingWizardPanel {
           <label class="radio-card ${projectType === 'backend' ? 'selected' : ''}" onclick="updateConfig('projectType', 'backend')">
             <input type="radio" name="projectType" value="backend" ${projectType === 'backend' ? 'checked' : ''}>
             <div class="radio-content">
-              <div class="radio-icon">⚙️</div>
+              <div class="radio-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="3" width="20" height="5" rx="1"/>
+                  <rect x="2" y="10" width="20" height="5" rx="1"/>
+                  <rect x="2" y="17" width="20" height="5" rx="1"/>
+                  <circle cx="6" cy="5.5" r="0.5" fill="currentColor"/>
+                  <circle cx="6" cy="12.5" r="0.5" fill="currentColor"/>
+                  <circle cx="6" cy="19.5" r="0.5" fill="currentColor"/>
+                </svg>
+              </div>
               <div class="radio-title">Backend</div>
               <div class="radio-desc">APIs & Services</div>
             </div>
@@ -331,7 +345,14 @@ export class OnboardingWizardPanel {
           <label class="radio-card ${projectType === 'fullstack' ? 'selected' : ''}" onclick="updateConfig('projectType', 'fullstack')">
             <input type="radio" name="projectType" value="fullstack" ${projectType === 'fullstack' ? 'checked' : ''}>
             <div class="radio-content">
-              <div class="radio-icon">🔧</div>
+              <div class="radio-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7" rx="1"/>
+                  <rect x="14" y="3" width="7" height="7" rx="1"/>
+                  <rect x="3" y="14" width="7" height="7" rx="1"/>
+                  <rect x="14" y="14" width="7" height="7" rx="1"/>
+                </svg>
+              </div>
               <div class="radio-title">Fullstack</div>
               <div class="radio-desc">Complete application</div>
             </div>
@@ -350,7 +371,13 @@ export class OnboardingWizardPanel {
           <label class="radio-card ${testType === 'e2e' ? 'selected' : ''}" onclick="updateConfig('testType', 'e2e')">
             <input type="radio" name="testType" value="e2e" ${testType === 'e2e' ? 'checked' : ''}>
             <div class="radio-content">
-              <div class="radio-icon">🎯</div>
+              <div class="radio-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                  <path d="M2 17l10 5 10-5"/>
+                  <path d="M2 12l10 5 10-5"/>
+                </svg>
+              </div>
               <div class="radio-title">E2E Tests</div>
               <div class="radio-desc">Full user journey testing</div>
             </div>
@@ -358,7 +385,13 @@ export class OnboardingWizardPanel {
           <label class="radio-card disabled">
             <input type="radio" name="testType" value="unit" disabled>
             <div class="radio-content">
-              <div class="radio-icon">🧪</div>
+              <div class="radio-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="12" cy="12" r="6"/>
+                  <circle cx="12" cy="12" r="2"/>
+                </svg>
+              </div>
               <div class="radio-title">Unit Tests</div>
               <div class="radio-desc">Coming soon...</div>
             </div>
@@ -366,7 +399,13 @@ export class OnboardingWizardPanel {
           <label class="radio-card disabled">
             <input type="radio" name="testType" value="integration" disabled>
             <div class="radio-content">
-              <div class="radio-icon">🔗</div>
+              <div class="radio-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="6" cy="12" r="3"/>
+                  <circle cx="18" cy="12" r="3"/>
+                  <path d="M9 12h6"/>
+                </svg>
+              </div>
               <div class="radio-title">Integration</div>
               <div class="radio-desc">Coming soon...</div>
             </div>
@@ -1174,7 +1213,7 @@ export class OnboardingWizardPanel {
 
       /* Config Section */
       .config-section {
-        margin: 32px 0;
+        margin: 48px 0;
         text-align: left;
       }
 
@@ -1226,9 +1265,12 @@ export class OnboardingWizardPanel {
       }
 
       .radio-card.selected {
-        border-color: #7b2ff7;
-        background: rgba(123, 47, 247, 0.1);
-        box-shadow: 0 0 30px rgba(123, 47, 247, 0.3);
+        border-color: #00d4ff;
+        background: linear-gradient(135deg, rgba(123, 47, 247, 0.15), rgba(0, 212, 255, 0.1));
+        box-shadow: 
+          0 0 40px rgba(0, 212, 255, 0.4),
+          0 10px 40px rgba(123, 47, 247, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
       }
 
       .radio-card.disabled {
@@ -1250,9 +1292,27 @@ export class OnboardingWizardPanel {
       }
 
       .radio-icon {
-        font-size: 48px;
-        margin-bottom: 16px;
+        margin-bottom: 20px;
+        color: rgba(255, 255, 255, 0.8);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      
+      .radio-icon svg {
         filter: drop-shadow(0 4px 15px rgba(123, 47, 247, 0.4));
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      
+      .radio-card:hover .radio-icon svg {
+        transform: scale(1.1) translateY(-4px);
+        filter: drop-shadow(0 8px 25px rgba(123, 47, 247, 0.6));
+      }
+      
+      .radio-card.selected .radio-icon {
+        color: #00d4ff;
+      }
+      
+      .radio-card.selected .radio-icon svg {
+        filter: drop-shadow(0 6px 20px rgba(0, 212, 255, 0.5));
       }
 
       .radio-title {
