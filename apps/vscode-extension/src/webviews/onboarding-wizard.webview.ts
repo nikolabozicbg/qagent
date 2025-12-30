@@ -216,21 +216,22 @@ export class OnboardingWizardPanel {
       log(`[OnboardingWizard] Added flow: ${journey.name}`);
     }
     
-    vscode.window.showInformationMessage(
-      `✅ Added ${selectedIds.length} journey${selectedIds.length !== 1 ? 's' : ''} to dashboard`
-    );
-
-    // Close the wizard panel
-    this.panel.dispose();
-    
-    // Focus dashboard in sidebar
+    // Focus dashboard in sidebar FIRST (before closing wizard)
     await vscode.commands.executeCommand('workbench.view.extension.qagenai');
     
     // Small delay to ensure view is loaded
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 300));
     
     // Trigger dashboard refresh
     await vscode.commands.executeCommand('qagenai.showDashboard');
+    
+    // Show success message
+    vscode.window.showInformationMessage(
+      `✅ Added ${selectedIds.length} journey${selectedIds.length !== 1 ? 's' : ''} to dashboard`
+    );
+    
+    // Close the wizard panel LAST
+    this.panel.dispose();
   }
 
   private getJourneyPriority(journey: DiscoveredFlow): 'critical' | 'high' | 'standard' {
