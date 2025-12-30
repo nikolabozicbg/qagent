@@ -158,6 +158,30 @@ function registerCommands(context: vscode.ExtensionContext) {
           
           log(`Discovery completed: ${totalJourneys} journeys, ${estimatedCoverage}% coverage`);
           
+          // Get discovered journeys and show results screen
+          const journeys = await backendAPI.discoverJourneysHolistic(workspaceRoot);
+          
+          if (journeys.length > 0) {
+            // Convert E2EJourney to DiscoveredFlow format
+            const discoveredFlows = journeys.map((j, idx) => ({
+              id: String(idx + 1),
+              name: j.name,
+              description: j.description || '',
+              confidence: j.priority === 1 ? 95 : j.priority === 2 ? 80 : 65,
+              routes: j.steps.map(s => s.target).filter(Boolean),
+              components: (j.components || []).map(c => c.name),
+              selected: j.priority === 1
+            }));
+            
+            // Show discovery results webview
+            await container.showDiscoveryResults(discoveredFlows, {
+              name: vscode.workspace.name || 'Project',
+              framework: 'React', // TODO: detect from project
+              componentsFound: result.summary?.totalComponents || 0,
+              routesFound: result.summary?.totalRoutes || 0
+            });
+          }
+          
           // Refresh dashboard with new data
           await container.dashboardProvider.refresh();
         }

@@ -3,6 +3,8 @@ import { OnboardingService } from './services/onboarding.service';
 import { DashboardService } from './services/dashboard.service';
 import { TestGenerationService } from './services/test-generation.service';
 import { DashboardWebviewProvider } from './webviews/dashboard.webview';
+import { DiscoveryResultsWebviewProvider } from './webviews/discovery-results.webview';
+import { DiscoveredFlow } from './types';
 
 /**
  * ServiceContainer - Clean dependency injection container
@@ -15,6 +17,7 @@ export class ServiceContainer {
   private _dashboardService?: DashboardService;
   private _testGenerationService?: TestGenerationService;
   private _dashboardProvider?: DashboardWebviewProvider;
+  private _discoveryResultsProvider?: DiscoveryResultsWebviewProvider;
 
   constructor(private readonly context: vscode.ExtensionContext) {
     this.registerProviders();
@@ -56,6 +59,20 @@ export class ServiceContainer {
     return this._dashboardProvider;
   }
 
+  get discoveryResultsProvider(): DiscoveryResultsWebviewProvider {
+    if (!this._discoveryResultsProvider) {
+      this._discoveryResultsProvider = new DiscoveryResultsWebviewProvider(
+        this.context,
+        async (journeyIds: string[]) => {
+          // Handle test generation from discovery results
+          vscode.window.showInformationMessage(`Generating tests for ${journeyIds.length} journeys...`);
+          // TODO: Implement test generation
+        }
+      );
+    }
+    return this._discoveryResultsProvider;
+  }
+
   // ============================================
   // Provider Registration
   // ============================================
@@ -66,6 +83,14 @@ export class ServiceContainer {
       vscode.window.registerWebviewViewProvider(
         DashboardWebviewProvider.viewType,
         this.dashboardProvider
+      )
+    );
+    
+    // Register discovery results webview provider
+    this.context.subscriptions.push(
+      vscode.window.registerWebviewViewProvider(
+        DiscoveryResultsWebviewProvider.viewType,
+        this.discoveryResultsProvider
       )
     );
   }
@@ -95,5 +120,13 @@ export class ServiceContainer {
   async completeOnboarding(): Promise<void> {
     await this.context.globalState.update('qagenai.onboardingCompleted', true);
     await this.showDashboard();
+  }
+
+  /**
+   * Show discovery results screen
+   */
+  async showDiscoveryResults(journeys: DiscoveredFlow[], projectInfo?: any): Promise<void> {
+    this.discoveryResultsProvider.updateJourneys(journeys, projectInfo);
+    this.discoveryResultsProvider.show();
   }
 }

@@ -85,6 +85,11 @@
           "type": "webview",
           "id": "qagenai.dashboard",
           "name": "Dashboard"
+        },
+        {
+          "type": "webview",
+          "id": "qagenai.discoveryResults",
+          "name": "Discovery Results"
         }
       ]
     },

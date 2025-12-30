@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { DashboardService } from '../services/dashboard.service';
 import { TestGenerationService } from '../services/test-generation.service';
 import { PlaywrightService } from '../services/playwright.service';
+import { TestHealthService } from '../services/test-health.service';
 import { DashboardData, DashboardTab, DashboardFlow } from '../types/dashboard.types';
 import { log } from '../extension';
 
@@ -21,6 +22,7 @@ export class DashboardWebviewProvider implements vscode.WebviewViewProvider {
   private currentTab: DashboardTab = 'overview';
   private data?: DashboardData;
   private playwrightService: PlaywrightService;
+  private testHealthService: TestHealthService;
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -28,6 +30,7 @@ export class DashboardWebviewProvider implements vscode.WebviewViewProvider {
     private readonly testGenerationService: TestGenerationService
   ) {
     this.playwrightService = new PlaywrightService();
+    this.testHealthService = new TestHealthService();
   }
 
   public async resolveWebviewView(
@@ -303,9 +306,23 @@ export class DashboardWebviewProvider implements vscode.WebviewViewProvider {
   }
 
   private renderHealthScore(): string {
-    // TODO: Integrate TestHealthService - mock data for now
-    const healthScore = 87;
-    const trend = '+5';
+    // Calculate real health score from dashboard data
+    const flows = this.data?.flows;
+    const passing = flows?.passing || 0;
+    const failing = flows?.failing || 0;
+    const total = flows?.total || 0;
+    
+    const healthResult = this.testHealthService.calculateHealth({
+      totalJourneys: total,
+      passingJourneys: passing,
+      failingJourneys: failing,
+      coverage: 0, // TODO: get real coverage
+      criticalPathsCovered: 0, // TODO: calculate
+      lastRunTimestamp: Date.now()
+    });
+    const healthScore = healthResult.score;
+    
+    const trend = '+5'; // TODO: calculate from history
     const trendIcon = '↗️';
     const trendClass = 'positive';
     
