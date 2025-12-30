@@ -292,41 +292,241 @@ export class DashboardWebviewProvider implements vscode.WebviewViewProvider {
 
     return `
       <div class="tab-content">
-        <div class="stat-grid">
-          <div class="stat-card clickable" onclick="send('switchTab', 'flows')">
-            <div class="stat-value">${flows?.total || 0}</div>
-            <div class="stat-label">${flowLabel}</div>
+        ${this.renderHealthScore()}
+        ${this.renderQuickStats(flowLabel, flows)}
+        ${this.renderAttentionRequired(flows)}
+        ${this.renderSmartSuggestions(flows)}
+        ${this.renderRecentRuns()}
+        ${this.renderQuickActions(flowLabel)}
+      </div>
+    `;
+  }
+
+  private renderHealthScore(): string {
+    // TODO: Integrate TestHealthService - mock data for now
+    const healthScore = 87;
+    const trend = '+5';
+    const trendIcon = '↗️';
+    const trendClass = 'positive';
+    
+    return `
+      <div class="health-score-container">
+        <div class="health-score-badge ${this.getHealthScoreClass(healthScore)}">
+          <div class="health-score-value">${healthScore}</div>
+          <div class="health-score-label">Health Score</div>
+        </div>
+        <div class="health-score-trend ${trendClass}">
+          ${trendIcon} ${trend} this week
+        </div>
+      </div>
+    `;
+  }
+
+  private getHealthScoreClass(score: number): string {
+    if (score >= 80) return 'excellent';
+    if (score >= 60) return 'good';
+    if (score >= 40) return 'fair';
+    return 'poor';
+  }
+
+  private renderQuickStats(flowLabel: string, flows: any): string {
+    return `
+      <div class="section">
+        <div class="section-title">Quick Stats</div>
+        <div class="stats-grid">
+          <div class="stat-item clickable" onclick="send('switchTab', 'flows')">
+            <div class="stat-icon">📚</div>
+            <div class="stat-content">
+              <div class="stat-number">${flows?.total || 0}</div>
+              <div class="stat-desc">Total ${flowLabel}</div>
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-value">${flows?.draft || 0}</div>
-            <div class="stat-label">Draft</div>
+          <div class="stat-item">
+            <div class="stat-icon passing">✅</div>
+            <div class="stat-content">
+              <div class="stat-number">${flows?.passing || 0}</div>
+              <div class="stat-desc">Passing Tests</div>
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-value">${flows?.generated || 0}</div>
-            <div class="stat-label">Generated</div>
+          <div class="stat-item">
+            <div class="stat-icon failing">❌</div>
+            <div class="stat-content">
+              <div class="stat-number">${flows?.failing || 0}</div>
+              <div class="stat-desc">Failing Tests</div>
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-value">${(flows?.passing || 0) + (flows?.failing || 0)}</div>
-            <div class="stat-label">With Tests</div>
+          <div class="stat-item">
+            <div class="stat-icon draft">📝</div>
+            <div class="stat-content">
+              <div class="stat-number">${flows?.draft || 0}</div>
+              <div class="stat-desc">Draft</div>
+            </div>
           </div>
         </div>
+      </div>
+    `;
+  }
 
-        <div class="section">
-          <div class="section-title">Quick Actions</div>
-          <div class="action-list">
-            <button class="action-btn action-btn-primary" onclick="send('switchTab', 'flows')">
-              ✨ Generate Tests
-            </button>
-            <button class="action-btn" onclick="send('addFlow')">
-              ➕ Add ${flowLabel.slice(0, -1)}
-            </button>
-            <button class="action-btn" onclick="send('runOnboarding')">
-              🔍 Re-discover ${flowLabel}
-            </button>
+  private renderAttentionRequired(flows: any): string {
+    const failingTests = flows?.failing || 0;
+    const draftFlows = flows?.draft || 0;
+    
+    // Only show if there are issues
+    if (failingTests === 0 && draftFlows === 0) {
+      return '';
+    }
+    
+    const issues: string[] = [];
+    
+    if (failingTests > 0) {
+      issues.push(`
+        <div class="attention-item critical">
+          <div class="attention-icon">🔴</div>
+          <div class="attention-content">
+            <div class="attention-title">${failingTests} test${failingTests > 1 ? 's' : ''} failing</div>
+            <div class="attention-desc">Tests need immediate attention</div>
           </div>
+          <button class="attention-action" onclick="send('switchTab', 'flows')">
+            View Details
+          </button>
         </div>
+      `);
+    }
+    
+    if (draftFlows > 3) {
+      issues.push(`
+        <div class="attention-item warning">
+          <div class="attention-icon">⚠️</div>
+          <div class="attention-content">
+            <div class="attention-title">${draftFlows} flows without tests</div>
+            <div class="attention-desc">Generate tests to improve coverage</div>
+          </div>
+          <button class="attention-action" onclick="send('switchTab', 'flows')">
+            Generate Tests
+          </button>
+        </div>
+      `);
+    }
+    
+    return `
+      <div class="section">
+        <div class="section-title attention-title">⚠️ Attention Required</div>
+        <div class="attention-list">
+          ${issues.join('')}
+        </div>
+      </div>
+    `;
+  }
 
-        ${this.renderFlowsPreview(flowLabel)}
+  private renderSmartSuggestions(flows: any): string {
+    const suggestions: string[] = [];
+    const draftFlows = flows?.draft || 0;
+    const totalFlows = flows?.total || 0;
+    
+    if (draftFlows > 0) {
+      suggestions.push(`
+        <div class="suggestion-item">
+          <div class="suggestion-icon">✨</div>
+          <div class="suggestion-content">
+            <div class="suggestion-title">Generate tests for ${draftFlows} draft flows</div>
+            <div class="suggestion-desc">Increase coverage by ~${Math.round((draftFlows / (totalFlows || 1)) * 100)}%</div>
+          </div>
+          <button class="suggestion-action" onclick="send('switchTab', 'flows')">
+            Generate
+          </button>
+        </div>
+      `);
+    }
+    
+    if (totalFlows > 0) {
+      suggestions.push(`
+        <div class="suggestion-item">
+          <div class="suggestion-icon">🔍</div>
+          <div class="suggestion-content">
+            <div class="suggestion-title">Re-scan project for new flows</div>
+            <div class="suggestion-desc">Check for new routes and components</div>
+          </div>
+          <button class="suggestion-action" onclick="send('runOnboarding')">
+            Scan
+          </button>
+        </div>
+      `);
+    }
+    
+    if (suggestions.length === 0) {
+      return '';
+    }
+    
+    return `
+      <div class="section">
+        <div class="section-title">💡 Smart Suggestions</div>
+        <div class="suggestions-list">
+          ${suggestions.join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  private renderRecentRuns(): string {
+    // TODO: Integrate with TestHealthService for real data
+    // Mock data for now
+    const runs = [
+      { time: '2h ago', duration: '43.2s', passed: 11, total: 12, status: 'warning' },
+      { time: '1d ago', duration: '41.8s', passed: 12, total: 12, status: 'success' },
+      { time: '2d ago', duration: '39.1s', passed: 10, total: 12, status: 'error' },
+    ];
+    
+    if (runs.length === 0) {
+      return '';
+    }
+    
+    return `
+      <div class="section">
+        <div class="section-title">📊 Recent Runs</div>
+        <div class="runs-table">
+          <div class="runs-header">
+            <div class="run-col-time">Time</div>
+            <div class="run-col-duration">Duration</div>
+            <div class="run-col-pass">Pass Rate</div>
+            <div class="run-col-status">Status</div>
+          </div>
+          ${runs.map(run => `
+            <div class="run-row">
+              <div class="run-col-time">${run.time}</div>
+              <div class="run-col-duration">${run.duration}</div>
+              <div class="run-col-pass">${run.passed}/${run.total}</div>
+              <div class="run-col-status">
+                <span class="run-status ${run.status}">
+                  ${run.status === 'success' ? '✅ All passed' : run.status === 'warning' ? '🟡 1 failed' : '🔴 2 failed'}
+                </span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  private renderQuickActions(flowLabel: string): string {
+    return `
+      <div class="section">
+        <div class="action-grid">
+          <button class="action-card action-card-primary" onclick="send('switchTab', 'flows')">
+            <div class="action-card-icon">▶️</div>
+            <div class="action-card-title">Run All Tests</div>
+            <div class="action-card-desc">Execute full test suite</div>
+          </button>
+          <button class="action-card" onclick="send('addFlow')">
+            <div class="action-card-icon">➕</div>
+            <div class="action-card-title">New Journey</div>
+            <div class="action-card-desc">Add custom flow</div>
+          </button>
+          <button class="action-card" onclick="send('runOnboarding')">
+            <div class="action-card-icon">🔍</div>
+            <div class="action-card-title">Re-discover</div>
+            <div class="action-card-desc">Scan for new flows</div>
+          </button>
+        </div>
       </div>
     `;
   }
@@ -978,6 +1178,276 @@ export class DashboardWebviewProvider implements vscode.WebviewViewProvider {
       margin-top: 10px;
       padding-top: 10px;
       border-top: 1px solid var(--vscode-panel-border);
+    }
+
+    /* Premium Dashboard Styles */
+    .health-score-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--vscode-input-background) 0%, var(--vscode-editor-background) 100%);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border: 1px solid var(--vscode-panel-border);
+    }
+    .health-score-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .health-score-value {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .health-score-label {
+      font-size: 11px;
+      color: var(--vscode-descriptionForeground);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .health-score-badge.excellent .health-score-value { color: #10b981; }
+    .health-score-badge.good .health-score-value { color: #3b82f6; }
+    .health-score-badge.fair .health-score-value { color: #f59e0b; }
+    .health-score-badge.poor .health-score-value { color: #ef4444; }
+    .health-score-trend {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(16, 185, 129, 0.1);
+    }
+    .health-score-trend.positive { color: #10b981; }
+    .health-score-trend.negative { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: var(--vscode-input-background);
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+    .stat-item.clickable {
+      cursor: pointer;
+    }
+    .stat-item.clickable:hover {
+      background: var(--vscode-list-hoverBackground);
+    }
+    .stat-icon {
+      font-size: 20px;
+      opacity: 0.9;
+    }
+    .stat-icon.passing { color: #10b981; }
+    .stat-icon.failing { color: #ef4444; }
+    .stat-icon.draft { color: #6b7280; }
+    .stat-content {
+      flex: 1;
+    }
+    .stat-number {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--vscode-foreground);
+    }
+    .stat-desc {
+      font-size: 10px;
+      color: var(--vscode-descriptionForeground);
+      margin-top: 2px;
+    }
+
+    .attention-title {
+      color: #ef4444 !important;
+    }
+    .attention-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .attention-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: var(--vscode-input-background);
+      border-radius: 6px;
+      border-left: 3px solid #ef4444;
+    }
+    .attention-item.warning {
+      border-left-color: #f59e0b;
+    }
+    .attention-icon {
+      font-size: 18px;
+    }
+    .attention-content {
+      flex: 1;
+    }
+    .attention-title {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .attention-desc {
+      font-size: 10px;
+      color: var(--vscode-descriptionForeground);
+    }
+    .attention-action {
+      padding: 4px 10px;
+      background: var(--vscode-button-background);
+      border: none;
+      border-radius: 4px;
+      color: var(--vscode-button-foreground);
+      cursor: pointer;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .attention-action:hover {
+      background: var(--vscode-button-hoverBackground);
+    }
+
+    .suggestions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .suggestion-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: var(--vscode-input-background);
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+    .suggestion-item:hover {
+      background: var(--vscode-list-hoverBackground);
+    }
+    .suggestion-icon {
+      font-size: 18px;
+    }
+    .suggestion-content {
+      flex: 1;
+    }
+    .suggestion-title {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .suggestion-desc {
+      font-size: 10px;
+      color: var(--vscode-descriptionForeground);
+    }
+    .suggestion-action {
+      padding: 4px 10px;
+      background: var(--vscode-button-secondaryBackground);
+      border: none;
+      border-radius: 4px;
+      color: var(--vscode-button-secondaryForeground);
+      cursor: pointer;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .suggestion-action:hover {
+      background: var(--vscode-button-secondaryHoverBackground);
+    }
+
+    .runs-table {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--vscode-panel-border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .runs-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1.5fr;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--vscode-input-background);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--vscode-descriptionForeground);
+    }
+    .run-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1.5fr;
+      gap: 8px;
+      padding: 10px 12px;
+      background: var(--vscode-editor-background);
+      font-size: 11px;
+      transition: background 0.15s;
+    }
+    .run-row:hover {
+      background: var(--vscode-list-hoverBackground);
+    }
+    .run-col-time { color: var(--vscode-descriptionForeground); }
+    .run-col-duration { font-family: monospace; }
+    .run-col-pass { font-weight: 500; }
+    .run-col-status { }
+    .run-status {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .run-status.success { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+    .run-status.warning { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+    .run-status.error { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .action-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 14px 10px;
+      background: var(--vscode-input-background);
+      border: 1px solid var(--vscode-panel-border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .action-card:hover {
+      background: var(--vscode-list-hoverBackground);
+      border-color: var(--vscode-focusBorder);
+      transform: translateY(-1px);
+    }
+    .action-card-primary {
+      background: var(--vscode-button-background);
+      border-color: var(--vscode-button-background);
+    }
+    .action-card-primary:hover {
+      background: var(--vscode-button-hoverBackground);
+      border-color: var(--vscode-button-hoverBackground);
+    }
+    .action-card-icon {
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+    .action-card-title {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .action-card-desc {
+      font-size: 9px;
+      color: var(--vscode-descriptionForeground);
+      margin-top: 2px;
+    }
+    .action-card-primary .action-card-title,
+    .action-card-primary .action-card-desc {
+      color: var(--vscode-button-foreground);
     }
     `;
   }
