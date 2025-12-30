@@ -112,43 +112,50 @@ export class OnboardingWizardPanel {
     
     // Ensure minimum display time for animations
     const elapsed = Date.now() - startTime;
-    const minDisplayTime = 3000; // 3 seconds minimum
+    const minDisplayTime = 5000; // 5 seconds minimum for full animation experience
     if (elapsed < minDisplayTime) {
       await new Promise(resolve => setTimeout(resolve, minDisplayTime - elapsed));
     }
   }
   
   private simulateProgress() {
-    // Simulate gradual progress updates
+    // Reset first
+    this.scanDetails.detectedTechnologies = [];
+    
+    // Simulate gradual progress updates (more steps for smoother animation)
     const intervals = [
-      { delay: 200, data: { components: 5, routes: 2, apis: 3, framework: 'React' } },
-      { delay: 400, data: { components: 12, routes: 4, apis: 7 } },
-      { delay: 600, data: { components: 18, routes: 6, apis: 12 } },
-      { delay: 800, data: { components: 25, routes: 8, apis: 18 } },
-      { delay: 1000, data: { components: 32, routes: 10, apis: 24 } },
+      { delay: 300, data: { components: 3, routes: 1, apis: 2, framework: 'React', forms: 0 } },
+      { delay: 600, data: { components: 8, routes: 2, apis: 5, forms: 1 } },
+      { delay: 900, data: { components: 15, routes: 4, apis: 10, forms: 2 } },
+      { delay: 1200, data: { components: 22, routes: 6, apis: 15, forms: 3 } },
+      { delay: 1500, data: { components: 28, routes: 8, apis: 20, forms: 4 } },
+      { delay: 1800, data: { components: 35, routes: 10, apis: 25, forms: 5 } },
+      { delay: 2100, data: { components: 42, routes: 12, apis: 30, forms: 6 } },
     ];
     
-    const technologies = ['React', 'Redux', 'React Router', 'Material-UI'];
+    const technologies = ['React 18.2', 'Redux Toolkit', 'React Router', 'Material-UI', 'TypeScript'];
     
     intervals.forEach(({ delay, data }) => {
       setTimeout(() => {
-        this.discoveryProgress = {
-          ...this.discoveryProgress,
-          ...data,
-          elapsed: Date.now()
-        };
-        this.update();
+        if (this.step === 'discovering') {
+          this.discoveryProgress = {
+            ...this.discoveryProgress,
+            ...data,
+            elapsed: Date.now()
+          };
+          this.update();
+        }
       }, delay);
     });
     
-    // Add tech badges gradually
+    // Add tech badges gradually with longer delays
     technologies.forEach((tech, index) => {
       setTimeout(() => {
-        if (!this.scanDetails.detectedTechnologies.includes(tech)) {
+        if (this.step === 'discovering') {
           this.scanDetails.detectedTechnologies.push(tech);
           this.update();
         }
-      }, 300 + index * 200);
+      }, 500 + index * 400); // Stagger by 400ms each
     });
   }
 
@@ -216,8 +223,14 @@ export class OnboardingWizardPanel {
     // Close the wizard panel
     this.panel.dispose();
     
-    // Focus dashboard in sidebar and refresh
-    await vscode.commands.executeCommand('qagenai.main.focus');
+    // Focus dashboard in sidebar
+    await vscode.commands.executeCommand('workbench.view.extension.qagenai');
+    
+    // Small delay to ensure view is loaded
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Trigger dashboard refresh
+    await vscode.commands.executeCommand('qagenai.showDashboard');
   }
 
   private getJourneyPriority(journey: DiscoveredFlow): 'critical' | 'high' | 'standard' {
