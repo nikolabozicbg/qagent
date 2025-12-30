@@ -676,6 +676,8 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
     const criticalFlows = flows.filter(f => this.isFlowCritical(f.name));
     const highValueFlows = flows.filter(f => !this.isFlowCritical(f.name) && this.isFlowHighValue(f.name));
     const generatedCount = flows.filter(f => f.status === 'generated' || f.status === 'passing').length;
+    const passingCount = flows.filter(f => f.status === 'passing').length;
+    const failingCount = flows.filter(f => f.status === 'failing').length;
     const coverage = flows.length > 0 ? Math.round((generatedCount / flows.length) * 100) : 0;
 
     return `<!DOCTYPE html>
@@ -688,70 +690,158 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
 </head>
 <body>
   <div class="state-container dashboard">
-    <!-- Main Dashboard Cards -->
-    <div class="dashboard-cards">
-      <!-- Health Score Card -->
-      <div class="dashboard-card health-card">
+    <!-- Dashboard Header -->
+    <div class="dashboard-title">
+      <h1>⚡ QAgent Dashboard</h1>
+    </div>
+
+    <!-- Test Health Score -->
+    <div class="health-score-section">
+      <div class="health-score-main">
         <div class="health-score-large">${healthScore}</div>
-        <div class="health-label">HEALTH SCORE</div>
-        <div class="health-description">
-          ${healthScore >= 75 ? '🟢 Excellent coverage' : healthScore >= 50 ? '🟡 Good progress' : '🔴 Needs attention'}
+        <div class="health-score-label">Test Health Score</div>
+      </div>
+      <div class="health-progress">
+        <div class="health-progress-bar" style="width: ${healthScore}%"></div>
+      </div>
+    </div>
+
+    <!-- Quick Stats + At a Glance -->
+    <div class="stats-grid">
+      <div class="stats-card">
+        <div class="stats-header">QUICK STATS</div>
+        <div class="stats-list">
+          <div class="stat-row">
+            <span class="stat-label">Total Journeys:</span>
+            <span class="stat-value">${flows.length}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Passing:</span>
+            <span class="stat-value success">${passingCount} (${flows.length > 0 ? Math.round((passingCount/flows.length)*100) : 0}%)</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Failing:</span>
+            <span class="stat-value ${failingCount > 0 ? 'error' : ''}">${failingCount} (${flows.length > 0 ? Math.round((failingCount/flows.length)*100) : 0}%)</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Coverage:</span>
+            <span class="stat-value">${coverage}%</span>
+          </div>
         </div>
       </div>
 
-      <!-- Project Insights Card -->
-      <div class="dashboard-card insights-card">
-        <div class="card-header">
-          <h3>📊 Project Insights</h3>
-        </div>
-        <div class="insights-grid">
-          <div class="insight-item">
-            <div class="insight-icon">📚</div>
-            <div class="insight-content">
-              <div class="insight-value">${flows.length}</div>
-              <div class="insight-label">Total Flows</div>
-            </div>
+      <div class="stats-card">
+        <div class="stats-header">AT A GLANCE</div>
+        <div class="stats-list">
+          <div class="stat-row">
+            <span class="stat-label">Last Run:</span>
+            <span class="stat-value muted">Not yet</span>
           </div>
-          <div class="insight-item critical">
-            <div class="insight-icon">🔴</div>
-            <div class="insight-content">
-              <div class="insight-value">${criticalFlows.length}</div>
-              <div class="insight-label">Critical Paths</div>
-            </div>
+          <div class="stat-row">
+            <span class="stat-label">Duration:</span>
+            <span class="stat-value muted">-</span>
           </div>
-          <div class="insight-item high-value">
-            <div class="insight-icon">🟡</div>
-            <div class="insight-content">
-              <div class="insight-value">${highValueFlows.length}</div>
-              <div class="insight-label">High Value</div>
-            </div>
+          <div class="stat-row">
+            <span class="stat-label">Pass Rate Trend:</span>
+            <span class="stat-value">${passingCount > 0 ? '↗️' : '-'}</span>
           </div>
-          <div class="insight-item coverage">
-            <div class="insight-icon">📈</div>
-            <div class="insight-content">
-              <div class="insight-value">~${coverage}%</div>
-              <div class="insight-label">Coverage Est</div>
-            </div>
+          <div class="stat-row">
+            <span class="stat-label">Next:</span>
+            <span class="stat-value">Generate tests</span>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Attention Required (if issues) -->
+    ${failingCount > 0 || flows.length === 0 ? `
+    <div class="attention-section">
+      <div class="attention-header">
+        <span>⚠️ ATTENTION REQUIRED</span>
+      </div>
+      <div class="attention-card">
+        ${failingCount > 0 ? `
+        <div class="attention-item">
+          <div class="attention-icon">🔴</div>
+          <div class="attention-content">
+            <div class="attention-title">${failingCount} test${failingCount > 1 ? 's' : ''} failing</div>
+            <div class="attention-desc">Review and fix failing tests</div>
+          </div>
+          <button class="btn-small" onclick="send('viewFailures')">🔧 View Failures</button>
+        </div>
+        ` : ''}
+        ${flows.length === 0 ? `
+        <div class="attention-item">
+          <div class="attention-icon">🔵</div>
+          <div class="attention-content">
+            <div class="attention-title">No journeys discovered yet</div>
+            <div class="attention-desc">Start by discovering your app's user flows</div>
+          </div>
+          <button class="btn-small primary" onclick="send('discoverMore')">🔍 Discover Now</button>
+        </div>
+        ` : ''}
+        ${generatedCount === 0 && flows.length > 0 ? `
+        <div class="attention-item">
+          <div class="attention-icon">🟡</div>
+          <div class="attention-content">
+            <div class="attention-title">No tests generated yet</div>
+            <div class="attention-desc">Generate tests for ${flows.length} discovered journey${flows.length > 1 ? 's' : ''}</div>
+          </div>
+        </div>
+        ` : ''}
+      </div>
+    </div>
+    ` : ''}
+
+    <!-- Smart Suggestions -->
+    ${flows.length > 0 ? `
+    <div class="suggestions-section">
+      <div class="suggestions-header">
+        <span>🚀 SMART SUGGESTIONS</span>
+      </div>
+      <div class="suggestions-card">
+        ${criticalFlows.length > 0 ? `
+        <div class="suggestion-item">
+          <div class="suggestion-icon">•</div>
+          <div class="suggestion-text">Generate tests for ${criticalFlows.length} critical path${criticalFlows.length > 1 ? 's' : ''}</div>
+        </div>
+        ` : ''}
+        ${generatedCount < flows.length ? `
+        <div class="suggestion-item">
+          <div class="suggestion-icon">•</div>
+          <div class="suggestion-text">Complete test coverage for ${flows.length - generatedCount} remaining flow${flows.length - generatedCount > 1 ? 's' : ''}</div>
+        </div>
+        ` : ''}
+        <div class="suggestion-item">
+          <div class="suggestion-icon">•</div>
+          <div class="suggestion-text">Add error handling tests to increase coverage</div>
+        </div>
+      </div>
+    </div>
+    ` : ''}
+
     <!-- Flows Section -->
+    ${flows.length > 0 ? `
     <div class="flows-section">
       <div class="section-header">
-        <h2>📚 Flows (${flows.length})</h2>
+        <h2>📚 Journeys (${flows.length})</h2>
       </div>
-      
       <div class="flows-list">
-        ${flows.length === 0 ? '<p class="empty-state">No flows yet. Discover your app to get started!</p>' : ''}
         ${flows.map(f => this.renderFlowItem(f)).join('')}
       </div>
     </div>
+    ` : ''}
 
+    <!-- Action Buttons -->
     <div class="action-zone">
-      <button class="btn primary" onclick="send('discoverMore')">
-        🔍 Discover More Flows
+      <button class="btn-large primary" onclick="send('discoverMore')">
+        ▶️ Run All Tests
+      </button>
+      <button class="btn-large secondary" onclick="send('discoverMore')">
+        ➕ New Journey
+      </button>
+      <button class="btn-large secondary" onclick="send('refresh')">
+        🔄 Refresh
       </button>
     </div>
   </div>
@@ -936,7 +1026,40 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
 
       .action-zone {
         margin: 24px 0;
-        text-align: center;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .btn-large {
+        flex: 1;
+        min-width: 150px;
+        font-size: 14px;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+
+      .btn-large.primary {
+        background: var(--vscode-button-background);
+        color: var(--vscode-button-foreground);
+      }
+
+      .btn-large.primary:hover {
+        background: var(--vscode-button-hoverBackground);
+        transform: translateY(-2px);
+      }
+
+      .btn-large.secondary {
+        background: var(--vscode-button-secondaryBackground);
+        color: var(--vscode-button-secondaryForeground);
+      }
+
+      .btn-large.secondary:hover {
+        background: var(--vscode-button-secondaryHoverBackground);
       }
 
       .btn-huge {
@@ -1259,9 +1382,212 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
       }
 
       /* Dashboard State */
-      .dashboard-header {
-        text-align: center;
+      .dashboard-title {
+        margin-bottom: 24px;
+      }
+
+      .dashboard-title h1 {
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      /* Health Score Section */
+      .health-score-section {
+        background: var(--vscode-input-background);
+        border: 1px solid var(--vscode-panel-border);
+        border-radius: 12px;
+        padding: 24px;
         margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .health-score-main {
+        margin-bottom: 16px;
+      }
+
+      .health-score-large {
+        font-size: 64px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #10b981, #059669);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+      }
+
+      .health-score-label {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--vscode-descriptionForeground);
+        font-weight: 600;
+        margin-top: 8px;
+      }
+
+      .health-progress {
+        height: 8px;
+        background: var(--vscode-editor-background);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .health-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #10b981, #059669);
+        transition: width 0.3s ease;
+        border-radius: 4px;
+      }
+
+      /* Stats Grid */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .stats-card {
+        background: var(--vscode-input-background);
+        border: 1px solid var(--vscode-panel-border);
+        border-radius: 12px;
+        padding: 20px;
+      }
+
+      .stats-header {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--vscode-descriptionForeground);
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--vscode-panel-border);
+      }
+
+      .stats-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+      }
+
+      .stat-label {
+        color: var(--vscode-descriptionForeground);
+      }
+
+      .stat-value {
+        font-weight: 600;
+      }
+
+      .stat-value.success {
+        color: #10b981;
+      }
+
+      .stat-value.error {
+        color: #ef4444;
+      }
+
+      .stat-value.muted {
+        color: var(--vscode-descriptionForeground);
+      }
+
+      /* Attention Section */
+      .attention-section {
+        margin-bottom: 20px;
+      }
+
+      .attention-header {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #f59e0b;
+        margin-bottom: 12px;
+      }
+
+      .attention-card {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .attention-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .attention-icon {
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+
+      .attention-content {
+        flex: 1;
+      }
+
+      .attention-title {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .attention-desc {
+        font-size: 12px;
+        color: var(--vscode-descriptionForeground);
+      }
+
+      /* Suggestions Section */
+      .suggestions-section {
+        margin-bottom: 20px;
+      }
+
+      .suggestions-header {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #3b82f6;
+        margin-bottom: 12px;
+      }
+
+      .suggestions-card {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .suggestion-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .suggestion-icon {
+        color: #3b82f6;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      .suggestion-text {
+        color: var(--vscode-foreground);
       }
 
       /* Dashboard Cards Layout */
