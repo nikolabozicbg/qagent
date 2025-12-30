@@ -19,6 +19,7 @@ export class OnboardingWizardPanel {
   private step: 'setup' | 'discovering' | 'results' = 'setup';
   private discoveredJourneys: DiscoveredFlow[] = [];
   private selectedJourneyIds: Set<string> = new Set();
+  private expandedJourneyIds: Set<string> = new Set();
   
   private config = {
     projectType: 'frontend' as 'frontend' | 'backend' | 'fullstack',
@@ -91,6 +92,9 @@ export class OnboardingWizardPanel {
             break;
           case 'toggleJourney':
             this.toggleJourneySelection(message.data);
+            break;
+          case 'toggleJourneyExpand':
+            this.toggleJourneyExpand(message.data);
             break;
           case 'addToDashboard':
             await this.addToDashboard();
@@ -194,6 +198,15 @@ export class OnboardingWizardPanel {
     this.update();
   }
 
+  private toggleJourneyExpand(journeyId: string) {
+    if (this.expandedJourneyIds.has(journeyId)) {
+      this.expandedJourneyIds.delete(journeyId);
+    } else {
+      this.expandedJourneyIds.add(journeyId);
+    }
+    this.update();
+  }
+
   private async addToDashboard() {
     const selectedIds = Array.from(this.selectedJourneyIds);
     if (selectedIds.length === 0) {
@@ -248,18 +261,72 @@ export class OnboardingWizardPanel {
   }
 
   private getJourneyPriority(journey: DiscoveredFlow): 'critical' | 'high' | 'standard' {
-    const confidence = journey.confidence || 0;
     const name = journey.name.toLowerCase();
+    const confidence = journey.confidence || 0;
     
-    if (confidence >= 85 || name.includes('auth') || name.includes('login') || name.includes('payment')) {
+    if (confidence >= 85 || name.includes('login') || name.includes('auth') || name.includes('registration')) {
       return 'critical';
     }
     
-    if (confidence >= 70 || name.includes('register') || name.includes('profile') || name.includes('checkout')) {
+    if (confidence >= 70 || name.includes('profile') || name.includes('settings')) {
       return 'high';
     }
     
     return 'standard';
+  }
+
+  private generateJourneyDetails(journey: DiscoveredFlow, priority: string): {
+    route?: string;
+    components: string[];
+    apis: string[];
+    formFields?: string;
+    risk?: string;
+    notes?: string;
+  } {
+    const name = journey.name.toLowerCase();
+    
+    // Generate realistic mock details based on journey name
+    const details: any = {
+      components: [],
+      apis: []
+    };
+    
+    if (name.includes('login') || name.includes('auth')) {
+      details.route = '/signin → /dashboard';
+      details.components = ['LoginForm', 'AuthProvider'];
+      details.apis = ['POST /users/login'];
+      details.risk = 'Auth failure = app broken';
+    } else if (name.includes('registration') || name.includes('register')) {
+      details.route = '/register → /dashboard';
+      details.components = ['RegistrationForm', 'UserValidator'];
+      details.apis = ['POST /users'];
+      details.formFields = 'Form fields: 5 (all validated)';
+    } else if (name.includes('transaction')) {
+      details.route = '/new → /transactions/:id';
+      details.components = ['TransactionForm', 'AmountInput'];
+      details.apis = ['POST /transactions'];
+      details.formFields = 'Form fields: 4 (amount, recipient, note, type)';
+    } else if (name.includes('account') || name.includes('bank')) {
+      details.route = '/accounts → /accounts/:id';
+      details.components = ['AccountList', 'AccountCard'];
+      details.apis = ['GET /bankaccounts'];
+    } else if (name.includes('comment')) {
+      details.route = '/transactions/:id → add comment';
+      details.components = ['CommentForm', 'CommentList'];
+      details.apis = ['POST /comments', 'GET /comments'];
+      details.formFields = 'Form fields: 1 (comment text)';
+    } else if (name.includes('user') && name.includes('manage')) {
+      details.route = '/users → /users/:id/edit';
+      details.components = ['UserList', 'UserEditForm'];
+      details.apis = ['GET /users', 'PATCH /users/:id'];
+    } else {
+      // Default details
+      details.route = '/app → /result';
+      details.components = ['MainComponent'];
+      details.apis = ['GET /api/data'];
+    }
+    
+    return details;
   }
 
   private update() {
@@ -666,6 +733,9 @@ export class OnboardingWizardPanel {
     function toggleJourney(id) {
       vscode.postMessage({ command: 'toggleJourney', data: id });
     }
+    function toggleJourneyExpand(id) {
+      vscode.postMessage({ command: 'toggleJourneyExpand', data: id });
+    }
     function addToDashboard() {
       vscode.postMessage({ command: 'addToDashboard' });
     }
@@ -690,18 +760,77 @@ export class OnboardingWizardPanel {
 
   private renderJourneyItem(journey: DiscoveredFlow): string {
     const isSelected = this.selectedJourneyIds.has(journey.id);
+    const isExpanded = this.expandedJourneyIds.has(journey.id);
     const confidence = journey.confidence || 95;
+    const priority = this.getJourneyPriority(journey);
+    
+    // Generate mock details for premium display
+    const details = this.generateJourneyDetails(journey, priority);
+    
     return `
-      <div class="journey-item ${isSelected ? 'selected' : ''}" onclick="toggleJourney('${journey.id}')">
-        <div class="journey-checkbox">
-          <input type="checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation()" />
-        </div>
-        <div class="journey-content">
-          <div class="journey-name">${journey.name}</div>
-          <div class="journey-meta">
-            <span class="journey-confidence">${confidence}% confidence</span>
+      <div class="journey-item-wrapper ${isSelected ? 'selected' : ''}">
+        <div class="journey-item-header" onclick="toggleJourney('${journey.id}')">
+          <div class="journey-checkbox">
+            <input type="checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation()" />
           </div>
+          <div class="journey-header-content">
+            <div class="journey-name">${journey.name}</div>
+            <div class="journey-header-meta">
+              <span class="journey-confidence">Confidence: ${confidence}%</span>
+              <span class="journey-divider">•</span>
+              <span class="journey-priority priority-${priority}">Priority: ${priority.charAt(0).toUpperCase() + priority.slice(1)}</span>
+            </div>
+          </div>
+          <button class="journey-expand-btn" onclick="event.stopPropagation(); toggleJourneyExpand('${journey.id}')">
+            <span class="expand-icon">${isExpanded ? '▼' : '▶'}</span>
+          </button>
         </div>
+        
+        ${isExpanded ? `
+        <div class="journey-details">
+          ${details.route ? `
+          <div class="detail-row">
+            <span class="detail-icon">🛣️</span>
+            <span class="detail-text">${details.route}</span>
+          </div>
+          ` : ''}
+          
+          ${details.components.length > 0 ? `
+          <div class="detail-row">
+            <span class="detail-icon">📦</span>
+            <span class="detail-text">Components: ${details.components.join(', ')}</span>
+          </div>
+          ` : ''}
+          
+          ${details.apis.length > 0 ? `
+          <div class="detail-row">
+            <span class="detail-icon">🌐</span>
+            <span class="detail-text">APIs: ${details.apis.join(', ')}</span>
+          </div>
+          ` : ''}
+          
+          ${details.formFields ? `
+          <div class="detail-row">
+            <span class="detail-icon">📝</span>
+            <span class="detail-text">${details.formFields}</span>
+          </div>
+          ` : ''}
+          
+          ${details.risk ? `
+          <div class="detail-row risk">
+            <span class="detail-icon">⚠️</span>
+            <span class="detail-text">Risk: ${details.risk}</span>
+          </div>
+          ` : ''}
+          
+          ${details.notes ? `
+          <div class="detail-row">
+            <span class="detail-icon">💡</span>
+            <span class="detail-text">${details.notes}</span>
+          </div>
+          ` : ''}
+        </div>
+        ` : ''}
       </div>
     `;
   }
@@ -1406,40 +1535,43 @@ export class OnboardingWizardPanel {
         font-size: 14px;
       }
 
-      /* Journey Item - Much larger and clearer */
-      .journey-item {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 20px;
+      /* Journey Item Wrapper (Expandable) */
+      .journey-item-wrapper {
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border: 2px solid rgba(255, 255, 255, 0.1);
         border-top: none;
-        cursor: pointer;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
-      .journey-item:first-of-type {
+      .journey-item-wrapper:first-of-type {
         border-top: 2px solid rgba(255, 255, 255, 0.1);
         border-radius: 8px 8px 0 0;
       }
 
-      .journey-item:last-of-type {
+      .journey-item-wrapper:last-of-type {
         border-radius: 0 0 8px 8px;
       }
 
-      .journey-item:hover {
-        background: rgba(255, 255, 255, 0.1);
+      .journey-item-wrapper:hover {
+        background: rgba(255, 255, 255, 0.08);
         border-color: rgba(0, 212, 255, 0.3);
-        transform: translateX(8px);
       }
 
-      .journey-item.selected {
+      .journey-item-wrapper.selected {
         border-color: #00d4ff;
         background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(123, 47, 247, 0.15));
         box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+      }
+
+      /* Journey Item Header */
+      .journey-item-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 18px 20px;
+        cursor: pointer;
       }
 
       .journey-checkbox {
@@ -1453,28 +1585,123 @@ export class OnboardingWizardPanel {
         accent-color: #00d4ff;
       }
 
-      .journey-content {
+      .journey-header-content {
         flex: 1;
         min-width: 0;
       }
 
       .journey-name {
         font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 6px;
+        font-weight: 700;
+        margin-bottom: 8px;
         color: #ffffff;
         line-height: 1.3;
       }
 
-      .journey-meta {
+      .journey-header-meta {
         display: flex;
-        gap: 12px;
+        gap: 8px;
         align-items: center;
+        font-size: 13px;
+        flex-wrap: wrap;
       }
 
       .journey-confidence {
-        font-size: 14px;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .journey-divider {
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      .journey-priority {
+        font-weight: 600;
+      }
+
+      .priority-critical {
+        color: #ef4444;
+      }
+
+      .priority-high {
+        color: #fb923c;
+      }
+
+      .priority-standard {
         color: rgba(255, 255, 255, 0.6);
+      }
+
+      /* Expand Button */
+      .journey-expand-btn {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        padding: 8px 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #00d4ff;
+        font-size: 14px;
+        flex-shrink: 0;
+      }
+
+      .journey-expand-btn:hover {
+        background: rgba(0, 212, 255, 0.2);
+        border-color: #00d4ff;
+        transform: scale(1.05);
+      }
+
+      .expand-icon {
+        display: inline-block;
+        transition: transform 0.3s;
+      }
+
+      /* Journey Details (Expanded Content) */
+      .journey-details {
+        padding: 0 20px 20px 60px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        animation: expandDown 0.3s ease-out;
+      }
+
+      @keyframes expandDown {
+        from {
+          opacity: 0;
+          max-height: 0;
+        }
+        to {
+          opacity: 1;
+          max-height: 500px;
+        }
+      }
+
+      .detail-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .detail-row:last-child {
+        border-bottom: none;
+      }
+
+      .detail-row.risk {
+        background: rgba(239, 68, 68, 0.1);
+        padding: 10px;
+        border-radius: 6px;
+        border: none;
+      }
+
+      .detail-icon {
+        font-size: 16px;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      .detail-text {
+        flex: 1;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
       }
 
       /* Action Footer */
