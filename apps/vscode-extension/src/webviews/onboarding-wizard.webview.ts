@@ -702,9 +702,9 @@ export class OnboardingWizardPanel {
             </svg>
           </div>
           <div class="value-stat-content">
-            <div class="value-stat-label">Time Saved</div>
+            <div class="value-stat-label">Efficiency Gain</div>
             <div class="value-stat-value">~2 hours</div>
-            <div class="value-stat-desc">vs manual mapping</div>
+            <div class="value-stat-desc">automated in seconds</div>
           </div>
         </div>
         
@@ -715,9 +715,9 @@ export class OnboardingWizardPanel {
             </svg>
           </div>
           <div class="value-stat-content">
-            <div class="value-stat-label">Files Analyzed</div>
-            <div class="value-stat-value">${components * 3 + routes * 5}</div>
-            <div class="value-stat-desc">across your project</div>
+            <div class="value-stat-label">Deep Analysis</div>
+            <div class="value-stat-value">${components * 3 + routes * 5}+</div>
+            <div class="value-stat-desc">files scanned</div>
           </div>
         </div>
       </div>
@@ -863,46 +863,44 @@ export class OnboardingWizardPanel {
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
           </svg>
-          <span>With these ${selectedCount} flow${selectedCount !== 1 ? 's' : ''} you'll cover:</span>
+          <span>Your ${selectedCount}-flow test suite will provide:</span>
         </div>
         <div class="value-prop-list">
           ${categories.critical.length > 0 && selectedCount >= categories.critical.length ? `
           <div class="value-prop-item">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <circle cx="9" cy="9" r="7" stroke="#10b981" stroke-width="2"/>
-              <path d="M6 9l2 2 4-4" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+              <path d="M9 2l2.5 5 5.5.8-4 3.9.9 5.3L9 14.5 4.1 17l.9-5.3-4-3.9 5.5-.8L9 2z" fill="#10b981" stroke="#10b981" stroke-width="1" stroke-linejoin="round"/>
             </svg>
-            <span>All critical authentication paths</span>
+            <span>Complete authentication flow coverage</span>
           </div>
           ` : ''}
           <div class="value-prop-item">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <circle cx="9" cy="9" r="7" stroke="#10b981" stroke-width="2"/>
-              <path d="M6 9l2 2 4-4" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+              <rect x="2" y="6" width="14" height="10" rx="1" stroke="#10b981" stroke-width="1.5"/>
+              <path d="M5 6V4a4 4 0 018 0v2" stroke="#10b981" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
-            <span>Primary user actions & workflows</span>
+            <span>Mission-critical user journeys protected</span>
           </div>
           <div class="value-prop-item">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <circle cx="9" cy="9" r="7" stroke="#10b981" stroke-width="2"/>
-              <path d="M6 9l2 2 4-4" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+              <path d="M9 2v7m0 0v7m0-7h7m-7 0H2" stroke="#10b981" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="9" cy="9" r="7" stroke="#10b981" stroke-width="1.5"/>
             </svg>
-            <span>~${Math.round(selectedCount / totalCount * 85)}% of typical user traffic</span>
+            <span>${Math.round(selectedCount / totalCount * 85)}% estimated user traffic coverage</span>
           </div>
           <div class="value-prop-item">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <circle cx="9" cy="9" r="7" stroke="#10b981" stroke-width="2"/>
-              <path d="M6 9l2 2 4-4" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+              <path d="M9 3.5l1.5 3 3 .5-2 2 .5 3L9 10.5 6 12l.5-3-2-2 3-.5 1.5-3z" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linejoin="round"/>
+              <circle cx="9" cy="9" r="7.5" stroke="#10b981" stroke-width="1" stroke-dasharray="2 2"/>
             </svg>
-            <span>Protection against regressions in core features</span>
+            <span>Continuous regression protection</span>
           </div>
         </div>
         <div class="value-prop-estimate">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <circle cx="8" cy="8" r="6" stroke="#00d4ff" stroke-width="1.5"/>
-            <path d="M8 4v4l2 2" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M8 2l1.5 2.5L12 5l-2 2 .5 3-2.5-1.5L5.5 10 6 7 4 5l2.5-.5L8 2z" fill="#00d4ff"/>
           </svg>
-          <span>Estimated generation time: ~${selectedCount * 15} seconds</span>
+          <span>Ready in ${selectedCount * 15}s • Enterprise-grade quality</span>
         </div>
       </div>
       ` : ''}
