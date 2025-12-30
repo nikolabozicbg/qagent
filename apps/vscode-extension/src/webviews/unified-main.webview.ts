@@ -257,15 +257,19 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
+    log(`[UnifiedView] Adding ${selectedIds.length} journeys to dashboard...`);
+
     // Add journeys to dashboard (as draft flows)
     for (const journeyId of selectedIds) {
       const journey = this.discoveredJourneys.find(j => j.id === journeyId);
       if (!journey) continue;
 
-      await this.dashboardService.addFlow({ 
+      const addedFlow = await this.dashboardService.addFlow({ 
         name: journey.name,
         journeyData: journey
       });
+      
+      log(`[UnifiedView] Added flow:`, addedFlow.name, addedFlow.id);
     }
 
     // Show success message
@@ -336,9 +340,15 @@ export class UnifiedMainViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async transitionToDashboard(): Promise<void> {
+    log('[UnifiedView] Transitioning to dashboard...');
     this.state = 'dashboard';
     this.dashboardData = await this.dashboardService.getDashboardData();
+    log('[UnifiedView] Dashboard data loaded:', {
+      flowCount: this.dashboardData?.flows?.items?.length || 0,
+      flowNames: this.dashboardData?.flows?.items?.map(f => f.name) || []
+    });
     await this.render();
+    log('[UnifiedView] Dashboard rendered');
   }
 
   // ===============================
