@@ -22,7 +22,17 @@ export async function activate(context: vscode.ExtensionContext) {
   // Initialize service container
   container = new ServiceContainer(context);
 
-  // Always show unified main view (it handles welcome/dashboard state internally)
+  // Check if user has flows
+  const flows = context.workspaceState.get<any[]>('qagenai.dashboardFlows');
+  const hasFlows = flows && flows.length > 0;
+  
+  if (!hasFlows) {
+    // First time: show full-screen premium wizard
+    const { OnboardingWizardPanel } = await import('./webviews/onboarding-wizard.webview');
+    OnboardingWizardPanel.show(context);
+  }
+  
+  // Always show dashboard in sidebar (it will be empty first time, populated after wizard)
   await container.showDashboard();
 
   // Register commands
@@ -174,13 +184,18 @@ function registerCommands(context: vscode.ExtensionContext) {
               selected: j.priority === 1
             }));
             
-            // Show discovery results webview
-            await container.showDiscoveryResults(discoveredFlows, {
-              name: vscode.workspace.name || 'Project',
-              framework: 'React', // TODO: detect from project
-              componentsFound: result.summary?.totalComponents || 0,
-              routesFound: result.summary?.totalRoutes || 0
-            });
+            // Show results in wizard if active, otherwise in unified view
+            const { OnboardingWizardPanel } = await import('./webviews/onboarding-wizard.webview');
+            if (OnboardingWizardPanel.currentPanel) {
+              OnboardingWizardPanel.currentPanel.showResults(discoveredFlows);
+            } else {
+              await container.showDiscoveryResults(discoveredFlows, {
+                name: vscode.workspace.name || 'Project',
+                framework: 'React',
+                componentsFound: result.summary?.totalComponents || 0,
+                routesFound: result.summary?.totalRoutes || 0
+              });
+            }
           }
           
           // Refresh dashboard with new data
