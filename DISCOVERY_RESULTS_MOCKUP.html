@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discovery Results - QAgent Premium</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #1e1e1e;
+      color: #cccccc;
+      padding: 20px;
+      font-size: 13px;
+    }
+    
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      background: #252526;
+      padding: 16px;
+      border-radius: 8px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #3c3c3c;
+    }
+    .header-icon { font-size: 24px; }
+    .header-title { font-size: 16px; font-weight: 600; }
+    .header-subtitle {
+      font-size: 12px;
+      color: #858585;
+      margin-top: 2px;
+    }
+
+    .project-info {
+      margin-bottom: 16px;
+      padding: 12px;
+      background: #2d2d30;
+      border-radius: 6px;
+    }
+    .project-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .project-stats {
+      font-size: 11px;
+      color: #858585;
+      display: flex;
+      gap: 8px;
+    }
+
+    .coverage-section { margin-bottom: 20px; }
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .coverage-card {
+      background: #2d2d30;
+      border-radius: 6px;
+      padding: 14px;
+      border: 1px solid #3c3c3c;
+    }
+    .coverage-main {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .coverage-label { font-size: 12px; color: #858585; }
+    .coverage-value { font-size: 20px; font-weight: 700; color: #10b981; }
+    .coverage-bar {
+      height: 8px;
+      background: #1e1e1e;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .coverage-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #3b82f6);
+      width: 87%;
+    }
+    .coverage-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .coverage-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+    }
+    .coverage-item-label { color: #858585; }
+    .coverage-item-value { font-weight: 500; color: #10b981; }
+    .coverage-item.warning .coverage-item-value { color: #f59e0b; }
+
+    .category-section { margin-bottom: 20px; }
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .category-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .category-icon { font-size: 16px; }
+    .category-count {
+      background: #3c3c3c;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+    }
+    .category-description {
+      font-size: 11px;
+      color: #858585;
+      margin-bottom: 10px;
+    }
+    .select-all-btn {
+      background: transparent;
+      border: 1px solid #3c3c3c;
+      color: #569cd6;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .journey-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .journey-card {
+      background: #2d2d30;
+      border: 1px solid #3c3c3c;
+      border-radius: 6px;
+      padding: 12px;
+      cursor: pointer;
+    }
+    .journey-card.selected {
+      border-color: #569cd6;
+      background: rgba(86, 156, 214, 0.1);
+    }
+    .journey-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .journey-title { flex: 1; font-size: 13px; font-weight: 500; }
+    .confidence-badge {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .confidence-badge.high {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+    }
+    .journey-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-left: 28px;
+    }
+    .journey-meta-item {
+      font-size: 11px;
+      color: #858585;
+    }
+
+    .actions-section {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #3c3c3c;
+    }
+    .action-btn {
+      width: 100%;
+      padding: 12px 16px;
+      background: #0e639c;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .action-meta {
+      text-align: center;
+      font-size: 11px;
+      color: #858585;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-icon">✨</div>
+      <div>
+        <div class="header-title">Smart Analysis Complete</div>
+        <div class="header-subtitle">6 journeys discovered</div>
+      </div>
+    </div>
+
+    <div class="project-info">
+      <div class="project-name">cypress-realworld-app</div>
+      <div class="project-stats">
+        <span>📦 React 18</span>
+        <span>•</span>
+        <span>47 components</span>
+        <span>•</span>
+        <span>12 routes</span>
+      </div>
+    </div>
+
+    <div class="coverage-section">
+      <div class="section-title">📊 Coverage Analysis</div>
+      <div class="coverage-card">
+        <div class="coverage-main">
+          <div class="coverage-label">Potential Coverage</div>
+          <div class="coverage-value">87%</div>
+        </div>
+        <div class="coverage-bar">
+          <div class="coverage-bar-fill"></div>
+        </div>
+        <div class="coverage-breakdown">
+          <div class="coverage-item">
+            <span class="coverage-item-label">Auth flows:</span>
+            <span class="coverage-item-value">100% covered</span>
+          </div>
+          <div class="coverage-item">
+            <span class="coverage-item-label">Core features:</span>
+            <span class="coverage-item-value">85% covered</span>
+          </div>
+          <div class="coverage-item warning">
+            <span class="coverage-item-label">Edge cases:</span>
+            <span class="coverage-item-value">Not tested</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category-section">
+      <div class="category-header">
+        <div class="category-title">
+          <span class="category-icon">🔴</span>
+          <span>Critical Journeys</span>
+          <span class="category-count">3</span>
+        </div>
+        <button class="select-all-btn">Deselect All</button>
+      </div>
+      <div class="category-description">Auto-selected for maximum protection</div>
+      <div class="journey-list">
+        <div class="journey-card selected">
+          <div class="journey-header">
+            <input type="checkbox" checked>
+            <div class="journey-title">User Authentication</div>
+            <div class="confidence-badge high">95%</div>
+          </div>
+          <div class="journey-meta">
+            <div class="journey-meta-item">🛣️ /signin → /dashboard</div>
+            <div class="journey-meta-item">📦 LoginForm, AuthProvider</div>
+          </div>
+        </div>
+
+        <div class="journey-card selected">
+          <div class="journey-header">
+            <input type="checkbox" checked>
+            <div class="journey-title">User Registration</div>
+            <div class="confidence-badge high">93%</div>
+          </div>
+          <div class="journey-meta">
+            <div class="journey-meta-item">🛣️ /register → /dashboard</div>
+            <div class="journey-meta-item">📦 RegisterForm, ValidationHelper</div>
+          </div>
+        </div>
+
+        <div class="journey-card selected">
+          <div class="journey-header">
+            <input type="checkbox" checked>
+            <div class="journey-title">Transaction Creation</div>
+            <div class="confidence-badge high">89%</div>
+          </div>
+          <div class="journey-meta">
+            <div class="journey-meta-item">🛣️ /transaction/new → /transaction/:id</div>
+            <div class="journey-meta-item">📦 TransactionForm, PaymentModal</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category-section">
+      <div class="category-header">
+        <div class="category-title">
+          <span class="category-icon">🟡</span>
+          <span>High Value</span>
+          <span class="category-count">2</span>
+        </div>
+        <button class="select-all-btn">Select All</button>
+      </div>
+      <div class="category-description">Recommended for comprehensive coverage</div>
+      <div class="journey-list">
+        <div class="journey-card">
+          <div class="journey-header">
+            <input type="checkbox">
+            <div class="journey-title">Profile Update</div>
+            <div class="confidence-badge high">85%</div>
+          </div>
+          <div class="journey-meta">
+            <div class="journey-meta-item">🛣️ /profile/settings</div>
+            <div class="journey-meta-item">📦 ProfileForm, AvatarUpload</div>
+          </div>
+        </div>
+
+        <div class="journey-card">
+          <div class="journey-header">
+            <input type="checkbox">
+            <div class="journey-title">Comment System</div>
+            <div class="confidence-badge high">78%</div>
+          </div>
+          <div class="journey-meta">
+            <div class="journey-meta-item">🛣️ /transaction/:id</div>
+            <div class="journey-meta-item">📦 CommentList, CommentForm</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-section">
+      <button class="action-btn">
+        🚀 Generate 3 Tests (Est: 45s)
+      </button>
+      <div class="action-meta">
+        3/6 journeys selected
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QAgent Premium Dashboard - Mockup</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #1e1e1e;
+      color: #cccccc;
+      padding: 20px;
+      font-size: 13px;
+    }
+    
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      background: #252526;
+      padding: 16px;
+      border-radius: 8px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #3c3c3c;
+    }
+    .header-icon { font-size: 18px; }
+    .header-title { font-size: 14px; font-weight: 600; flex: 1; }
+
+    /* Health Score */
+    .health-score-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      background: linear-gradient(135deg, #2d2d30 0%, #1e1e1e 100%);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border: 1px solid #3c3c3c;
+    }
+    .health-score-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .health-score-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #10b981;
+    }
+    .health-score-label {
+      font-size: 11px;
+      color: #858585;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .health-score-trend {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+    }
+
+    /* Section */
+    .section { margin-bottom: 16px; }
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #858585;
+      margin-bottom: 8px;
+    }
+    .section-title.attention { color: #ef4444 !important; }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: #2d2d30;
+      border-radius: 6px;
+    }
+    .stat-icon { font-size: 20px; }
+    .stat-number {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .stat-desc {
+      font-size: 10px;
+      color: #858585;
+      margin-top: 2px;
+    }
+
+    /* Attention Required */
+    .attention-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .attention-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: #2d2d30;
+      border-radius: 6px;
+      border-left: 3px solid #ef4444;
+    }
+    .attention-item.warning { border-left-color: #f59e0b; }
+    .attention-icon { font-size: 18px; }
+    .attention-content { flex: 1; }
+    .attention-title {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .attention-desc {
+      font-size: 10px;
+      color: #858585;
+    }
+    .attention-action {
+      padding: 4px 10px;
+      background: #0e639c;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    /* Smart Suggestions */
+    .suggestions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .suggestion-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: #2d2d30;
+      border-radius: 6px;
+    }
+    .suggestion-icon { font-size: 18px; }
+    .suggestion-content { flex: 1; }
+    .suggestion-title {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .suggestion-desc {
+      font-size: 10px;
+      color: #858585;
+    }
+    .suggestion-action {
+      padding: 4px 10px;
+      background: #3c3c3c;
+      border: none;
+      border-radius: 4px;
+      color: #cccccc;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    /* Recent Runs Table */
+    .runs-table {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: #3c3c3c;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .runs-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1.5fr;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #2d2d30;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #858585;
+    }
+    .run-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1.5fr;
+      gap: 8px;
+      padding: 10px 12px;
+      background: #1e1e1e;
+      font-size: 11px;
+    }
+    .run-status {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .run-status.success { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+    .run-status.warning { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+    .run-status.error { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+
+    /* Action Cards */
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .action-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 14px 10px;
+      background: #2d2d30;
+      border: 1px solid #3c3c3c;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .action-card-primary {
+      background: #0e639c;
+      border-color: #0e639c;
+    }
+    .action-card-icon {
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+    .action-card-title {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .action-card-desc {
+      font-size: 9px;
+      color: #858585;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <span class="header-icon">⚡</span>
+      <span class="header-title">QAgenAI • cypress-realworld-app</span>
+    </div>
+
+    <!-- Health Score -->
+    <div class="health-score-container">
+      <div class="health-score-badge">
+        <div class="health-score-value">87</div>
+        <div class="health-score-label">Health Score</div>
+      </div>
+      <div class="health-score-trend">↗️ +5 this week</div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="section">
+      <div class="section-title">Quick Stats</div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-icon">📚</div>
+          <div class="stat-content">
+            <div class="stat-number">6</div>
+            <div class="stat-desc">Total Flows</div>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon" style="color: #10b981;">✅</div>
+          <div class="stat-content">
+            <div class="stat-number">5</div>
+            <div class="stat-desc">Passing Tests</div>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon" style="color: #ef4444;">❌</div>
+          <div class="stat-content">
+            <div class="stat-number">1</div>
+            <div class="stat-desc">Failing Tests</div>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon" style="color: #6b7280;">📝</div>
+          <div class="stat-content">
+            <div class="stat-number">2</div>
+            <div class="stat-desc">Draft</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attention Required -->
+    <div class="section">
+      <div class="section-title attention">⚠️ Attention Required</div>
+      <div class="attention-list">
+        <div class="attention-item">
+          <div class="attention-icon">🔴</div>
+          <div class="attention-content">
+            <div class="attention-title">1 test failing</div>
+            <div class="attention-desc">Tests need immediate attention</div>
+          </div>
+          <button class="attention-action">View Details</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Smart Suggestions -->
+    <div class="section">
+      <div class="section-title">💡 Smart Suggestions</div>
+      <div class="suggestions-list">
+        <div class="suggestion-item">
+          <div class="suggestion-icon">✨</div>
+          <div class="suggestion-content">
+            <div class="suggestion-title">Generate tests for 2 draft flows</div>
+            <div class="suggestion-desc">Increase coverage by ~33%</div>
+          </div>
+          <button class="suggestion-action">Generate</button>
+        </div>
+        <div class="suggestion-item">
+          <div class="suggestion-icon">🔍</div>
+          <div class="suggestion-content">
+            <div class="suggestion-title">Re-scan project for new flows</div>
+            <div class="suggestion-desc">Check for new routes and components</div>
+          </div>
+          <button class="suggestion-action">Scan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Runs -->
+    <div class="section">
+      <div class="section-title">📊 Recent Runs</div>
+      <div class="runs-table">
+        <div class="runs-header">
+          <div>Time</div>
+          <div>Duration</div>
+          <div>Pass Rate</div>
+          <div>Status</div>
+        </div>
+        <div class="run-row">
+          <div style="color: #858585;">2h ago</div>
+          <div style="font-family: monospace;">43.2s</div>
+          <div style="font-weight: 500;">11/12</div>
+          <div><span class="run-status warning">🟡 1 failed</span></div>
+        </div>
+        <div class="run-row">
+          <div style="color: #858585;">1d ago</div>
+          <div style="font-family: monospace;">41.8s</div>
+          <div style="font-weight: 500;">12/12</div>
+          <div><span class="run-status success">✅ All passed</span></div>
+        </div>
+        <div class="run-row">
+          <div style="color: #858585;">2d ago</div>
+          <div style="font-family: monospace;">39.1s</div>
+          <div style="font-weight: 500;">10/12</div>
+          <div><span class="run-status error">🔴 2 failed</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section">
+      <div class="action-grid">
+        <div class="action-card action-card-primary">
+          <div class="action-card-icon">▶️</div>
+          <div class="action-card-title">Run All Tests</div>
+          <div class="action-card-desc">Execute full test suite</div>
+        </div>
+        <div class="action-card">
+          <div class="action-card-icon">➕</div>
+          <div class="action-card-title">New Journey</div>
+          <div class="action-card-desc">Add custom flow</div>
+        </div>
+        <div class="action-card">
+          <div class="action-card-icon">🔍</div>
+          <div class="action-card-title">Re-discover</div>
+          <div class="action-card-desc">Scan for new flows</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
