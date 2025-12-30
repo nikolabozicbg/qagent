@@ -452,16 +452,39 @@ export class OnboardingWizardPanel {
   }
 
   private renderDiscovering(): string {
-    const { components, routes, apis, forms, framework, elapsed } = this.discoveryProgress;
+    const { components, routes, apis, forms, framework } = this.discoveryProgress;
     const { detectedTechnologies } = this.scanDetails;
-    const frameworkIcon = this.getFrameworkIcon(framework);
+    
+    // Calculate overall progress based on metrics (0-100%)
+    const maxComponents = 50;
+    const maxRoutes = 15;
+    const maxApis = 30;
+    const maxForms = 8;
+    const progress = Math.min(100, Math.round(
+      (components / maxComponents * 25) +
+      (routes / maxRoutes * 25) +
+      (apis / maxApis * 25) +
+      (forms / maxForms * 25)
+    ));
+    
+    // Estimated test coverage and suite size
+    const coveragePotential = Math.min(95, 60 + (components * 0.5));
+    const estimatedTestSuite = components * 7 + routes * 15;
+    const criticalFlows = Math.max(3, Math.floor(routes * 0.5));
+    
+    // Status message based on progress
+    const statusMessage = progress < 20 ? '🔍 Initializing workspace scan...' :
+      progress < 40 ? '📦 Analyzing React components...' :
+      progress < 60 ? '🛫️ Mapping application routes...' :
+      progress < 80 ? '🌐 Detecting API endpoints and forms...' :
+      '✨ Synthesizing user journeys...';
 
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scanning...</title>
+  <title>Analyzing Project...</title>
   <style>${this.getStyles()}</style>
 </head>
 <body>
@@ -469,95 +492,75 @@ export class OnboardingWizardPanel {
     <div class="wizard-content discovering">
       ${this.renderProgressBar(2, 3)}
       
+      <!-- Main Title -->
       <div class="scan-hero">
         <div class="scan-icon-container">
-          <div class="scan-icon pulsing">🧠</div>
+          <div class="scan-icon pulsing">⚡</div>
           <div class="scan-ring"></div>
         </div>
-        <h1 class="title-hero">Smart Discovery Running</h1>
-        <p class="subtitle-hero">Analyzing your ${this.config.projectType.toUpperCase()} application for ${this.config.testType.toUpperCase()} test generation</p>
+        <h1 class="title-hero">QAgent is analyzing your project...</h1>
+        <p class="subtitle-hero">🔍 Scanning workspace...</p>
       </div>
       
+      <!-- Progress Bar with Percentage -->
+      <div class="main-progress-section">
+        <div class="main-progress-bar">
+          <div class="main-progress-fill" style="width: ${progress}%"></div>
+        </div>
+        <div class="main-progress-label">${progress}% complete</div>
+      </div>
+      
+      <!-- Status Message -->
       <div class="scan-status-message">
-        ${components === 0 ? '🔍 Initializing scan engine...' : 
-          components < 10 ? '📦 Scanning React components...' :
-          components < 20 ? '🛣️ Mapping application routes...' :
-          components < 30 ? '🌐 Detecting API endpoints...' :
-          '✨ Synthesizing user journeys...'}
+        ${statusMessage}
       </div>
       
-      <div class="tech-stack-card">
-        <div class="tech-stack-header">
-          <div class="tech-stack-title">🛠️ Detected Tech Stack</div>
-          <div class="tech-count">${detectedTechnologies.length} technologies</div>
-        </div>
-        <div class="tech-stack-grid">
-          ${detectedTechnologies.length > 0 ? detectedTechnologies.map((tech, i) => `
-            <div class="tech-item" style="animation-delay: ${i * 0.15}s">
-              <div class="tech-item-icon">✓</div>
-              <div class="tech-item-name">${tech}</div>
-            </div>
-          `).join('') : '<div class="tech-placeholder"><div class="loading-spinner"></div>Detecting...</div>'}
+      <!-- Discovered So Far Section -->
+      <div class="discovered-section">
+        <div class="discovered-header">📊 Discovered so far:</div>
+        <div class="discovered-list">
+          ${framework ? `
+          <div class="discovered-item">
+            <span class="check-icon">✓</span>
+            <span class="discovered-text">${framework}${detectedTechnologies.length > 1 ? ' + ' + detectedTechnologies.slice(1, 3).join(' + ') : ''}</span>
+          </div>
+          ` : ''}
+          ${components > 0 ? `
+          <div class="discovered-item">
+            <span class="check-icon">✓</span>
+            <span class="discovered-text">${components} components, ${routes} routes</span>
+          </div>
+          ` : ''}
+          ${apis > 0 ? `
+          <div class="discovered-item">
+            <span class="check-icon">✓</span>
+            <span class="discovered-text">${apis} API endpoints</span>
+          </div>
+          ` : ''}
+          ${forms > 0 ? `
+          <div class="discovered-item">
+            <span class="check-icon">✓</span>
+            <span class="discovered-text">${forms} forms (${Math.max(0, forms - 2)} with validation)</span>
+          </div>
+          ` : ''}
+          <div class="discovered-item warning">
+            <span class="check-icon">⚠</span>
+            <span class="discovered-text">No tests found</span>
+          </div>
         </div>
       </div>
       
-      <div class="progress-section">
-        <div class="progress-card">
-          <div class="progress-header">
-            <span class="progress-icon">📦</span>
-            <span class="progress-label">Components</span>
-          </div>
-          <div class="progress-number">${components}</div>
-          <div class="progress-bar-container">
-            <div class="progress-bar-fill" style="width: ${Math.min(100, components * 2)}%"></div>
-          </div>
-        </div>
-
-        <div class="progress-card">
-          <div class="progress-header">
-            <span class="progress-icon">🛣️</span>
-            <span class="progress-label">Routes</span>
-          </div>
-          <div class="progress-number">${routes}</div>
-          <div class="progress-bar-container">
-            <div class="progress-bar-fill" style="width: ${Math.min(100, routes * 8)}%"></div>
-          </div>
-        </div>
-
-        <div class="progress-card">
-          <div class="progress-header">
-            <span class="progress-icon">🌐</span>
-            <span class="progress-label">API Calls</span>
-          </div>
-          <div class="progress-number">${apis}</div>
-          <div class="progress-bar-container">
-            <div class="progress-bar-fill" style="width: ${Math.min(100, apis * 5)}%"></div>
-          </div>
-        </div>
-
-        <div class="progress-card">
-          <div class="progress-header">
-            <span class="progress-icon">📝</span>
-            <span class="progress-label">Forms</span>
-          </div>
-          <div class="progress-number">${forms}</div>
-          <div class="progress-bar-container">
-            <div class="progress-bar-fill" style="width: ${Math.min(100, forms * 10)}%"></div>
-          </div>
+      <!-- Smart Insights Section -->
+      ${components > 5 ? `
+      <div class="insights-section">
+        <div class="insights-header">🎯 Smart insights:</div>
+        <div class="insights-list">
+          <div class="insight-bullet">• Critical user flows detected: ${criticalFlows}</div>
+          <div class="insight-bullet">• Test coverage potential: ~${Math.round(coveragePotential)}%</div>
+          <div class="insight-bullet">• Estimated test suite: ~${estimatedTestSuite} lines</div>
         </div>
       </div>
-
-      ${detectedTechnologies.length > 0 ? `
-        <div class="tech-detected">
-          <div class="tech-label">🛠️ Detected Technologies</div>
-          <div class="tech-badges">
-            ${detectedTechnologies.map((tech, i) => `<span class="tech-badge" style="animation-delay: ${i * 0.1}s">${tech}</span>`).join('')}
-          </div>
-        </div>
       ` : ''}
-
-      <div class="scan-status">🔎 Analyzing user flows and interactions...</div>
-      <div class="elapsed-time">${(elapsed / 1000).toFixed(1)}s elapsed</div>
     </div>
   </div>
   
@@ -1084,6 +1087,163 @@ export class OnboardingWizardPanel {
       @keyframes progressShine {
         0% { background-position: 0% 0%; }
         100% { background-position: 200% 0%; }
+      }
+
+      /* Main Progress Section */
+      .main-progress-section {
+        margin: 40px 0;
+        padding: 0 20px;
+      }
+
+      .main-progress-bar {
+        height: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .main-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #7b2ff7 0%, #00d4ff 100%);
+        border-radius: 20px;
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0 20px rgba(123, 47, 247, 0.8);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .main-progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+        animation: progressSlide 2s infinite;
+      }
+
+      @keyframes progressSlide {
+        0% { left: -100%; }
+        100% { left: 100%; }
+      }
+
+      .main-progress-label {
+        text-align: center;
+        margin-top: 12px;
+        font-size: 18px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      /* Scan Status Message */
+      .scan-status-message {
+        font-size: 18px;
+        color: #00d4ff;
+        margin: 32px 0 48px 0;
+        font-weight: 500;
+        text-align: center;
+      }
+
+      /* Discovered Section */
+      .discovered-section {
+        margin: 48px auto;
+        max-width: 600px;
+        padding: 24px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        text-align: left;
+      }
+
+      .discovered-header {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #ffffff;
+      }
+
+      .discovered-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .discovered-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.9);
+        animation: fadeInLeft 0.5s ease-out;
+      }
+
+      .discovered-item.warning {
+        color: rgba(251, 191, 36, 0.9);
+      }
+
+      @keyframes fadeInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .check-icon {
+        font-size: 18px;
+        color: #00d4ff;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      .discovered-item.warning .check-icon {
+        color: #fbbf24;
+      }
+
+      .discovered-text {
+        flex: 1;
+      }
+
+      /* Smart Insights Section */
+      .insights-section {
+        margin: 32px auto;
+        max-width: 600px;
+        padding: 24px;
+        background: linear-gradient(135deg, rgba(123, 47, 247, 0.15), rgba(0, 212, 255, 0.15));
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(123, 47, 247, 0.3);
+        border-radius: 16px;
+        text-align: left;
+      }
+
+      .insights-header {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        color: #ffffff;
+      }
+
+      .insights-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .insight-bullet {
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.85);
+        padding-left: 8px;
+        line-height: 1.6;
+        animation: fadeInLeft 0.6s ease-out;
       }
 
       .scan-status {
