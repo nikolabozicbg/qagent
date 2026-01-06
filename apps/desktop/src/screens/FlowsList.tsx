@@ -3,6 +3,7 @@ import { Search, ChevronDown, AlertCircle, CheckCircle2, Clock, Sparkles, Eye, P
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@contexts/AppContext';
 import { useToast } from '@contexts/ToastContext';
+import { apiService } from '@services/api';
 import { TestGenerationModal } from '@components/TestGenerationModal';
 import { TestRunnerModal } from '@components/TestRunnerModal';
 
