@@ -21,6 +21,23 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openInEditor: (filePath: string) => 
     ipcRenderer.invoke('fs:openInEditor', filePath),
   
+  // Test execution
+  runPlaywrightTests: (options: { projectPath: string; testFiles?: string[] }) =>
+    ipcRenderer.invoke('test:run-playwright', options),
+  
+  // Test execution events (one-way from main to renderer)
+  onTestConsole: (callback: (data: { timestamp: string; level: string; message: string }) => void) => {
+    const subscription = (_event: any, data: any) => callback(data);
+    ipcRenderer.on('test:console', subscription);
+    return () => ipcRenderer.removeListener('test:console', subscription);
+  },
+  
+  onTestComplete: (callback: (data: { passed: number; failed: number; skipped: number; total: number; duration: number }) => void) => {
+    const subscription = (_event: any, data: any) => callback(data);
+    ipcRenderer.on('test:complete', subscription);
+    return () => ipcRenderer.removeListener('test:complete', subscription);
+  },
+  
   // Platform info
   platform: process.platform
 });
@@ -36,6 +53,19 @@ export interface ElectronAPI {
   saveTestFile: (filePath: string, contents: string) => Promise<{ ok: boolean; path?: string; error?: string }>;
   readFile: (filePath: string) => Promise<{ ok: boolean; contents?: string; error?: string }>;
   openInEditor: (filePath: string) => Promise<{ ok: boolean; error?: string }>;
+  runPlaywrightTests: (options: { projectPath: string; testFiles?: string[] }) => Promise<{
+    success: boolean;
+    passed: number;
+    failed: number;
+    skipped?: number;
+    total: number;
+    duration: number;
+    error?: string;
+    stdout?: string;
+    stderr?: string;
+  }>;
+  onTestConsole: (callback: (data: { timestamp: string; level: string; message: string }) => void) => () => void;
+  onTestComplete: (callback: (data: { passed: number; failed: number; skipped: number; total: number; duration: number }) => void) => () => void;
   platform: NodeJS.Platform;
 }
 

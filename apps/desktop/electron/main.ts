@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { join } from 'path';
 import { promises as fs } from 'fs';
 import { dirname } from 'path';
+import { spawn } from 'child_process';
 
 // Disable security warnings for development
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
@@ -158,4 +159,146 @@ ipcMain.handle('fs:openInEditor', async (_event, filePath: string) => {
     console.error('Failed to open file in editor:', error);
     return { ok: false, error: error.message };
   }
+});
+
+// Handle running Playwright tests
+ipcMain.handle('test:run-playwright', async (event, options: {
+  projectPath: string;
+  testFiles?: string[];
+}) => {
+  return new Promise((resolve) => {
+    const { projectPath, testFiles } = options;
+    
+    // Build Playwright command
+    const args = ['playwright', 'test'];
+    
+    // Add specific test files if provided
+    if (testFiles && testFiles.length > 0) {
+      args.push(...testFiles);
+    }
+    
+    // Add JSON reporter for structured output
+    args.push('--reporter=json');
+    
+    console.log(`Running Playwright tests in: ${projectPath}`);
+    console.log(`Command: npx ${args.join(' ')}`);
+    
+    // Spawn Playwright process
+    const testProcess = spawn('npx', args, {
+      cwd: projectPath,
+      shell: true,
+      env: { ...process.env, FORCE_COLOR: '0' } // Disable colors for parsing
+    });
+    
+    let stdoutBuffer = '';
+    let stderrBuffer = '';
+    const startTime = Date.now();
+    
+    // Stream stdout
+    testProcess.stdout.on('data', (data: Buffer) => {
+      const output = data.toString();
+      stdoutBuffer += output;
+      
+      // Send raw output to renderer for live console
+      event.sender.send('test:console', {
+        timestamp: new Date().toISOString(),
+        level: 'info',
+        message: output.trim()
+      });
+    });
+    
+    // Stream stderr
+    testProcess.stderr.on('data', (data: Buffer) => {
+      const output = data.toString();
+      stderrBuffer += output;
+      
+      event.sender.send('test:console', {
+        timestamp: new Date().toISOString(),
+        level: 'error',
+        message: output.trim()
+      });
+    });
+    
+    // Handle process completion
+    testProcess.on('close', (code) => {
+      const duration = Date.now() - startTime;
+      
+      // Try to parse JSON reporter output
+      let testResults: any = null;
+      try {
+        // JSON reporter outputs to stdout
+        const jsonMatch = stdoutBuffer.match(/\{[\s\S]*"suites"[\s\S]*\}/);        if (jsonMatch) {
+          testResults = JSON.parse(jsonMatch[0]);
+        }
+      } catch (err) {
+        console.error('Failed to parse Playwright JSON output:', err);
+      }
+      
+      // Calculate stats from JSON output or stderr
+      let passed = 0;
+      let failed = 0;
+      let skipped = 0;
+      let total = 0;
+      
+      if (testResults && testResults.suites) {
+        // Parse suites recursively
+        const countTests = (suite: any): void => {
+          if (suite.specs) {
+            suite.specs.forEach((spec: any) => {
+              total++;
+              if (spec.ok) passed++;
+              else if (spec.tests?.[0]?.status === 'skipped') skipped++;
+              else failed++;
+            });
+          }
+          if (suite.suites) {
+            suite.suites.forEach(countTests);
+          }
+        };
+        testResults.suites.forEach(countTests);
+      } else {
+        // Fallback: parse from stderr/stdout
+        const passMatch = stdoutBuffer.match(/(\d+) passed/i) || stderrBuffer.match(/(\d+) passed/i);
+        const failMatch = stdoutBuffer.match(/(\d+) failed/i) || stderrBuffer.match(/(\d+) failed/i);
+        if (passMatch) passed = parseInt(passMatch[1]);
+        if (failMatch) failed = parseInt(failMatch[1]);
+        total = passed + failed;
+      }
+      
+      // Send completion event
+      event.sender.send('test:complete', {
+        passed,
+        failed,
+        skipped,
+        total,
+        duration,
+        exitCode: code
+      });
+      
+      // Resolve with results
+      resolve({
+        success: code === 0,
+        passed,
+        failed,
+        skipped,
+        total,
+        duration,
+        stdout: stdoutBuffer,
+        stderr: stderrBuffer
+      });
+    });
+    
+    // Handle process errors
+    testProcess.on('error', (error) => {
+      console.error('Failed to start Playwright:', error);
+      resolve({
+        success: false,
+        error: error.message,
+        passed: 0,
+        failed: 0,
+        total: 0,
+        duration: Date.now() - startTime
+      });
+    });
+  });
 });
