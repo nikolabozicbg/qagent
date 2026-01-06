@@ -194,8 +194,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [aiCopilotVisible, setAiCopilotVisible] = useState(true);
-  const [selectedProjectPath, setSelectedProjectPath] = useState<string | null>(null);
-  const [projectPath, setProjectPath] = useState<string | null>(null);
+  const [selectedProjectPath, setSelectedProjectPath] = useState<string | null>(() => {
+    // Load from localStorage on init
+    const saved = localStorage.getItem('qagent_project_path');
+    console.log('💾 Loaded selectedProjectPath from localStorage:', saved);
+    return saved;
+  });
+  const [projectPath, setProjectPath] = useState<string | null>(() => {
+    const saved = localStorage.getItem('qagent_project_path');
+    return saved;
+  });
   const [onboardingCompleted, setOnboardingCompleted] = useState(() => {
     const completed = localStorage.getItem('qagent_onboarding_completed') === 'true';
     console.log('🎯 Onboarding status on init:', completed);
@@ -207,13 +215,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setOnboardingCompleted(true);
   };
 
-  // Sync projectPath with selectedProjectPath
+  // Sync projectPath with selectedProjectPath and persist to localStorage
   useEffect(() => {
     if (projectPath && projectPath !== selectedProjectPath) {
       console.log('🔄 Setting selectedProjectPath to:', projectPath);
       setSelectedProjectPath(projectPath);
+      localStorage.setItem('qagent_project_path', projectPath);
     }
   }, [projectPath]);
+  
+  // Persist selectedProjectPath when it changes directly
+  useEffect(() => {
+    if (selectedProjectPath) {
+      localStorage.setItem('qagent_project_path', selectedProjectPath);
+      console.log('💾 Persisted selectedProjectPath to localStorage:', selectedProjectPath);
+    }
+  }, [selectedProjectPath]);
 
   const addFlow = (flow: Flow) => {
     setFlows(prev => [...prev, flow]);
