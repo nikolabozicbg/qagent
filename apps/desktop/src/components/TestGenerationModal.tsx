@@ -1,9 +1,23 @@
 import { useState, useEffect } from 'react';
-import { X, Sparkles, CheckCircle2, AlertCircle, Loader2, Code, FileText, Download } from 'lucide-react';
+import { X, Sparkles, CheckCircle2, AlertCircle, Loader2, Code, Download, Clock } from 'lucide-react';
 import { apiService } from '@services/api';
 import { wsService } from '@services/websocket';
 import { useToast } from '@contexts/ToastContext';
 import { notificationService } from '@services/notification';
+import { useApp } from '@contexts/AppContext';
+
+// Monaco Editor - will be loaded dynamically if available
+// Install with: npm install @monaco-editor/react
+let MonacoEditor: any = null;
+if (typeof window !== 'undefined') {
+  try {
+    // Try to dynamically import Monaco Editor
+    MonacoEditor = require('@monaco-editor/react');
+  } catch {
+    // Monaco Editor not installed - will use fallback <pre> tag
+    MonacoEditor = null;
+  }
+}
 
 interface TestGenerationModalProps {
   flowId: string;
@@ -29,6 +43,7 @@ export function TestGenerationModal({
   onComplete,
 }: TestGenerationModalProps) {
   const { showToast } = useToast();
+  const { flows } = useApp();
   const [framework, setFramework] = useState<'playwright' | 'cypress'>('playwright');
   const [includeEdgeCases, setIncludeEdgeCases] = useState(true);
   const [includeAccessibility, setIncludeAccessibility] = useState(false);
@@ -42,6 +57,12 @@ export function TestGenerationModal({
   const [testStats, setTestStats] = useState<{ lines: number; testCases: number; assertions: number } | null>(null);
   const [testCases, setTestCases] = useState<Array<{ name: string; type: string }>>([]);
   const [canCancel, setCanCancel] = useState(false);
+  const [saveOptions, setSaveOptions] = useState({
+    saveToProject: true,
+    openInEditor: false,
+    addToGit: false,
+  });
+  const [editedCode, setEditedCode] = useState('');
 
   const steps: GenerationStep[] = [
     { name: 'Analyzing flow structure', status: 'pending' },
@@ -89,6 +110,7 @@ export function TestGenerationModal({
 
     const handleComplete = (data: { code: string; filePath: string; stats?: any; testCases?: any[] }) => {
       setGeneratedCode(data.code);
+      setEditedCode(data.code); // Initialize edited code
       setIsGenerating(false);
       setProgress(100);
       setGenerationSteps(prev => prev.map(step => ({ ...step, status: 'complete' as const })));
@@ -105,7 +127,7 @@ export function TestGenerationModal({
           testCases: testCaseMatches.length,
           assertions: (data.code.match(/expect\(/g) || []).length
         });
-        setTestCases(testCaseMatches.map(m => ({
+        setTestCases(testCaseMatches.map((m: string) => ({
           name: m.match(/['"](.*?)['"]/)?.[1] || '',
           type: 'test'
         })));
@@ -126,26 +148,31 @@ export function TestGenerationModal({
       onComplete?.(data.filePath);
     };
 
-    const handleError = (data: { error: string }) => {
-      setError(data.error);
+    const handleError = (errorMessage: string) => {
+      setError(errorMessage);
       setIsGenerating(false);
-      setGenerationSteps(prev => prev.map((step, idx) => 
+      setGenerationSteps(prev => prev.map(step => 
         step.status === 'running' ? { ...step, status: 'error' as const } : step
       ));
       showToast({
         type: 'error',
-        message: `Failed to generate test: ${data.error}`,
+        message: `Failed to generate test: ${errorMessage}`,
       });
     };
 
     wsService.onTestGenerationProgress(handleProgress);
+    wsService.onTestGenerationStep(handleStep);
+    wsService.onTestGenerationDecision(handleDecision);
     wsService.onTestGenerationComplete(handleComplete);
-    wsService.on('test:generation:error', handleError);
+    // Use emit for error handling - backend should emit 'test:generation:error'
+    wsService.onError(handleError);
 
     return () => {
       wsService.offTestGenerationProgress(handleProgress);
+      wsService.offTestGenerationStep(handleStep);
+      wsService.offTestGenerationDecision(handleDecision);
       wsService.offTestGenerationComplete(handleComplete);
-      wsService.off('test:generation:error', handleError);
+      wsService.offError(handleError);
     };
   }, [isOpen, flowName, onComplete, showToast]);
 
@@ -153,6 +180,11 @@ export function TestGenerationModal({
     setIsGenerating(true);
     setError(null);
     setProgress(0);
+    setSmartDecisions([]);
+    setEstimatedTime(null);
+    setTestStats(null);
+    setTestCases([]);
+    setCanCancel(true);
     setGenerationSteps(steps);
 
     try {
@@ -161,17 +193,57 @@ export function TestGenerationModal({
         wsService.connect();
       }
 
-      // Start test generation
-      await apiService.generateTestForFlow({
-        flowId,
-        projectPath,
-        framework,
-        includeEdgeCases,
-        includeAccessibility,
+      // Get flow data from AppContext
+      const flow = flows.find(f => f.id === flowId);
+      
+      // Use /analyze/generate-test endpoint which supports better streaming
+      // Construct journey object from flow data
+      const journey = flow ? {
+        id: flow.id,
+        name: flow.name,
+        route: flow.route,
+        priority: flow.priority,
+        enriched: flow.enriched,
+        // Will be enriched by backend if not already enriched
+      } : {
+        id: flowId,
+        name: flowName,
+        // Will be enriched by backend if not already enriched
+      };
+
+      // Call the generate-test endpoint
+      const result = await apiService.generateTestWithStreaming({
+        journey,
+        workspacePath: projectPath,
       });
+
+      // If generation completed immediately (no streaming), handle it
+      if (result.success && result.testCode) {
+        setGeneratedCode(result.testCode);
+        setIsGenerating(false);
+        setProgress(100);
+        setGenerationSteps(prev => prev.map(step => ({ ...step, status: 'complete' as const })));
+        
+        // Extract stats
+        if (result.stats) {
+          setTestStats({
+            lines: result.stats.linesOfCode || result.testCode.split('\n').length,
+            testCases: result.stats.testCases || 0,
+            assertions: (result.testCode.match(/expect\(/g) || []).length
+          });
+        }
+        
+        // Extract test cases from code
+        const testCaseMatches = result.testCode.match(/test\(['"](.*?)['"]/g) || [];
+        setTestCases(testCaseMatches.map((m: string) => ({
+          name: m.match(/['"](.*?)['"]/)?.[1] || '',
+          type: 'test'
+        })));
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Failed to start test generation');
       setIsGenerating(false);
+      setCanCancel(false);
       showToast({
         type: 'error',
         message: 'Failed to start test generation',
@@ -179,27 +251,62 @@ export function TestGenerationModal({
     }
   };
 
+  const handleCancel = () => {
+    // TODO: Emit cancel event to backend
+    setIsGenerating(false);
+    setCanCancel(false);
+    setProgress(0);
+    setCurrentStep('');
+    setSmartDecisions([]);
+    showToast({
+      type: 'info',
+      message: 'Test generation cancelled',
+    });
+  };
+
   const handleSave = async () => {
     try {
+      const codeToSave = editedCode || generatedCode;
+      
       // Use Electron IPC to save file
       if (window.electronAPI?.saveTestFile) {
         const fileName = `${flowName.toLowerCase().replace(/\s+/g, '-')}.spec.ts`;
         const filePath = `tests/e2e/${fileName}`;
         
-        const result = await window.electronAPI.saveTestFile(filePath, generatedCode);
+        const result = await window.electronAPI.saveTestFile(filePath, codeToSave);
         
         if (result.ok) {
+          // Open in editor if requested
+          if (saveOptions.openInEditor && window.electronAPI?.openInEditor) {
+            await window.electronAPI.openInEditor(filePath);
+          }
+          
+          // Add to git if requested
+          if (saveOptions.addToGit) {
+            // TODO: Implement git staging via backend or Electron IPC
+            showToast({
+              type: 'info',
+              message: 'Git staging coming soon',
+            });
+          }
+          
           showToast({
             type: 'success',
             message: `Test saved to ${filePath}`,
           });
+          
+          // Call onComplete callback with file path before closing
+          if (onComplete) {
+            onComplete(filePath);
+          }
+          
           onClose();
         } else {
           throw new Error(result.error || 'Failed to save file');
         }
       } else {
         // Fallback: download as file
-        const blob = new Blob([generatedCode], { type: 'text/plain' });
+        const blob = new Blob([codeToSave], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -211,6 +318,12 @@ export function TestGenerationModal({
           type: 'success',
           message: 'Test downloaded successfully',
         });
+        
+        // Call onComplete callback even for downloads
+        const fileName = `${flowName.toLowerCase().replace(/\s+/g, '-')}.spec.ts`;
+        if (onComplete) {
+          onComplete(`downloads/${fileName}`);
+        }
       }
     } catch (err: any) {
       showToast({
@@ -230,17 +343,29 @@ export function TestGenerationModal({
           <div className="flex items-center gap-3">
             <Sparkles className="w-6 h-6 text-primary" />
             <div>
-              <h2 className="text-xl font-bold">Generate Test</h2>
+              <h2 className="text-xl font-bold">
+                {isGenerating ? 'Generating Test' : 'Generate Test'}
+              </h2>
               <p className="text-sm text-white/60">{flowName}</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-            disabled={isGenerating}
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {isGenerating && canCancel && (
+              <button
+                onClick={handleCancel}
+                className="px-3 py-1.5 text-sm glass hover:bg-white/10 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              disabled={isGenerating && !canCancel}
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
@@ -316,7 +441,12 @@ export function TestGenerationModal({
                     style={{ width: `${progress}%` }}
                   />
                 </div>
-                <p className="text-xs text-white/60 mt-2">{currentStep}</p>
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-xs text-white/60">{currentStep || 'Initializing...'}</p>
+                  {estimatedTime && (
+                    <p className="text-xs text-white/40 font-mono">~{estimatedTime}s remaining</p>
+                  )}
+                </div>
               </div>
 
               {/* Steps */}
@@ -346,26 +476,151 @@ export function TestGenerationModal({
                   </div>
                 ))}
               </div>
+
+              {/* Smart Decisions */}
+              {smartDecisions.length > 0 && (
+                <div className="glass rounded-lg p-4 border-l-4 border-primary">
+                  <h4 className="text-sm font-semibold text-white/80 mb-3 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    Smart Decisions Made:
+                  </h4>
+                  <div className="space-y-2">
+                    {smartDecisions.map((decision, index) => (
+                      <div key={index} className="flex items-start gap-2 text-xs text-white/70">
+                        <span className="text-primary mt-0.5">•</span>
+                        <span>{decision}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Estimated Time */}
+              {estimatedTime && (
+                <div className="flex items-center justify-center gap-2 text-xs text-white/60">
+                  <Clock className="w-4 h-4" />
+                  <span>Estimated: ~{estimatedTime}s remaining</span>
+                </div>
+              )}
             </div>
           )}
 
           {generatedCode && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-white/80">Generated Test Code</h3>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => navigator.clipboard.writeText(generatedCode)}
-                    className="text-xs px-3 py-1.5 glass hover:bg-white/10 rounded-lg transition-colors"
-                  >
-                    Copy
-                  </button>
+              {/* Stats */}
+              {testStats && (
+                <div className="glass rounded-lg p-4">
+                  <div className="flex items-center gap-4 text-sm">
+                    <div>
+                      <span className="text-white/60">File: </span>
+                      <span className="text-white/80 font-mono">{flowName.toLowerCase().replace(/\s+/g, '-')}.spec.ts</span>
+                    </div>
+                    <div>
+                      <span className="text-white/60">Stats: </span>
+                      <span className="text-white/80 font-mono">
+                        {testStats.lines} lines • {testStats.testCases} test cases • {testStats.assertions} assertions
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Test Cases Preview */}
+              {testCases.length > 0 && (
+                <div className="glass rounded-lg p-4">
+                  <h3 className="text-sm font-semibold text-white/80 mb-3">Test Cases Preview:</h3>
+                  <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                    {testCases.map((testCase, index) => (
+                      <div key={index} className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className="w-3 h-3 text-success flex-shrink-0" />
+                        <span className="text-white/70">{testCase.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Code Preview */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-semibold text-white/80">Code Preview</h3>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => navigator.clipboard.writeText(editedCode || generatedCode)}
+                      className="text-xs px-3 py-1.5 glass hover:bg-white/10 rounded-lg transition-colors"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+                <div className="glass rounded-lg overflow-hidden border border-white/10">
+                  {MonacoEditor ? (
+                    <MonacoEditor.default
+                      height="400px"
+                      language="typescript"
+                      value={editedCode || generatedCode}
+                      onChange={(value: string | undefined) => setEditedCode(value || '')}
+                      theme="vs-dark"
+                      options={{
+                        minimap: { enabled: false },
+                        fontSize: 14,
+                        lineNumbers: 'on',
+                        readOnly: false,
+                        scrollBeyondLastLine: false,
+                        wordWrap: 'on',
+                        automaticLayout: true,
+                      }}
+                      loading={
+                        <div className="flex items-center justify-center h-96">
+                          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                        </div>
+                      }
+                    />
+                  ) : (
+                    <div className="glass rounded-lg p-4 max-h-96 overflow-auto">
+                      <pre className="text-xs text-white/80 font-mono whitespace-pre-wrap">
+                        {editedCode || generatedCode}
+                      </pre>
+                      <div className="mt-2 text-xs text-white/40 italic">
+                        💡 Tip: Install @monaco-editor/react for syntax highlighting and better editing
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-              <div className="glass rounded-lg p-4 max-h-96 overflow-auto">
-                <pre className="text-xs text-white/80 font-mono whitespace-pre-wrap">
-                  {generatedCode}
-                </pre>
+
+              {/* Save Options */}
+              <div className="glass rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-white/80 mb-3">Save Options</h3>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={saveOptions.saveToProject}
+                      onChange={(e) => setSaveOptions(prev => ({ ...prev, saveToProject: e.target.checked }))}
+                      className="w-4 h-4 rounded border-white/20 bg-white/5 checked:bg-primary"
+                    />
+                    <span className="text-sm text-white/80">Save to project</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={saveOptions.openInEditor}
+                      onChange={(e) => setSaveOptions(prev => ({ ...prev, openInEditor: e.target.checked }))}
+                      className="w-4 h-4 rounded border-white/20 bg-white/5 checked:bg-primary"
+                    />
+                    <span className="text-sm text-white/80">Open in editor after saving</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={saveOptions.addToGit}
+                      onChange={(e) => setSaveOptions(prev => ({ ...prev, addToGit: e.target.checked }))}
+                      className="w-4 h-4 rounded border-white/20 bg-white/5 checked:bg-primary"
+                    />
+                    <span className="text-sm text-white/80">Add to git (stage file)</span>
+                  </label>
+                </div>
               </div>
             </div>
           )}
@@ -410,6 +665,21 @@ export function TestGenerationModal({
               >
                 Close
               </button>
+              {editedCode !== generatedCode && (
+                <button
+                  onClick={() => {
+                    setEditedCode(generatedCode);
+                    showToast({
+                      type: 'info',
+                      message: 'Changes reverted',
+                    });
+                  }}
+                  className="px-4 py-2 glass hover:bg-white/10 rounded-lg font-medium transition-colors flex items-center gap-2"
+                >
+                  <Code className="w-4 h-4" />
+                  Reset Changes
+                </button>
+              )}
               <button
                 onClick={handleSave}
                 className="px-6 py-2 bg-primary hover:bg-primary-hover rounded-lg font-medium transition-colors flex items-center gap-2"
