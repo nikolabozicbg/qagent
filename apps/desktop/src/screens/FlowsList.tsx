@@ -23,7 +23,7 @@ interface Flow {
 
 export default function FlowsList() {
   const navigate = useNavigate();
-  const { flows, selectedProjectPath, refreshFlows } = useApp();
+  const { flows, selectedProjectPath, refreshFlows, updateFlow } = useApp();
   const { showToast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -294,18 +294,15 @@ export default function FlowsList() {
           onComplete={async (testFile) => {
             console.log('Test generated:', testFile);
             
-            // Update flow status in backend
-            try {
-              if (selectedProjectPath) {
-                await apiService.updateFlowStatus({
-                  flowId: selectedFlowForGeneration.id,
-                  projectPath: selectedProjectPath,
-                  status: 'passing',
-                  testFile: testFile,
-                });
-              }
-            } catch (error: any) {
-              console.error('Failed to update flow status:', error);
+            // Update flow status LOCALLY immediately for instant UI feedback
+            if (selectedFlowForGeneration) {
+              updateFlow(selectedFlowForGeneration.id, {
+                status: 'passing',
+                testFile: true,
+                lastRun: 'Just now',
+                passing: 0,
+                total: 0,
+              });
             }
             
             showToast({
@@ -313,14 +310,28 @@ export default function FlowsList() {
               message: `Test generated for ${selectedFlowForGeneration.name}`,
             });
             
-            // Refresh flows to update test status from backend
-            if (refreshFlows) {
-              await refreshFlows();
-            }
-            
-            // Close modal after refresh
+            // Close modal immediately
             setIsTestGenerationModalOpen(false);
             setSelectedFlowForGeneration(null);
+            
+            // Update backend in background (async, non-blocking)
+            if (selectedProjectPath) {
+              apiService.updateFlowStatus({
+                flowId: selectedFlowForGeneration.id,
+                projectPath: selectedProjectPath,
+                status: 'passing',
+                testFile: testFile,
+              }).catch((error) => {
+                console.error('Failed to update flow status in backend:', error);
+              });
+            }
+            
+            // Refresh flows from backend (async, non-blocking)
+            if (refreshFlows) {
+              refreshFlows().catch((error) => {
+                console.error('Failed to refresh flows:', error);
+              });
+            }
           }}
         />
       )}
