@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Search, ChevronDown, AlertCircle, CheckCircle2, Clock, Sparkles, Eye, Play, Settings, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@contexts/AppContext';
-import { apiService } from '@services/api';
 import { useToast } from '@contexts/ToastContext';
+import { TestGenerationModal } from '@components/TestGenerationModal';
+import { TestRunnerModal } from '@components/TestRunnerModal';
 
 interface Flow {
   id: string;
@@ -20,94 +21,21 @@ interface Flow {
   testFile?: boolean;
 }
 
-const mockFlows: Flow[] = [
-  {
-    id: '1',
-    name: 'User Login',
-    priority: 'CRITICAL',
-    status: 'no-tests',
-    route: '/signin → /dashboard',
-    components: 2,
-    apis: 1,
-    enriched: true,
-  },
-  {
-    id: '2',
-    name: 'Create Transaction',
-    priority: 'HIGH',
-    status: 'passing',
-    route: '/transaction/new → /transactions/:id',
-    components: 3,
-    apis: 2,
-    enriched: true,
-    lastRun: '5m ago',
-    passing: 12,
-    total: 12,
-    testFile: true,
-  },
-  {
-    id: '3',
-    name: 'Bank Account Management',
-    priority: 'HIGH',
-    status: 'partial',
-    route: '/bankaccounts → /bankaccounts/:id',
-    components: 4,
-    apis: 3,
-    enriched: true,
-    lastRun: '12m ago',
-    passing: 8,
-    total: 10,
-    testFile: true,
-  },
-  {
-    id: '4',
-    name: 'User Registration',
-    priority: 'CRITICAL',
-    status: 'no-tests',
-    route: '/signup → /dashboard',
-    components: 2,
-    apis: 1,
-    enriched: true,
-  },
-  {
-    id: '5',
-    name: 'Payment Processing',
-    priority: 'MEDIUM',
-    status: 'failing',
-    route: '/checkout → /success',
-    components: 5,
-    apis: 3,
-    enriched: false,
-    lastRun: '8m ago',
-    passing: 4,
-    total: 6,
-    testFile: true,
-  },
-  {
-    id: '6',
-    name: 'Profile Settings',
-    priority: 'LOW',
-    status: 'passing',
-    route: '/settings → /settings/profile',
-    components: 3,
-    apis: 2,
-    enriched: true,
-    lastRun: '15m ago',
-    passing: 8,
-    total: 8,
-    testFile: true,
-  },
-];
-
 export default function FlowsList() {
   const navigate = useNavigate();
-  const { flows, selectedProjectPath } = useApp();
+  const { flows, selectedProjectPath, refreshFlows } = useApp();
   const { showToast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [sortBy, setSortBy] = useState('priority');
-  const [generatingTestId, setGeneratingTestId] = useState<string | null>(null);
-  const [runningTestId, setRunningTestId] = useState<string | null>(null);
+  
+  // Test Generation Modal
+  const [selectedFlowForGeneration, setSelectedFlowForGeneration] = useState<{ id: string; name: string } | null>(null);
+  const [isTestGenerationModalOpen, setIsTestGenerationModalOpen] = useState(false);
+  
+  // Test Runner Modal
+  const [selectedFlowForRun, setSelectedFlowForRun] = useState<{ id: string; testFile?: string } | null>(null);
+  const [isTestRunnerModalOpen, setIsTestRunnerModalOpen] = useState(false);
 
   const filteredFlows = flows
     .filter(flow => {
@@ -152,6 +80,18 @@ export default function FlowsList() {
       case 'failing': return `🔴 ${flow.passing}/${flow.total} passing     Last run: ${flow.lastRun}`;
       default: return 'Unknown status';
     }
+  };
+
+  const handleGenerateTest = (flow: Flow, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedFlowForGeneration({ id: flow.id, name: flow.name });
+    setIsTestGenerationModalOpen(true);
+  };
+
+  const handleRunTest = (flow: Flow, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedFlowForRun({ id: flow.id, testFile: flow.testFile as unknown as string });
+    setIsTestRunnerModalOpen(true);
   };
 
   return (
@@ -267,37 +207,11 @@ export default function FlowsList() {
                   {flow.status === 'no-tests' ? (
                     <>
                       <button
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          if (!selectedProjectPath) return;
-                          
-                          setGeneratingTestId(flow.id);
-                          try {
-                            await apiService.generateTestForFlow({
-                              flowId: flow.id,
-                              projectPath: selectedProjectPath,
-                              framework: 'playwright', // or detect from project
-                              includeEdgeCases: true,
-                              includeAccessibility: true,
-                            });
-                            showToast({
-                              type: 'success',
-                              message: `Test generated for ${flow.name}`,
-                            });
-                          } catch (error: any) {
-                            showToast({
-                              type: 'error',
-                              message: `Failed to generate test: ${error.message}`,
-                            });
-                          } finally {
-                            setGeneratingTestId(null);
-                          }
-                        }}
-                        disabled={generatingTestId === flow.id}
-                        className="text-sm px-4 py-2 bg-primary hover:bg-primary-hover rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={(e) => handleGenerateTest(flow, e)}
+                        className="text-sm px-4 py-2 bg-primary hover:bg-primary-hover rounded-lg font-medium transition-colors flex items-center gap-2"
                       >
                         <Sparkles className="w-4 h-4" />
-                        {generatingTestId === flow.id ? 'Generating...' : 'Generate Test'}
+                        Generate Test
                       </button>
                       <button
                         onClick={(e) => {
@@ -320,36 +234,11 @@ export default function FlowsList() {
                   ) : (
                     <>
                       <button
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          if (!selectedProjectPath) return;
-                          
-                          setRunningTestId(flow.id);
-                          try {
-                            const result = await apiService.runTests({
-                              projectPath: selectedProjectPath,
-                              testFiles: flow.testFile ? [flow.testFile as unknown as string] : undefined,
-                              framework: 'playwright',
-                            });
-                            showToast({
-                              type: 'success',
-                              message: `Tests completed: ${result.passed}/${result.total} passed`,
-                            });
-                            navigate('/app/test-results');
-                          } catch (error: any) {
-                            showToast({
-                              type: 'error',
-                              message: `Failed to run tests: ${error.message}`,
-                            });
-                          } finally {
-                            setRunningTestId(null);
-                          }
-                        }}
-                        disabled={runningTestId === flow.id}
-                        className="text-sm px-4 py-2 bg-primary hover:bg-primary-hover rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={(e) => handleRunTest(flow, e)}
+                        className="text-sm px-4 py-2 bg-primary hover:bg-primary-hover rounded-lg font-medium transition-colors flex items-center gap-2"
                       >
                         <Play className="w-4 h-4" />
-                        {runningTestId === flow.id ? 'Running...' : 'Run Tests'}
+                        Run Tests
                       </button>
                       <button
                         onClick={(e) => {
@@ -390,6 +279,43 @@ export default function FlowsList() {
           </div>
         )}
       </div>
+
+      {/* Test Generation Modal - SCREEN 8-9 */}
+      {selectedFlowForGeneration && selectedProjectPath && (
+        <TestGenerationModal
+          flowId={selectedFlowForGeneration.id}
+          flowName={selectedFlowForGeneration.name}
+          projectPath={selectedProjectPath}
+          isOpen={isTestGenerationModalOpen}
+          onClose={() => {
+            setIsTestGenerationModalOpen(false);
+            setSelectedFlowForGeneration(null);
+          }}
+          onComplete={(testFile) => {
+            console.log('Test generated:', testFile);
+            showToast({
+              type: 'success',
+              message: `Test generated for ${selectedFlowForGeneration.name}`,
+            });
+            // Refresh flows to update test status
+            if (refreshFlows) refreshFlows();
+          }}
+        />
+      )}
+
+      {/* Test Runner Modal - SCREEN 10 */}
+      {selectedProjectPath && (
+        <TestRunnerModal
+          isOpen={isTestRunnerModalOpen}
+          onClose={() => {
+            setIsTestRunnerModalOpen(false);
+            setSelectedFlowForRun(null);
+          }}
+          projectPath={selectedProjectPath}
+          testFiles={selectedFlowForRun?.testFile ? [selectedFlowForRun.testFile] : undefined}
+          framework="playwright"
+        />
+      )}
     </div>
   );
 }
