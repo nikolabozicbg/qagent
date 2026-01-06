@@ -1,0 +1,217 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-dark text-text-primary font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  #root {
+    @apply h-screen w-screen overflow-hidden;
+  }
+  
+  /* Premium typography refinements */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans;
+    letter-spacing: -0.02em;
+  }
+  
+  button {
+    @apply font-medium;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Focus styles for accessibility */
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply outline-none ring-2 ring-primary/50 ring-offset-2 ring-offset-dark;
+  }
+  
+  /* Smooth transitions for interactive elements */
+  a, button, input, textarea, select {
+    @apply transition-colors duration-200;
+  }
+}
+
+@layer components {
+  /* Premium glassmorphism surfaces */
+  .glass {
+    @apply bg-surface-elevated/50 backdrop-blur-lg border border-border/50 rounded-lg shadow-glass;
+  }
+  
+  .glass-hover {
+    @apply transition-all duration-300 hover:bg-surface-hover/60 hover:border-border-hover/60 hover:shadow-glass-lg;
+  }
+  
+  .card {
+    @apply bg-surface-elevated/90 backdrop-blur-md border border-border rounded-lg shadow-glass transition-all duration-200;
+  }
+  
+  .card-hover {
+    @apply hover:shadow-glass-lg hover:border-border-hover hover:-translate-y-0.5;
+  }
+  
+  /* Premium button styles with depth */
+  .btn-primary {
+    @apply px-4 py-2 bg-gradient-to-br from-primary to-primary-active hover:from-primary-hover hover:to-primary text-white rounded-lg transition-all duration-200 text-sm font-semibold shadow-glow-sm hover:shadow-glow hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98];
+  }
+  
+  .btn-secondary {
+    @apply px-4 py-2 bg-surface-elevated/80 backdrop-blur hover:bg-surface-hover border border-border hover:border-border-hover text-text-primary rounded-lg transition-all duration-200 text-sm font-medium shadow-glass hover:-translate-y-0.5;
+  }
+  
+  .btn-ghost {
+    @apply px-3 py-1.5 text-text-secondary hover:text-text-primary hover:bg-surface-hover/60 rounded-md transition-all duration-200 text-sm;
+  }
+  
+  /* Custom scrollbar - Lens style */
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-border rounded;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-border-hover;
+  }
+  
+  /* Global scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-border-hover;
+  }
+}
+
+@layer utilities {
+  /* macOS titlebar drag region */
+  .titlebar-drag {
+    -webkit-app-region: drag;
+  }
+  
+  .titlebar-no-drag {
+    -webkit-app-region: no-drag;
+  }
+  
+  /* Smooth transition utilities */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .transition-bounce {
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  /* Transform origin utilities */
+  .origin-safe {
+    transform-origin: center center;
+    will-change: transform;
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  
+  /* IDE-like activity log animation */
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out forwards;
+  }
+  
+  /* Shimmer effect for progress bar */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+  
+  /* Fade in up animation for smooth entrances */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in-up {
+    animation: fadeInUp 0.4s ease-out forwards;
+  }
+  
+  /* Scale in animation for cards */
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out forwards;
+  }
+}
