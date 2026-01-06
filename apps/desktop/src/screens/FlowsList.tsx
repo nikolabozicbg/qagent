@@ -292,10 +292,22 @@ export default function FlowsList() {
             setSelectedFlowForGeneration(null);
           }}
           onComplete={async (testFile) => {
-            console.log('Test generated:', testFile);
+            console.log('✨ Test generated:', testFile);
+            console.log('🔄 Updating flow:', selectedFlowForGeneration);
             
             // Update flow status LOCALLY immediately for instant UI feedback
             if (selectedFlowForGeneration) {
+              console.log('📝 Calling updateFlow with:', {
+                id: selectedFlowForGeneration.id,
+                updates: {
+                  status: 'passing',
+                  testFile: true,
+                  lastRun: 'Just now',
+                  passing: 0,
+                  total: 0,
+                }
+              });
+              
               updateFlow(selectedFlowForGeneration.id, {
                 status: 'passing',
                 testFile: true,
@@ -303,6 +315,10 @@ export default function FlowsList() {
                 passing: 0,
                 total: 0,
               });
+              
+              console.log('✅ updateFlow called');
+            } else {
+              console.error('❌ No selectedFlowForGeneration!');
             }
             
             showToast({

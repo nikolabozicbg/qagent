@@ -237,9 +237,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const updateFlow = (id: string, updates: Partial<Flow>) => {
-    setFlows(prev => prev.map(flow => 
-      flow.id === id ? { ...flow, ...updates } : flow
-    ));
+    console.log('🔧 AppContext.updateFlow called:', { id, updates });
+    setFlows(prev => {
+      const updated = prev.map(flow => {
+        if (flow.id === id) {
+          const newFlow = { ...flow, ...updates };
+          console.log('✅ Flow updated:', { old: flow, new: newFlow });
+          return newFlow;
+        }
+        return flow;
+      });
+      console.log('📊 Updated flows array length:', updated.length);
+      return updated;
+    });
   };
 
   const deleteFlow = (id: string) => {
