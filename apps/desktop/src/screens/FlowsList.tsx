@@ -291,14 +291,36 @@ export default function FlowsList() {
             setIsTestGenerationModalOpen(false);
             setSelectedFlowForGeneration(null);
           }}
-          onComplete={(testFile) => {
+          onComplete={async (testFile) => {
             console.log('Test generated:', testFile);
+            
+            // Update flow status in backend
+            try {
+              if (selectedProjectPath) {
+                await apiService.updateFlowStatus({
+                  flowId: selectedFlowForGeneration.id,
+                  projectPath: selectedProjectPath,
+                  status: 'passing',
+                  testFile: testFile,
+                });
+              }
+            } catch (error: any) {
+              console.error('Failed to update flow status:', error);
+            }
+            
             showToast({
               type: 'success',
               message: `Test generated for ${selectedFlowForGeneration.name}`,
             });
-            // Refresh flows to update test status
-            if (refreshFlows) refreshFlows();
+            
+            // Refresh flows to update test status from backend
+            if (refreshFlows) {
+              await refreshFlows();
+            }
+            
+            // Close modal after refresh
+            setIsTestGenerationModalOpen(false);
+            setSelectedFlowForGeneration(null);
           }}
         />
       )}

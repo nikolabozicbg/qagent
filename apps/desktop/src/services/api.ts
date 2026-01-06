@@ -174,6 +174,22 @@ class ApiService {
     });
     return response.data;
   }
+
+  // Update flow status after test generation/run
+  async updateFlowStatus(data: {
+    flowId: string;
+    projectPath: string;
+    status: 'no-tests' | 'passing' | 'partial' | 'failing';
+    testFile?: string;
+    lastRun?: string;
+    passing?: number;
+    total?: number;
+  }) {
+    const response = await this.client.put(`/flows/${data.flowId}`, data, {
+      params: { projectPath: data.projectPath },
+    });
+    return response.data;
+  }
 }
 
 export const apiService = new ApiService();
