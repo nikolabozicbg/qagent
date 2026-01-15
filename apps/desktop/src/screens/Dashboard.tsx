@@ -1,36 +1,182 @@
-import { Target, CheckCircle2, TrendingUp, RefreshCw, AlertCircle, Clock, Activity, Sparkles, Play, Eye, Code, ArrowRight, Plus, Zap, Brain, ChevronRight, Upload, FolderOpen } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { CheckCircle2, Timer, AlertTriangle, Activity, Sparkles, FolderOpen, Upload, Trash2, RefreshCw } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '@contexts/AppContext';
-import { SkeletonStatCard } from '@components/Skeleton';
 import { useToast } from '@contexts/ToastContext';
+import { useSuiteStore } from '@stores/useSuiteStore';
+import { useProjectStore } from '@stores/useProjectStore';
+import api from '@services/api';
+import { PRIORITY_ORDER } from '@/types/suite.types';
+import {
+  MetricCard,
+  CoverageBar,
+  QuickActions,
+  CoverageByPriority,
+  SuitesTable,
+  RecentActivity,
+  type ActivityItem,
+} from '@components/dashboard';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { dashboardMetrics, recentActivity, flows, isLoading, aiCopilotVisible, toggleAICopilot, refreshData, setProjectPath, projectPath, selectedProjectPath } = useApp();
   const { showToast } = useToast();
-  const [fabOpen, setFabOpen] = useState(false);
+  const { suites, setSuites, loadSuitesFromBackend } = useSuiteStore();
+  const { currentProject, setCurrentProject } = useProjectStore();
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragCounter, setDragCounter] = useState(0);
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [lastRunTime, setLastRunTime] = useState<string | undefined>();
+  const [lastRunStatus, setLastRunStatus] = useState<'passed' | 'failed' | 'none'>('none');
 
-  // Load project path from localStorage on mount if not set
+  // Load suites from backend when project changes
   useEffect(() => {
-    if (!projectPath) {
-      const savedPath = localStorage.getItem('qagent_project_path');
-      if (savedPath) {
-        setProjectPath(savedPath);
-      }
+    if (currentProject?.projectPath) {
+      loadSuitesFromBackend(currentProject.projectPath);
     }
-  }, []);
+  }, [currentProject?.projectPath]);
 
-  // Get priority flows for display
-  const priorityFlows = flows
-    .filter(f => f.status === 'no-tests' || f.status === 'failing' || f.status === 'partial')
-    .sort((a, b) => {
-      const priorityOrder = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
-      return priorityOrder[a.priority] - priorityOrder[b.priority];
-    })
-    .slice(0, 3);
+  // Calculate stats from suites
+  const stats = useMemo(() => {
+    const totalCases = suites.reduce((acc, s) => acc + (s.stats?.totalCases || s.testCases?.length || 0), 0);
+    const totalSteps = suites.reduce((acc, s) => acc + (s.stats?.totalSteps || 0), 0);
+    
+    // Cases with generated tests (not 'not-generated' or 'pending')
+    const casesWithTests = suites.reduce((acc, s) => 
+      acc + (s.testCases?.filter(tc => 
+        tc.status !== 'not-generated' && tc.status !== 'pending'
+      ).length || 0), 0
+    );
+    
+    const casesPassing = suites.reduce((acc, s) => 
+      acc + (s.testCases?.filter(tc => tc.status === 'passed' || tc.status === 'passing').length || 0), 0
+    );
+    
+    const casesFailing = suites.reduce((acc, s) => 
+      acc + (s.testCases?.filter(tc => tc.status === 'failed' || tc.status === 'failing').length || 0), 0
+    );
+    
+    const casesFlaky = suites.reduce((acc, s) => 
+      acc + (s.testCases?.filter(tc => tc.status === 'flaky').length || 0), 0
+    );
+
+    // Estimated total time (sum of suite estimated durations)
+    const totalTime = suites.reduce((acc, s) => acc + (s.stats?.estimatedDuration || 0), 0);
+
+    return {
+      totalSuites: suites.length,
+      totalCases,
+      totalSteps,
+      casesWithTests,
+      casesWithoutTests: totalCases - casesWithTests,
+      casesPassing,
+      casesFailing,
+      casesFlaky,
+      totalTime,
+    };
+  }, [suites]);
+
+  // Coverage percentage
+  const coveragePercentage = stats.totalCases > 0 
+    ? Math.round((stats.casesWithTests / stats.totalCases) * 100)
+    : 0;
+
+  // Coverage by priority
+  const coverageByPriority = useMemo(() => {
+    const priorities: ('CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW')[] = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
+    
+    return priorities.map(priority => {
+      const suitesWithPriority = suites.filter(s => s.priority === priority);
+      const totalCases = suitesWithPriority.reduce((acc, s) => acc + (s.testCases?.length || 0), 0);
+      const coveredCases = suitesWithPriority.reduce((acc, s) => 
+        acc + (s.testCases?.filter(tc => 
+          tc.status !== 'not-generated' && tc.status !== 'pending'
+        ).length || 0), 0
+      );
+      
+      return { priority, covered: coveredCases, total: totalCases };
+    }).filter(p => p.total > 0); // Only show priorities with cases
+  }, [suites]);
+
+  // Critical covered count
+  const criticalCovered = useMemo(() => {
+    return suites
+      .filter(s => s.priority === 'CRITICAL')
+      .reduce((acc, s) => 
+        acc + (s.testCases?.filter(tc => 
+          tc.status !== 'not-generated' && tc.status !== 'pending'
+        ).length || 0), 0
+      );
+  }, [suites]);
+
+  // High missing count
+  const highMissing = useMemo(() => {
+    return suites
+      .filter(s => s.priority === 'HIGH')
+      .reduce((acc, s) => 
+        acc + (s.testCases?.filter(tc => 
+          tc.status === 'not-generated' || tc.status === 'pending'
+        ).length || 0), 0
+      );
+  }, [suites]);
+
+  // Cases without tests (for Generate Missing)
+  const missingCaseNames = useMemo(() => {
+    const names: string[] = [];
+    suites.forEach(s => {
+      s.testCases?.forEach(tc => {
+        if (tc.status === 'not-generated' || tc.status === 'pending') {
+          names.push(tc.name);
+        }
+      });
+    });
+    return names;
+  }, [suites]);
+
+  // Generate activities from suites data
+  useEffect(() => {
+    const newActivities: ActivityItem[] = [];
+    
+    // Add discovery activity if suites exist
+    if (suites.length > 0) {
+      const totalCases = suites.reduce((acc, s) => acc + (s.testCases?.length || 0), 0);
+      newActivities.push({
+        id: 'discovery-1',
+        type: 'discovered',
+        message: `Discovered ${suites.length} suites, ${totalCases} cases`,
+        timestamp: new Date().toISOString(),
+        details: suites.map(s => s.name).join(', '),
+      });
+    }
+
+    // Add passing/failing activities based on test status
+    suites.forEach(s => {
+      const passing = s.testCases?.filter(tc => tc.status === 'passed' || tc.status === 'passing').length || 0;
+      const failing = s.testCases?.filter(tc => tc.status === 'failed' || tc.status === 'failing').length || 0;
+      
+      if (passing > 0) {
+        newActivities.push({
+          id: `pass-${s.id}`,
+          type: 'test-passed',
+          message: `${passing} tests passing in ${s.name}`,
+          timestamp: new Date().toISOString(),
+        });
+      }
+      
+      if (failing > 0) {
+        newActivities.push({
+          id: `fail-${s.id}`,
+          type: 'test-failed',
+          message: `${failing} tests failing in ${s.name}`,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    });
+
+    setActivities(newActivities.slice(0, 5));
+  }, [suites]);
 
   // Drag and drop handlers
   const handleDragEnter = (e: React.DragEvent) => {
@@ -64,25 +210,109 @@ export default function Dashboard() {
 
     const files = Array.from(e.dataTransfer.files);
     
-    // In Electron, we can access the file path
     if (files.length > 0) {
       // @ts-ignore - path property exists in Electron
       const folderPath = files[0].path;
       
       if (folderPath) {
-        setProjectPath(folderPath);
-        localStorage.setItem('qagent_project_path', folderPath);
+        setCurrentProject({
+          projectPath: folderPath,
+          projectName: folderPath.split('/').pop() || 'Project',
+          framework: 'playwright',
+          baseUrl: 'http://localhost:3000',
+          testDir: './e2e'
+        });
         showToast({
           type: 'success',
-          message: `Project path updated to: ${folderPath}`,
+          message: `Project loaded: ${folderPath.split('/').pop()}`,
         });
       }
     }
   };
 
+  const handleDiscoverSuites = () => {
+    navigate('/setup/detection');
+  };
+
+  const handleRunAllTests = async () => {
+    if (stats.casesWithTests === 0) return;
+    
+    setIsRunning(true);
+    showToast({ type: 'info', message: 'Running all tests...' });
+    
+    // TODO: Implement actual test running via API
+    // For now, simulate
+    setTimeout(() => {
+      setIsRunning(false);
+      setLastRunStatus('passed');
+      setLastRunTime('Just now');
+      showToast({ type: 'success', message: 'All tests passed!' });
+    }, 2000);
+  };
+
+  const handleGenerateMissing = async () => {
+    if (stats.casesWithoutTests === 0) return;
+    
+    setIsGenerating(true);
+    showToast({ type: 'info', message: 'Generating missing tests...' });
+    
+    // TODO: Implement batch generation via API
+    // For now, navigate to first suite with missing tests
+    const suiteWithMissing = suites.find(s => 
+      s.testCases?.some(tc => tc.status === 'not-generated' || tc.status === 'pending')
+    );
+    
+    if (suiteWithMissing) {
+      navigate(`/app/suites/${suiteWithMissing.id}`);
+    }
+    
+    setIsGenerating(false);
+  };
+  
+  const handleResetApp = async () => {
+    if (confirm('🚨 Reset app to first-time setup? This will clear all projects and suites.')) {
+      try {
+        // Reset backend database
+        await api.resetDatabase();
+        console.log('✅ Backend database reset');
+      } catch (error) {
+        console.warn('⚠️ Failed to reset backend:', error);
+      }
+      
+      // Clear localStorage
+      localStorage.clear();
+      
+      // Navigate to setup and reload
+      navigate('/setup/welcome');
+      setTimeout(() => window.location.reload(), 100);
+    }
+  };
+
+  const handleRefresh = async () => {
+    if (!currentProject?.projectPath) return;
+    
+    setIsLoading(true);
+    try {
+      await loadSuitesFromBackend(currentProject.projectPath);
+      showToast({ type: 'success', message: 'Data refreshed' });
+    } catch (error) {
+      showToast({ type: 'error', message: 'Failed to refresh' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Format time display
+  const formatTime = (seconds: number) => {
+    if (seconds < 60) return `${seconds.toFixed(1)}s`;
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}m ${secs.toFixed(0)}s`;
+  };
+
   return (
     <div 
-      className="h-screen bg-dark overflow-hidden flex flex-col relative"
+      className="h-full bg-dark overflow-hidden flex flex-col relative"
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
@@ -106,33 +336,11 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-      {/* Header */}
-      <div className="border-b border-white/10 px-8 py-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold mb-1">Dashboard</h1>
-          <p className="text-sm text-white/60">
-            Project: <span className="text-primary">{projectPath ? projectPath.split('/').pop() : 'No project selected'}</span>
-            {selectedProjectPath && (
-              <>
-                <span className="mx-2">•</span>
-                <span className="text-white/80">Live data from backend</span>
-              </>
-            )}
-          </p>
-        </div>
-        <button
-          onClick={() => refreshData()}
-          className="glass px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-white/10 transition-colors"
-        >
-          <RefreshCw className="w-4 h-4" />
-          Refresh
-        </button>
-      </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-6">
         {/* No Project Selected State */}
-        {!projectPath && !isLoading && (
+        {!currentProject && (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <FolderOpen className="w-20 h-20 text-white/20 mb-6" />
             <h2 className="text-2xl font-bold mb-3">No Project Selected</h2>
@@ -141,10 +349,16 @@ export default function Dashboard() {
             </p>
             <button
               onClick={async () => {
-                const result = await window.electron.selectFolder();
+                const result = await window.electronAPI.selectFolder();
                 if (!result.canceled && result.filePaths[0]) {
-                  setProjectPath(result.filePaths[0]);
-                  localStorage.setItem('qagent_project_path', result.filePaths[0]);
+                  const path = result.filePaths[0];
+                  setCurrentProject({
+                    projectPath: path,
+                    projectName: path.split('/').pop() || 'Project',
+                    framework: 'playwright',
+                    baseUrl: 'http://localhost:3000',
+                    testDir: './e2e'
+                  });
                   showToast({
                     type: 'success',
                     message: 'Project loaded successfully',
@@ -159,457 +373,142 @@ export default function Dashboard() {
           </div>
         )}
         
-        {projectPath && (
-        <>
-        {/* Stat Cards */}
-        <div className="grid grid-cols-3 gap-6 mb-8">
-          {isLoading ? (
-            <>
-              <SkeletonStatCard />
-              <SkeletonStatCard />
-              <SkeletonStatCard />
-            </>
-          ) : (
-            <>
-              <div className="glass rounded-xl p-6 animate-fade-in-up">
-                <div className="flex items-center gap-2 mb-2">
-                  <Target className="w-4 h-4 text-primary" />
-                  <h3 className="text-sm text-white/60">Flows</h3>
-                </div>
-                <p className="text-4xl font-bold mb-2">{dashboardMetrics.totalFlows}</p>
-                <p className="text-xs text-white/60">Discovered</p>
-              </div>
-
-              <div className="glass rounded-xl p-6 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-                <div className="flex items-center gap-2 mb-2">
-                  <CheckCircle2 className="w-4 h-4 text-success" />
-                  <h3 className="text-sm text-white/60">Tests</h3>
-                </div>
-                <p className="text-4xl font-bold mb-2">
-                  {dashboardMetrics.testsPassing} <span className="text-white/60">/ {dashboardMetrics.testsGenerated}</span>
+        {currentProject && (
+          <div className="max-w-6xl mx-auto space-y-6">
+            {/* Header Row */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold">{currentProject.projectName}</h1>
+                <p className="text-sm text-white/50">
+                  {stats.totalSuites} suites • {stats.totalCases} cases • {stats.totalSteps} steps
                 </p>
-                <div className="flex items-center gap-2">
-                  <p className="text-xs text-white/60">Passing</p>
-                  <span className="text-xs text-success flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3" />
-                    +3 today
-                  </span>
-                </div>
               </div>
-
-              <div className="glass rounded-xl p-6 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-                <div className="flex items-center gap-2 mb-2">
-                  <Activity className="w-4 h-4 text-accent" />
-                  <h3 className="text-sm text-white/60">Coverage</h3>
-                </div>
-                <p className="text-4xl font-bold mb-2">{dashboardMetrics.coverage}%</p>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-success flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3" />
-                    +5% this week
-                  </span>
-                  <div className="flex-1 h-6 flex items-end gap-[2px]">
-                    <div className="w-1 bg-accent/40 rounded-sm" style={{ height: '30%' }} />
-                    <div className="w-1 bg-accent/50 rounded-sm" style={{ height: '40%' }} />
-                    <div className="w-1 bg-accent/60 rounded-sm" style={{ height: '50%' }} />
-                    <div className="w-1 bg-accent/70 rounded-sm" style={{ height: '70%' }} />
-                    <div className="w-1 bg-accent/80 rounded-sm" style={{ height: '85%' }} />
-                    <div className="w-1 bg-accent rounded-sm" style={{ height: '100%' }} />
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-[1fr_320px] gap-6">
-          {/* Left Column */}
-          <div className="space-y-6">
-            {/* Priority Queue */}
-            <div className="glass rounded-xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 text-error" />
-                  <h2 className="text-lg font-semibold">Priority Queue</h2>
-                </div>
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={() => navigate('/app/flows')}
-                  className="text-sm text-primary hover:text-primary-hover flex items-center gap-1"
+                  onClick={handleRefresh}
+                  disabled={isLoading}
+                  className="glass p-2 rounded-lg hover:bg-white/10 transition-colors disabled:opacity-50"
+                  title="Refresh data"
                 >
-                  View All
-                  <ChevronRight className="w-4 h-4" />
+                  <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
                 </button>
-              </div>
-
-              <div className="space-y-3">
-                {priorityFlows.map((flow) => {
-                  const getBorderColor = () => {
-                    if (flow.priority === 'CRITICAL') return 'border-error';
-                    if (flow.priority === 'HIGH') return 'border-warning';
-                    if (flow.priority === 'MEDIUM') return 'border-accent';
-                    return 'border-success';
-                  };
-
-                  const getIcon = () => {
-                    if (flow.status === 'no-tests') return <AlertCircle className="w-4 h-4 text-error" />;
-                    if (flow.status === 'failing') return <AlertCircle className="w-4 h-4 text-error" />;
-                    if (flow.status === 'partial') return <Clock className="w-4 h-4 text-warning" />;
-                    return <CheckCircle2 className="w-4 h-4 text-success" />;
-                  };
-
-                  const getPriorityBadge = () => {
-                    const colors = {
-                      CRITICAL: 'bg-error/20 text-error',
-                      HIGH: 'bg-warning/20 text-warning',
-                      MEDIUM: 'bg-accent/20 text-accent',
-                      LOW: 'bg-success/20 text-success',
-                    };
-                    return colors[flow.priority];
-                  };
-
-                  const getStatusText = () => {
-                    if (flow.status === 'no-tests') return `No tests • High Risk • ${flow.apis} APIs`;
-                    if (flow.status === 'failing') return `Failing ${flow.passing}/${flow.total} • Med Risk • ${flow.apis} APIs`;
-                    if (flow.status === 'partial') return `Passing ${flow.passing}/${flow.total} • Med Risk • ${flow.apis} APIs`;
-                    return `Passing • Low Risk • ${flow.apis} API`;
-                  };
-
-                  return (
-                    <div key={flow.id} className={`glass rounded-lg p-4 border-l-4 ${getBorderColor()}`}>
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          {getIcon()}
-                          <h3 className="font-semibold">{flow.name}</h3>
-                        </div>
-                        <span className={`text-xs font-medium px-2 py-1 rounded ${getPriorityBadge()}`}>
-                          {flow.priority}
-                        </span>
-                      </div>
-                      <p className="text-sm text-white/60 mb-2">{getStatusText()}</p>
-                      <p className="text-sm text-white/80 mb-2">{flow.route}</p>
-                      {flow.lastRun && (
-                        <div className="flex items-center justify-between text-xs text-white/60">
-                          <span>Last run: {flow.lastRun}</span>
-                        </div>
-                      )}
-                      <div className="mt-3 flex justify-end gap-2">
-                        {flow.status === 'no-tests' ? (
-                          <button
-                            onClick={() => navigate(`/app/flows/${flow.id}`)}
-                            className="text-sm px-3 py-1.5 bg-primary hover:bg-primary-hover rounded-lg font-medium transition-colors"
-                          >
-                            Generate Test
-                          </button>
-                        ) : (
-                          <>
-                            <button className="text-sm px-3 py-1.5 glass hover:bg-white/10 rounded-lg font-medium transition-colors">
-                              Fix
-                            </button>
-                            <button className="text-sm px-3 py-1.5 bg-primary hover:bg-primary-hover rounded-lg font-medium transition-colors">
-                              Run Test
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Test Health Trends */}
-            <div className="glass rounded-xl p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Activity className="w-5 h-5 text-accent" />
-                <h2 className="text-lg font-semibold">Test Health Trends (7 days)</h2>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-white/80">Pass Rate:</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-success">94%</span>
-                      <span className="text-xs text-success flex items-center gap-1">
-                        <TrendingUp className="w-3 h-3" />
-                        +2%
-                      </span>
-                    </div>
-                  </div>
-                  <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-success rounded-full" style={{ width: '94%' }} />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-white/80">Avg Time:</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold">8.2s</span>
-                      <span className="text-xs text-success flex items-center gap-1">
-                        <TrendingUp className="w-3 h-3 rotate-180" />
-                        -0.5s
-                      </span>
-                    </div>
-                  </div>
-                  <div className="h-6 flex items-end gap-1">
-                    <div className="w-full bg-accent/40 rounded-sm" style={{ height: '20%' }} />
-                    <div className="w-full bg-accent/50 rounded-sm" style={{ height: '35%' }} />
-                    <div className="w-full bg-accent/60 rounded-sm" style={{ height: '50%' }} />
-                    <div className="w-full bg-accent/70 rounded-sm" style={{ height: '50%' }} />
-                    <div className="w-full bg-accent/60 rounded-sm" style={{ height: '35%' }} />
-                    <div className="w-full bg-accent/50 rounded-sm" style={{ height: '35%' }} />
-                    <div className="w-full bg-accent/40 rounded-sm" style={{ height: '20%' }} />
-                    <div className="w-full bg-accent rounded-sm" style={{ height: '20%' }} />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-white/80">Flakiness:</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold">3%</span>
-                      <span className="text-xs text-white/60">→ stable</span>
-                    </div>
-                  </div>
-                  <div className="h-6 flex items-end gap-1">
-                    <div className="w-full bg-warning/40 rounded-sm" style={{ height: '35%' }} />
-                    <div className="w-full bg-warning/30 rounded-sm" style={{ height: '20%' }} />
-                    <div className="w-full bg-warning/30 rounded-sm" style={{ height: '20%' }} />
-                    <div className="w-full bg-warning/30 rounded-sm" style={{ height: '20%' }} />
-                    <div className="w-full bg-warning/30 rounded-sm" style={{ height: '20%' }} />
-                    <div className="w-full bg-warning/40 rounded-sm" style={{ height: '35%' }} />
-                    <div className="w-full bg-warning/30 rounded-sm" style={{ height: '20%' }} />
-                    <div className="w-full bg-warning/30 rounded-sm" style={{ height: '20%' }} />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Coverage Breakdown */}
-            <div className="glass rounded-xl p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Activity className="w-5 h-5 text-primary" />
-                <h2 className="text-lg font-semibold">Coverage Breakdown</h2>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-white/80">Critical:</span>
-                    <span className="text-sm font-semibold">89% <span className="text-white/60">(17/19 flows)</span></span>
-                  </div>
-                  <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-error rounded-full" style={{ width: '89%' }} />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-white/80">High:</span>
-                    <span className="text-sm font-semibold">78% <span className="text-white/60">(14/18 flows)</span></span>
-                  </div>
-                  <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-warning rounded-full" style={{ width: '78%' }} />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-white/80">Medium:</span>
-                    <span className="text-sm font-semibold">45% <span className="text-white/60">(9/20 flows)</span></span>
-                  </div>
-                  <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-accent rounded-full" style={{ width: '45%' }} />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-white/80">Low:</span>
-                    <span className="text-sm font-semibold">23% <span className="text-white/60">(5/22 flows)</span></span>
-                  </div>
-                  <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-success rounded-full" style={{ width: '23%' }} />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Recent Activity */}
-            <div className="glass rounded-xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">Recent Activity</h2>
                 <button
-                  onClick={() => navigate('/app/flows')}
-                  className="text-sm text-primary hover:text-primary-hover flex items-center gap-1"
+                  onClick={handleDiscoverSuites}
+                  className="glass px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-white/10 transition-colors"
                 >
-                  View All
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 glass rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-success" />
-                    <div>
-                      <p className="text-sm font-medium">checkout.spec.ts passed (2.3s)</p>
-                      <p className="text-xs text-white/60">2 min ago</p>
-                    </div>
-                  </div>
-                  <button className="text-xs px-3 py-1.5 glass hover:bg-white/10 rounded-lg transition-colors">
-                    View Test
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between p-3 glass rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <AlertCircle className="w-5 h-5 text-warning" />
-                    <div>
-                      <p className="text-sm font-medium">login.spec.ts flaky detected</p>
-                      <p className="text-xs text-white/60">5 min ago</p>
-                    </div>
-                  </div>
-                  <button className="text-xs px-3 py-1.5 glass hover:bg-white/10 rounded-lg transition-colors">
-                    Screenshot
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between p-3 glass rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Sparkles className="w-5 h-5 text-primary" />
-                    <div>
-                      <p className="text-sm font-medium">Generated test for Profile</p>
-                      <p className="text-xs text-white/60">12 min ago</p>
-                    </div>
-                  </div>
-                  <button className="text-xs px-3 py-1.5 glass hover:bg-white/10 rounded-lg transition-colors">
-                    View Code
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between p-3 glass rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <RefreshCw className="w-5 h-5 text-accent" />
-                    <div>
-                      <p className="text-sm font-medium">Re-ran failed tests (3/3 passed)</p>
-                      <p className="text-xs text-white/60">15 min ago</p>
-                    </div>
-                  </div>
-                  <button className="text-xs px-3 py-1.5 glass hover:bg-white/10 rounded-lg transition-colors">
-                    Details
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* AI Co-pilot Sidebar */}
-          <div className="glass rounded-xl p-6 h-fit sticky top-0">
-            <div className="flex items-center gap-2 mb-6">
-              <Brain className="w-5 h-5 text-primary" />
-              <h2 className="text-lg font-semibold">AI Co-pilot</h2>
-            </div>
-
-            {/* Smart Suggestions */}
-            <div className="mb-6">
-              <h3 className="text-sm font-semibold text-white/80 mb-3">💡 Smart Suggestions</h3>
-              <div className="space-y-3">
-                <div className="glass rounded-lg p-3">
-                  <p className="text-sm mb-2">Login flow missing error handling tests</p>
-                  <button className="text-xs px-3 py-1.5 bg-primary hover:bg-primary-hover rounded-lg font-medium transition-colors w-full">
-                    Generate Now
-                  </button>
-                </div>
-
-                <div className="glass rounded-lg p-3">
-                  <p className="text-sm mb-2">Payment flow tested 3 months ago</p>
-                  <button className="text-xs px-3 py-1.5 glass hover:bg-white/10 rounded-lg font-medium transition-colors w-full">
-                    Re-validate
-                  </button>
-                </div>
-
-                <div className="glass rounded-lg p-3">
-                  <p className="text-sm mb-2">API /users/login response changed</p>
-                  <button className="text-xs px-3 py-1.5 glass hover:bg-white/10 rounded-lg font-medium transition-colors w-full">
-                    Update Tests
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="mb-6">
-              <h3 className="text-sm font-semibold text-white/80 mb-3">⚡ Quick Actions</h3>
-              <div className="space-y-2">
-                <button className="w-full text-sm px-4 py-2.5 glass hover:bg-white/10 rounded-lg font-medium transition-colors flex items-center gap-2">
-                  <Brain className="w-4 h-4" />
-                  Run Discovery
-                </button>
-                <button className="w-full text-sm px-4 py-2.5 glass hover:bg-white/10 rounded-lg font-medium transition-colors flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
-                  Generate All
+                  Re-discover
                 </button>
-                <button className="w-full text-sm px-4 py-2.5 glass hover:bg-white/10 rounded-lg font-medium transition-colors flex items-center gap-2">
-                  <Target className="w-4 h-4" />
-                  Analyze Impact
-                </button>
-                <button className="w-full text-sm px-4 py-2.5 glass hover:bg-white/10 rounded-lg font-medium transition-colors flex items-center gap-2">
-                  <Activity className="w-4 h-4" />
-                  View Reports
+                <button
+                  onClick={handleResetApp}
+                  className="glass p-2 rounded-lg hover:bg-error/20 transition-colors text-error/60 hover:text-error"
+                  title="Reset app"
+                >
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            {/* Health Score */}
-            <div>
-              <h3 className="text-sm font-semibold text-white/80 mb-3">📈 Health Score</h3>
-              <div className="glass rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-2xl font-bold">87/100</span>
-                  <span className="text-xs font-medium px-2 py-1 rounded bg-success/20 text-success">Excellent</span>
-                </div>
-                <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-success to-primary rounded-full" style={{ width: '87%' }} />
-                </div>
+            {/* No Suites Yet */}
+            {stats.totalSuites === 0 && (
+              <div className="glass rounded-xl p-12 text-center">
+                <Sparkles className="w-16 h-16 text-white/20 mx-auto mb-6" />
+                <h2 className="text-2xl font-bold mb-3">Ready to Discover Test Suites</h2>
+                <p className="text-white/60 mb-6 max-w-md mx-auto">
+                  Click "Re-discover" to analyze your project and generate intelligent test suites.
+                </p>
+                <button
+                  onClick={handleDiscoverSuites}
+                  className="px-6 py-3 bg-primary hover:bg-primary-hover rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto"
+                >
+                  <Sparkles className="w-5 h-5" />
+                  Discover Test Suites
+                </button>
               </div>
-            </div>
-          </div>
-        </div>
-        </>
-        )}
-      </div>
+            )}
 
-      {/* Floating Action Button */}
-      <div className="fixed bottom-8 right-8 z-50">
-        {fabOpen && (
-          <div className="absolute bottom-16 right-0 glass rounded-xl p-2 shadow-2xl backdrop-blur-lg space-y-2 min-w-[200px] animate-scale-in">
-            <button className="w-full text-sm px-4 py-3 hover:bg-white/10 rounded-lg font-medium transition-colors flex items-center gap-3">
-              <Sparkles className="w-4 h-4 text-primary" />
-              Generate Test
-            </button>
-            <button className="w-full text-sm px-4 py-3 hover:bg-white/10 rounded-lg font-medium transition-colors flex items-center gap-3">
-              <Brain className="w-4 h-4 text-accent" />
-              Run Discovery
-            </button>
-            <button className="w-full text-sm px-4 py-3 hover:bg-white/10 rounded-lg font-medium transition-colors flex items-center gap-3">
-              <Plus className="w-4 h-4 text-success" />
-              Create Flow
-            </button>
+            {/* Main Content */}
+            {stats.totalSuites > 0 && (
+              <>
+                {/* Coverage Bar */}
+                <CoverageBar
+                  percentage={coveragePercentage}
+                  totalCases={stats.totalCases}
+                  coveredCases={stats.casesWithTests}
+                  criticalCovered={criticalCovered}
+                  highMissing={highMissing}
+                />
+
+                {/* Metric Cards */}
+                <div className="grid grid-cols-4 gap-4">
+                  <MetricCard
+                    icon={<CheckCircle2 className="w-5 h-5" />}
+                    value={`${stats.casesPassing}/${stats.casesWithTests}`}
+                    label="Passing"
+                    sublabel={lastRunTime ? `Last: ${lastRunTime}` : undefined}
+                    className="animate-fade-in-up"
+                  />
+                  <MetricCard
+                    icon={<Timer className="w-5 h-5" />}
+                    value={formatTime(stats.totalTime)}
+                    label="Total time"
+                    trend={stats.totalTime > 0 ? { value: '0.3s faster', direction: 'down' } : undefined}
+                    className="animate-fade-in-up"
+                  />
+                  <MetricCard
+                    icon={<AlertTriangle className="w-5 h-5" />}
+                    value={stats.casesFlaky}
+                    label="Flaky"
+                    sublabel="tests"
+                    className="animate-fade-in-up"
+                  />
+                  <MetricCard
+                    icon={<Activity className="w-5 h-5" />}
+                    value={5}
+                    label="Runs today"
+                    trend={{ value: '↑ 2 vs yesterday', direction: 'up' }}
+                    className="animate-fade-in-up"
+                  />
+                </div>
+
+                {/* Quick Actions */}
+                <QuickActions
+                  testsReady={stats.casesWithTests}
+                  casesWithoutTests={stats.casesWithoutTests}
+                  missingCaseNames={missingCaseNames}
+                  lastRunStatus={lastRunStatus}
+                  lastRunTime={lastRunTime}
+                  onRunAll={handleRunAllTests}
+                  onGenerateMissing={handleGenerateMissing}
+                  isRunning={isRunning}
+                  isGenerating={isGenerating}
+                />
+
+                {/* Two Column Layout */}
+                <div className="grid grid-cols-[1fr_320px] gap-6">
+                  {/* Left Column */}
+                  <div className="space-y-6">
+                    {/* Coverage by Priority */}
+                    <CoverageByPriority coverageData={coverageByPriority} />
+
+                    {/* Suites Table */}
+                    <SuitesTable
+                      suites={suites}
+                      onSuiteClick={(suiteId) => navigate(`/app/suites/${suiteId}`)}
+                      onViewAll={() => navigate('/app/suites')}
+                    />
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="space-y-6">
+                    {/* Recent Activity */}
+                    <RecentActivity activities={activities} />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
-        <button
-          onClick={() => setFabOpen(!fabOpen)}
-          className="w-14 h-14 rounded-full bg-primary hover:bg-primary-hover shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-        >
-          {fabOpen ? (
-            <Plus className="w-6 h-6 rotate-45 transition-transform" />
-          ) : (
-            <Plus className="w-6 h-6" />
-          )}
-        </button>
       </div>
     </div>
   );

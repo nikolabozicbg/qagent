@@ -4,7 +4,8 @@ import {
   DetectedTech, 
   ProjectInsights, 
   DiscoveredFlow,
-  AnalysisProgress 
+  AnalysisProgress,
+  TechDetectionResult
 } from '@/types/onboarding';
 
 interface OnboardingState {
@@ -19,9 +20,11 @@ interface OnboardingState {
   detectedTech: DetectedTech[];
   projectInsights: ProjectInsights | null;
   analysisProgress: AnalysisProgress | null;
+  techDetectionResult: TechDetectionResult | null;
   setDetectedTech: (tech: DetectedTech[]) => void;
   setProjectInsights: (insights: ProjectInsights) => void;
   setAnalysisProgress: (progress: AnalysisProgress) => void;
+  setTechDetectionResult: (result: TechDetectionResult) => void;
   
   // Configuration
   config: Partial<ProjectConfig>;
@@ -48,6 +51,7 @@ const initialState = {
   detectedTech: [],
   projectInsights: null,
   analysisProgress: null,
+  techDetectionResult: null,
   config: {},
   discoveredFlows: [],
   selectedFlowIds: [],
@@ -63,6 +67,8 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
   setProjectInsights: (insights) => set({ projectInsights: insights }),
   
   setAnalysisProgress: (progress) => set({ analysisProgress: progress }),
+  
+  setTechDetectionResult: (result) => set({ techDetectionResult: result }),
   
   updateConfig: (config) => 
     set((state) => ({ 

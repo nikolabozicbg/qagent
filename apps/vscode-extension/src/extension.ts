@@ -42,10 +42,84 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 function registerCommands(context: vscode.ExtensionContext) {
-  // Show Dashboard command
+  // Show Dashboard command (opens in central editor)
   context.subscriptions.push(
     vscode.commands.registerCommand('qagenai.showDashboard', async () => {
       await container.showDashboard();
+    })
+  );
+
+  // Open Dashboard in central editor (direct)
+  context.subscriptions.push(
+    vscode.commands.registerCommand('qagenai.openDashboard', () => {
+      container.panelManager.openDashboard();
+    })
+  );
+
+  // Open Flow Detail in central editor
+  context.subscriptions.push(
+    vscode.commands.registerCommand('qagenai.openFlowDetail', (flowId: string) => {
+      container.panelManager.openFlowDetail(flowId);
+    })
+  );
+
+  // Open Test Generation in central editor
+  context.subscriptions.push(
+    vscode.commands.registerCommand('qagenai.openTestGeneration', (flowId?: string) => {
+      container.panelManager.openTestGeneration(flowId);
+    })
+  );
+
+  // Run test command
+  context.subscriptions.push(
+    vscode.commands.registerCommand('qagenai.runTest', async (flowId: string) => {
+      log('[Extension] Running test for flow:', flowId);
+      
+      // Get flow from dashboard service
+      const flows = await container.dashboardServicePublic.getFlows();
+      const flow = flows.find(f => f.id === flowId);
+      
+      if (!flow) {
+        vscode.window.showErrorMessage(`Flow not found: ${flowId}`);
+        return;
+      }
+      
+      log('[Extension] Found flow:', flow.name);
+      
+      // Mark flow as running (SCREEN 5)
+      container.dashboardServicePublic.setRunningFlow(flowId);
+      await container.refreshAll();
+      
+      // Execute test via TestGenerationService
+      const result = await container.testGenerationServicePublic.executeTest(flow);
+      
+      // Clear running state
+      container.dashboardServicePublic.setRunningFlow(null);
+      
+      // Show toast notification (SCREEN 4, 6)
+      const { DashboardEditorPanel } = await import('./panels/dashboard-editor.panel');
+      const dashboard = DashboardEditorPanel.currentPanel;
+      
+      if (result.success) {
+        const duration = result.result?.runtime.toFixed(1) || '?';
+        const message = `✅ Test passed! "${flow.name}" (${duration}s)`;
+        
+        // Show both toast and VSCode notification
+        if (dashboard) {
+          dashboard.showToast(message, 'success');
+        }
+        vscode.window.showInformationMessage(message);
+      } else {
+        const message = `❌ Test failed: "${flow.name}" - ${result.error || 'Unknown error'}`;
+        
+        if (dashboard) {
+          dashboard.showToast(message, 'error');
+        }
+        vscode.window.showErrorMessage(message);
+      }
+      
+      // Refresh all views to show updated status
+      await container.refreshAll();
     })
   );
 
@@ -80,7 +154,7 @@ function registerCommands(context: vscode.ExtensionContext) {
       if (flows && flows.length > 0) {
         const resetFlows = flows.map(flow => ({ ...flow, status: 'draft' }));
         await context.workspaceState.update('qagenai.dashboardFlows', resetFlows);
-        await container.mainViewProvider.refresh();
+        await container.sidebarProvider.refresh();
         vscode.window.showInformationMessage(`✅ Reset ${flows.length} flows to draft. Refresh dashboard to see changes.`);
       } else {
         // Maybe flows are still in onboarding state, not yet migrated
@@ -93,10 +167,21 @@ function registerCommands(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand('qagenai.clearAllData', async () => {
       await context.workspaceState.update('qagenai.dashboardFlows', undefined);
+      await context.workspaceState.update('qagenai.testResults', undefined);
+      await context.workspaceState.update('qagenai.testHistory', undefined);
       await context.globalState.update('qagenai.onboardingState', undefined);
       await context.globalState.update('qagenai.onboardingCompleted', false);
-      await container.mainViewProvider.refresh();
+      await container.sidebarProvider.refresh();
       vscode.window.showInformationMessage('🗑️ All QAgenAI data cleared. Reload window to start fresh.');
+    })
+  );
+
+  // Populate test data (for testing/demo)
+  context.subscriptions.push(
+    vscode.commands.registerCommand('qagenai.populateTestData', async () => {
+      const { populateTestData } = await import('./commands/test-data-populate.command');
+      await populateTestData(context);
+      await container.refreshAll();
     })
   );
 
@@ -117,9 +202,7 @@ function registerCommands(context: vscode.ExtensionContext) {
         const wizardIsOpen = OnboardingWizardPanel.currentPanel !== undefined;
         
         if (!wizardIsOpen) {
-          // Only close editors and start unified view if wizard is NOT open
-          await vscode.commands.executeCommand('workbench.action.closeAllEditors');
-          await container.mainViewProvider.startDiscovery();
+          // Only focus sidebar if wizard is NOT open
           await vscode.commands.executeCommand('workbench.view.extension.qagenai');
         }
         
@@ -199,7 +282,7 @@ function registerCommands(context: vscode.ExtensionContext) {
           }
           
           // Refresh dashboard with new data
-          await container.mainViewProvider.refresh();
+          await container.sidebarProvider.refresh();
         }
       } catch (error) {
         log('Live discovery failed:', error);
@@ -438,7 +521,7 @@ function registerCommands(context: vscode.ExtensionContext) {
         deletedItems.push('All extension state');
         log('Cleared extension state');
         
-        await container.mainViewProvider.refresh();
+        await container.sidebarProvider.refresh();
         
         vscode.window.showInformationMessage(
           `💣 Nuclear reset complete!\n\nDeleted:\n${deletedItems.map(i => '  • ' + i).join('\n')}\n\nReload window for fresh start.`,

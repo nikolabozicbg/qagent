@@ -20,7 +20,7 @@ export default function OnboardingWelcome() {
       if (result && !result.canceled && result.filePaths && result.filePaths[0]) {
         setProjectPath(result.filePaths[0]);
         nextStep();
-        navigate('/onboarding/detection');
+        navigate('/setup/detection');
       }
     }
   };

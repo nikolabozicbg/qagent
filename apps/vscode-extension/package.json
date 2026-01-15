@@ -33,6 +33,26 @@
         "category": "QAgenAI"
       },
       {
+        "command": "qagenai.openDashboard",
+        "title": "Open Dashboard in Editor",
+        "category": "QAgenAI"
+      },
+      {
+        "command": "qagenai.openFlowDetail",
+        "title": "Open Flow Detail",
+        "category": "QAgenAI"
+      },
+      {
+        "command": "qagenai.openTestGeneration",
+        "title": "Open Test Generation",
+        "category": "QAgenAI"
+      },
+      {
+        "command": "qagenai.runTest",
+        "title": "Run Test",
+        "category": "QAgenAI"
+      },
+      {
         "command": "qagenai.startOnboarding",
         "title": "Start Setup Wizard",
         "category": "QAgenAI"
@@ -68,6 +88,11 @@
         "title": "✨ Generate Smart E2E Tests",
         "category": "QAgenAI",
         "icon": "$(sparkle)"
+      },
+      {
+        "command": "qagenai.populateTestData",
+        "title": "🧪 Populate Test Data (Demo)",
+        "category": "QAgenAI"
       }
     ],
     "viewsContainers": {
@@ -83,7 +108,7 @@
       "qagenai": [
         {
           "type": "webview",
-          "id": "qagenai.main",
+          "id": "qagenai.sidebar",
           "name": "QAgent"
         }
       ]

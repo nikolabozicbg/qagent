@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Command, Search, Sparkles, Play, Brain, X } from 'lucide-react';
+import { useProjectStore } from '@stores/useProjectStore';
 
 interface KeyboardShortcutsProps {
   onGenerateTest?: () => void;
@@ -10,23 +11,62 @@ interface KeyboardShortcutsProps {
 
 export function KeyboardShortcuts({ onGenerateTest, onRunDiscovery, onToggleAI }: KeyboardShortcutsProps) {
   const navigate = useNavigate();
+  const { toggleSidebar } = useProjectStore();
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const commands = [
-    { id: 'dashboard', label: 'Go to Dashboard', shortcut: '⌘1', action: () => navigate('/app/dashboard') },
-    { id: 'flows', label: 'Go to Flows', shortcut: '⌘2', action: () => navigate('/app/flows') },
-    { id: 'settings', label: 'Go to Settings', shortcut: '⌘3', action: () => navigate('/app/settings') },
-    { id: 'generate', label: 'Generate Test', shortcut: '⌘G', action: onGenerateTest },
-    { id: 'run', label: 'Run Discovery', shortcut: '⌘R', action: onRunDiscovery },
-    { id: 'ai', label: 'Toggle AI Co-pilot', shortcut: '⌘J', action: onToggleAI },
-    { id: 'help', label: 'Show Shortcuts', shortcut: '⌘/', action: () => setShowShortcutsHelp(true) },
+    // Navigation
+    { id: 'dashboard', label: 'Go to Dashboard', shortcut: '⌘1', category: 'Navigation', action: () => navigate('/app/dashboard') },
+    { id: 'flows', label: 'Go to Flows', shortcut: '⌘2', category: 'Navigation', action: () => navigate('/app/flows') },
+    { id: 'test-results', label: 'Go to Test Results', shortcut: '⌘T', category: 'Navigation', action: () => navigate('/app/test-results') },
+    { id: 'settings', label: 'Go to Settings', shortcut: '⌘3', category: 'Navigation', action: () => navigate('/app/settings') },
+    
+    // Actions
+    { id: 'generate', label: 'Generate Test for Flow', shortcut: '⌘G', category: 'Actions', action: onGenerateTest },
+    { id: 'run-all', label: 'Run All Tests', shortcut: '⌘R', category: 'Actions', action: () => {
+      // TODO: Open test runner modal
+      onRunDiscovery?.();
+    }},
+    { id: 'discovery', label: 'Run Smart Discovery', shortcut: '⌘D', category: 'Actions', action: onRunDiscovery },
+    { id: 'refresh', label: 'Refresh Dashboard', shortcut: '⌘⇧R', category: 'Actions', action: () => {
+      // TODO: Refresh dashboard data
+      window.location.reload();
+    }},
+    
+    // AI & Tools
+    { id: 'ai', label: 'Toggle AI Co-pilot', shortcut: '⌘J', category: 'AI & Tools', action: onToggleAI },
+    { id: 'analytics', label: 'View Analytics', shortcut: '⌘A', category: 'AI & Tools', action: () => navigate('/app/dashboard') },
+    
+    // Project
+    { id: 'change-project', label: 'Change Project', shortcut: '⌘O', category: 'Project', action: () => {
+      // TODO: Open project selector
+      navigate('/app/dashboard');
+    }},
+    
+    // UI
+    { id: 'toggle-sidebar', label: 'Toggle Sidebar', shortcut: '⌘B', category: 'UI', action: toggleSidebar },
+    
+    // Help
+    { id: 'help', label: 'Show Shortcuts', shortcut: '⌘/', category: 'Help', action: () => setShowShortcutsHelp(true) },
   ];
 
   const filteredCommands = commands.filter(cmd =>
-    cmd.label.toLowerCase().includes(searchQuery.toLowerCase())
+    cmd.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    cmd.shortcut.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    cmd.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Group commands by category
+  const groupedCommands = filteredCommands.reduce((acc, cmd) => {
+    const category = cmd.category || 'Other';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(cmd);
+    return acc;
+  }, {} as Record<string, typeof commands>);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -42,16 +82,53 @@ export function KeyboardShortcuts({ onGenerateTest, onRunDiscovery, onToggleAI }
         onGenerateTest?.();
       }
 
-      // Run discovery: ⌘R
-      if ((e.metaKey || e.ctrlKey) && e.key === 'r') {
+      // Run all tests: ⌘R
+      if ((e.metaKey || e.ctrlKey) && e.key === 'r' && !e.shiftKey) {
+        e.preventDefault();
+        // TODO: Open test runner modal
+        onRunDiscovery?.();
+      }
+
+      // Run discovery: ⌘D
+      if ((e.metaKey || e.ctrlKey) && e.key === 'd') {
         e.preventDefault();
         onRunDiscovery?.();
+      }
+
+      // Refresh: ⌘⇧R
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'R') {
+        e.preventDefault();
+        window.location.reload();
+      }
+
+      // Test Results: ⌘T
+      if ((e.metaKey || e.ctrlKey) && e.key === 't') {
+        e.preventDefault();
+        navigate('/app/test-results');
+      }
+
+      // Analytics: ⌘A
+      if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
+        e.preventDefault();
+        navigate('/app/dashboard');
+      }
+
+      // Change Project: ⌘O
+      if ((e.metaKey || e.ctrlKey) && e.key === 'o') {
+        e.preventDefault();
+        navigate('/app/dashboard');
       }
 
       // Toggle AI: ⌘J
       if ((e.metaKey || e.ctrlKey) && e.key === 'j') {
         e.preventDefault();
         onToggleAI?.();
+      }
+
+      // Toggle Sidebar: ⌘B
+      if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+        e.preventDefault();
+        toggleSidebar();
       }
 
       // Navigation shortcuts
@@ -83,7 +160,7 @@ export function KeyboardShortcuts({ onGenerateTest, onRunDiscovery, onToggleAI }
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [navigate, onGenerateTest, onRunDiscovery, onToggleAI]);
+  }, [navigate, onGenerateTest, onRunDiscovery, onToggleAI, toggleSidebar]);
 
   const executeCommand = (command: typeof commands[0]) => {
     command.action?.();
@@ -122,17 +199,24 @@ export function KeyboardShortcuts({ onGenerateTest, onRunDiscovery, onToggleAI }
                 </div>
               ) : (
                 <div className="py-2">
-                  {filteredCommands.map((command) => (
-                    <button
-                      key={command.id}
-                      onClick={() => executeCommand(command)}
-                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-white/5 transition-colors"
-                    >
-                      <span className="text-white/80">{command.label}</span>
-                      <kbd className="px-2 py-1 text-xs bg-white/10 rounded border border-white/20 font-mono">
-                        {command.shortcut}
-                      </kbd>
-                    </button>
+                  {Object.entries(groupedCommands).map(([category, categoryCommands]) => (
+                    <div key={category}>
+                      <div className="px-4 py-2 text-xs font-semibold text-white/40 uppercase">
+                        {category}
+                      </div>
+                      {categoryCommands.map((command) => (
+                        <button
+                          key={command.id}
+                          onClick={() => executeCommand(command)}
+                          className="w-full px-4 py-3 flex items-center justify-between hover:bg-white/5 transition-colors"
+                        >
+                          <span className="text-white/80">{command.label}</span>
+                          <kbd className="px-2 py-1 text-xs bg-white/10 rounded border border-white/20 font-mono">
+                            {command.shortcut}
+                          </kbd>
+                        </button>
+                      ))}
+                    </div>
                   ))}
                 </div>
               )}
@@ -188,20 +272,46 @@ export function KeyboardShortcuts({ onGenerateTest, onRunDiscovery, onToggleAI }
                     <kbd className="px-3 py-1.5 text-sm bg-white/10 rounded border border-white/20 font-mono">⌘K</kbd>
                   </div>
                   <div className="flex items-center justify-between py-2">
-                    <span className="text-white/80">Generate Test</span>
+                    <span className="text-white/80">Generate Test for Flow</span>
                     <kbd className="px-3 py-1.5 text-sm bg-white/10 rounded border border-white/20 font-mono">⌘G</kbd>
                   </div>
                   <div className="flex items-center justify-between py-2">
-                    <span className="text-white/80">Run Discovery</span>
+                    <span className="text-white/80">Run All Tests</span>
                     <kbd className="px-3 py-1.5 text-sm bg-white/10 rounded border border-white/20 font-mono">⌘R</kbd>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-white/80">Run Smart Discovery</span>
+                    <kbd className="px-3 py-1.5 text-sm bg-white/10 rounded border border-white/20 font-mono">⌘D</kbd>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-white/80">Refresh Dashboard</span>
+                    <kbd className="px-3 py-1.5 text-sm bg-white/10 rounded border border-white/20 font-mono">⌘⇧R</kbd>
                   </div>
                   <div className="flex items-center justify-between py-2">
                     <span className="text-white/80">Toggle AI Co-pilot</span>
                     <kbd className="px-3 py-1.5 text-sm bg-white/10 rounded border border-white/20 font-mono">⌘J</kbd>
                   </div>
                   <div className="flex items-center justify-between py-2">
+                    <span className="text-white/80">View Analytics</span>
+                    <kbd className="px-3 py-1.5 text-sm bg-white/10 rounded border border-white/20 font-mono">⌘A</kbd>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-white/80">Change Project</span>
+                    <kbd className="px-3 py-1.5 text-sm bg-white/10 rounded border border-white/20 font-mono">⌘O</kbd>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
                     <span className="text-white/80">Show Shortcuts</span>
                     <kbd className="px-3 py-1.5 text-sm bg-white/10 rounded border border-white/20 font-mono">⌘/</kbd>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-white/60 mb-3 uppercase">UI</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-white/80">Toggle Sidebar</span>
+                    <kbd className="px-3 py-1.5 text-sm bg-white/10 rounded border border-white/20 font-mono">⌘B</kbd>
                   </div>
                 </div>
               </div>

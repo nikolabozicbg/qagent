@@ -2,15 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { promises as fs } from 'fs';
 import { join, dirname } from 'path';
 
+export interface AuthConfig {
+  enabled: boolean;
+  username: string;
+  password: string;
+  loginRoute?: string;
+  usernameSelector?: string;
+  passwordSelector?: string;
+  submitSelector?: string;
+  successUrlPattern?: string;
+}
+
 export interface ProjectConfig {
   projectPath: string;
+  projectName?: string;
   framework: string;
   baseUrl: string;
   testDir: string;
-  auth?: {
-    username: string;
-    password: string;
-  };
+  auth?: AuthConfig;
   updatedAt: number;
 }
 

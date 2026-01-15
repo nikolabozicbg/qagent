@@ -1,0 +1,12 @@
+{
+  "projectPath": "",
+  "framework": "playwright",
+  "baseUrl": "http://localhost:5173",
+  "testDir": "tests/e2e",
+  "auth": {
+    "enabled": true,
+    "username": "",
+    "password": ""
+  },
+  "updatedAt": 1768231513012
+}

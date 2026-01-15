@@ -97,7 +97,10 @@ export class HolisticAnalysisService {
       // Parse AST
       const ast = parser.parse(code, {
         sourceType: 'module',
-        plugins: ['jsx', 'typescript']
+        plugins: [
+          require('@babel/plugin-syntax-jsx'),
+          require('@babel/plugin-syntax-typescript')
+        ]
       });
       
       const analysis: ComponentAnalysis = {
@@ -316,7 +319,10 @@ export class HolisticAnalysisService {
         
         const ast = parser.parse(code, {
           sourceType: 'module',
-          plugins: ['jsx', 'typescript']
+          plugins: [
+            require('@babel/plugin-syntax-jsx'),
+            require('@babel/plugin-syntax-typescript')
+          ]
         });
         
         traverse(ast, {

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Terminal, Trash2, CheckCircle, XCircle, FolderOpen } from 'lucide-react';
 import { useApp } from '@contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
+import { apiService } from '@services/api';
 
 export function DevOverlay() {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,6 +38,39 @@ export function DevOverlay() {
     localStorage.removeItem('qagent_onboarding_completed');
     localStorage.removeItem('qagent_project_path');
     window.location.reload();
+  };
+  
+  const handleFullReset = async () => {
+    if (confirm('🚨 FULL RESET: This will clear ALL app data (projects, suites, settings). Continue?')) {
+      try {
+        // Reset backend database first
+        console.log('🗑️ Resetting backend database...');
+        await apiService.resetDatabase();
+        console.log('✅ Backend database reset');
+      } catch (error) {
+        console.warn('⚠️ Failed to reset backend database:', error);
+        // Continue with local reset even if backend fails
+      }
+      
+      // Clear all localStorage
+      localStorage.clear();
+      
+      // Clear IndexedDB if exists
+      if (window.indexedDB) {
+        indexedDB.databases().then(dbs => {
+          dbs.forEach(db => {
+            if (db.name) indexedDB.deleteDatabase(db.name);
+          });
+        }).catch(() => {
+          // Fallback - some browsers don't support databases()
+          console.warn('Could not enumerate IndexedDB databases');
+        });
+      }
+      
+      // Navigate to setup and reload
+      navigate('/setup/welcome');
+      setTimeout(() => window.location.reload(), 100);
+    }
   };
 
   const handleResetProjectOnly = () => {
@@ -127,9 +161,17 @@ export function DevOverlay() {
 
             <button
               onClick={handleResetOnboarding}
+              className="w-full px-4 py-3 bg-warning/20 hover:bg-warning/30 rounded-lg font-medium transition-colors flex items-center justify-between border border-warning/30"
+            >
+              <span>Reset Onboarding Only</span>
+              <Trash2 className="w-4 h-4 text-warning" />
+            </button>
+            
+            <button
+              onClick={handleFullReset}
               className="w-full px-4 py-3 bg-error/20 hover:bg-error/30 rounded-lg font-medium transition-colors flex items-center justify-between border border-error/30"
             >
-              <span>Reset Everything & Reload</span>
+              <span>🚨 FULL RESET (All Data)</span>
               <Trash2 className="w-4 h-4 text-error" />
             </button>
           </div>

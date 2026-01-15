@@ -8,6 +8,8 @@ import { IntentJourneySynthesisService } from './intent-journey-synthesis.servic
 import { RouteInferenceService } from './route-inference.service';
 import { AnalysisGateway } from './analysis.gateway';
 import { ComponentAnalysis } from './types/graph.types';
+import { UILibraryDetectorService } from '../../analysis/ui-library-detector.service';
+import { StateManagementDetectorService } from '../../analysis/state-management-detector.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -46,6 +48,8 @@ export class FlowDiscoveryService {
     private readonly intentSynthesis: IntentJourneySynthesisService,
     private readonly routeInference: RouteInferenceService,
     private readonly gateway: AnalysisGateway,
+    private readonly uiLibraryDetector: UILibraryDetectorService,
+    private readonly stateManagementDetector: StateManagementDetectorService,
   ) {}
 
   /**
@@ -71,6 +75,42 @@ export class FlowDiscoveryService {
     });
     
     try {
+      // Step 0: Detect UI libraries and state management
+      console.log('\n🔍 Detecting UI libraries and state management...');
+      console.log('DEBUG: uiLibraryDetector =', typeof this.uiLibraryDetector);
+      console.log('DEBUG: stateManagementDetector =', typeof this.stateManagementDetector);
+      
+      const uiLibraries = this.uiLibraryDetector?.detectLibraries?.(workspacePath) || [];
+      const stateManagement = this.stateManagementDetector?.detectStateManagement?.(workspacePath) || [];
+      
+      console.log('DEBUG: uiLibraries =', uiLibraries);
+      console.log('DEBUG: stateManagement =', stateManagement);
+      console.log(`  ✅ UI Libraries: ${uiLibraries.map(l => l.name).join(', ') || 'None'}`);
+      console.log(`  ✅ State Management: ${stateManagement.map(s => s.type).join(', ') || 'None'}`);
+      
+      // Parse XState machines to extract API calls
+      const xstateAPIs: any[] = [];
+      const xstateData = stateManagement.find(s => s.type === 'xstate');
+      if (xstateData && xstateData.files.length > 0) {
+        console.log(`  📋 Parsing ${xstateData.files.length} XState machines...`);
+        for (const file of xstateData.files) {
+          const machine = this.stateManagementDetector.parseXStateMachine(file);
+          if (machine && machine.services.length > 0) {
+            for (const service of machine.services) {
+              if (service.apiCall) {
+                xstateAPIs.push({
+                  machine: machine.name,
+                  service: service.name,
+                  method: service.apiCall.method,
+                  endpoint: service.apiCall.endpoint
+                });
+              }
+            }
+          }
+        }
+        console.log(`    → Found ${xstateAPIs.length} API calls in XState services`);
+      }
+      
       // Step 1: Gather component analysis
       const components = await this.gatherComponentAnalysis(workspacePath);
       
@@ -172,10 +212,23 @@ export class FlowDiscoveryService {
         });
       }
       
+      // Debug: log what we're trying to merge
+      console.log('DEBUG: result.metadata =', JSON.stringify(result.metadata, null, 2));
+      const newMetadataFields = {
+        uiLibraries: uiLibraries.map(l => ({ name: l.name, confidence: l.confidence })),
+        stateManagement: stateManagement.map(s => ({ type: s.type, filesCount: s.files.length })),
+        xstateAPIs: xstateAPIs.length,
+        totalAPIsDetected: xstateAPIs.length
+      };
+      console.log('DEBUG: newMetadataFields =', JSON.stringify(newMetadataFields, null, 2));
+      
+      const mergedMetadata = Object.assign({}, result.metadata, newMetadataFields);
+      console.log('DEBUG: mergedMetadata =', JSON.stringify(mergedMetadata, null, 2));
+      
       const finalResult = {
         success: result.success,
         journeys: result.journeys,
-        metadata: result.metadata,
+        metadata: mergedMetadata,
         cycles: result.cycles,
         warnings: result.warnings,
         analysisTime: Date.now() - startTime,
@@ -187,6 +240,7 @@ export class FlowDiscoveryService {
             edges: result.metadata.edgeCount,
             hasCycles: result.metadata.hasCycles
           },
+          xstateAPIsDetailed: xstateAPIs,
           ...result.debug // Merge graph debug info
         }
       };
@@ -340,6 +394,7 @@ export class FlowDiscoveryService {
 
   /**
    * Deduplicate and rank journeys from multiple strategies
+   * WITH SMART SCORING
    */
   private deduplicateAndRankJourneys(journeys: any[]): any[] {
     // Remove duplicates by name, prioritize form journeys over graph
@@ -349,7 +404,69 @@ export class FlowDiscoveryService {
         seen.set(journey.name, journey);
       }
     }
-    return Array.from(seen.values()).sort((a, b) => a.priority - b.priority);
+    
+    // Score and rank journeys
+    const scored = Array.from(seen.values()).map(journey => ({
+      ...journey,
+      score: this.scoreJourney(journey)
+    }));
+    
+    return scored
+      .sort((a, b) => b.score - a.score) // Highest score first
+      .map((j, index) => ({
+        ...j,
+        rank: index + 1
+      }));
+  }
+  
+  /**
+   * Score journey based on importance signals
+   */
+  private scoreJourney(journey: any): number {
+    let score = 0;
+    
+    // Critical priority = highest score
+    if (journey.priority === 1) score += 100;
+    else if (journey.priority === 2) score += 50;
+    else score += 10;
+    
+    // Auth flows are critical
+    if (journey.tags?.includes('auth') || 
+        journey.tags?.includes('authentication') ||
+        journey.name.toLowerCase().includes('login') ||
+        journey.name.toLowerCase().includes('register')) {
+      score += 80;
+    }
+    
+    // Form submissions = important
+    if (journey.tags?.includes('form')) {
+      score += 40;
+    }
+    
+    // API mutations = important (POST/PUT/DELETE)
+    const hasMutation = journey.steps?.some((s: any) => 
+      s.action === 'api' && ['POST', 'PUT', 'DELETE'].includes(s.method)
+    );
+    if (hasMutation) {
+      score += 30;
+    }
+    
+    // Multi-step flows = more valuable
+    if (journey.steps && journey.steps.length > 1) {
+      score += journey.steps.length * 5;
+    }
+    
+    // CRUD operations
+    if (journey.tags?.includes('crud')) {
+      score += 25;
+    }
+    
+    // Penalize overly long flows (user efficiency)
+    if (journey.steps && journey.steps.length > 5) {
+      score -= (journey.steps.length - 5) * 2;
+    }
+    
+    return score;
   }
   
   /**

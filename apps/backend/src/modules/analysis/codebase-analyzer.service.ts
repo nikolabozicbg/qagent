@@ -37,9 +37,11 @@ export class CodebaseAnalyzerService {
 
   /**
    * Analyze workspace for test coverage gaps (multi-language aware)
+   * OPTIMIZED: Parallel processing + smart filtering
    */
   async analyzeWorkspace(workspacePath: string): Promise<AnalysisReport> {
     console.log(`🔍 Analyzing workspace: ${workspacePath}`);
+    const startTime = Date.now();
     
     // 1. Detect languages in workspace
     const languages = await this.languageDetector.detectLanguages(workspacePath);
@@ -48,31 +50,33 @@ export class CodebaseAnalyzerService {
     // 2. Get providers for detected languages
     const providers = this.providerRegistry.getProviders(languages);
     
-    // 3. Collect all source/test files from all providers
+    // 3. PARALLEL: Collect all source/test files from all providers
     const allSourceFiles: Array<{ file: string; language: string }> = [];
     const allTestFiles: Array<{ file: string; language: string }> = [];
     const allFrameworks: Framework[] = [];
     
-    for (const provider of providers) {
-      const language = provider.getMetadata().language;
-      
-      // Find source files for this language
-      const sourceFiles = await provider.findSourceFiles(workspacePath);
-      allSourceFiles.push(...sourceFiles.map(file => ({ file, language })));
-      
-      // Find test files for this language
-      const testFiles = await provider.findTestFiles(workspacePath);
-      console.log(`   [DEBUG] Found test files for ${language}:`, testFiles.length);
-      if (testFiles.length < 10) {
-          testFiles.forEach(f => console.log(`   [DEBUG] Test file: ${f}`));
-      } else {
-          console.log(`   [DEBUG] First 5 test files:`, testFiles.slice(0, 5));
-      }
-      allTestFiles.push(...testFiles.map(file => ({ file, language })));
-      
-      // Detect frameworks for this language
-      const frameworks = await provider.detectFrameworks(workspacePath);
-      allFrameworks.push(...frameworks);
+    // Run provider analysis in parallel
+    const providerResults = await Promise.all(
+      providers.map(async (provider) => {
+        const language = provider.getMetadata().language;
+        
+        // Parallel file discovery
+        const [sourceFiles, testFiles, frameworks] = await Promise.all([
+          provider.findSourceFiles(workspacePath),
+          provider.findTestFiles(workspacePath),
+          provider.detectFrameworks(workspacePath)
+        ]);
+        
+        return { language, sourceFiles, testFiles, frameworks };
+      })
+    );
+    
+    // Aggregate results
+    for (const result of providerResults) {
+      allSourceFiles.push(...result.sourceFiles.map(file => ({ file, language: result.language })));
+      allTestFiles.push(...result.testFiles.map(file => ({ file, language: result.language })));
+      allFrameworks.push(...result.frameworks);
+      console.log(`   ${result.language}: ${result.sourceFiles.length} source, ${result.testFiles.length} test files`);
     }
     
     console.log(`   Found ${allSourceFiles.length} source files`);
@@ -97,8 +101,9 @@ export class CodebaseAnalyzerService {
       ? Math.round((testedFiles / allSourceFiles.length) * 100) 
       : 0;
     
+    const analysisTime = Date.now() - startTime;
     console.log(`   Coverage: ${coveragePercent}% (${testedFiles}/${allSourceFiles.length} files)`);
-    console.log(`   ✅ Analysis complete: ${coveragePercent}% coverage`);
+    console.log(`   ✅ Analysis complete: ${coveragePercent}% coverage in ${analysisTime}ms`);
     
     return {
       totalFiles: allSourceFiles.length,

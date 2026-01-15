@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, GitBranch, Settings, TestTube2 } from 'lucide-react';
+import { LayoutDashboard, GitBranch, Settings, TestTube2, Layers } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { wsService } from '@services/websocket';
 
@@ -14,6 +14,11 @@ const navItems: NavItem[] = [
     path: '/app/dashboard',
     label: 'Dashboard',
     icon: LayoutDashboard,
+  },
+  {
+    path: '/app/suites',
+    label: 'Test Suites',
+    icon: Layers,
   },
   {
     path: '/app/flows',

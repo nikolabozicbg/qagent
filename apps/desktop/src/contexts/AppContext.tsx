@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { apiService } from '@services/api';
+import { useProjectStore } from '@stores/useProjectStore';
+import { useSuiteStore } from '@stores/useSuiteStore';
 
 export interface Flow {
   id: string;
@@ -13,7 +15,7 @@ export interface Flow {
   lastRun?: string;
   passing?: number;
   total?: number;
-  testFile?: boolean;
+  testFile?: string | boolean; // Path to test file (e.g., "tests/e2e/user-login.spec.ts") or boolean
   confidence?: number;
 }
 
@@ -41,6 +43,7 @@ interface AppContextType {
   dashboardMetrics: DashboardMetrics;
   recentActivity: RecentActivity[];
   isLoading: boolean;
+  isInitializing: boolean; // True while syncing with backend on startup
   error: string | null;
   aiCopilotVisible: boolean;
   selectedProjectPath: string | null;
@@ -59,6 +62,7 @@ interface AppContextType {
   setProjectPath: (path: string) => void;
   completeOnboarding: () => void;
   refreshData: () => Promise<void>;
+  refreshFlows: () => Promise<void>;
   clearError: () => void;
 }
 
@@ -192,6 +196,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [dashboardMetrics, setDashboardMetrics] = useState<DashboardMetrics>(mockMetrics);
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>(mockActivity);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true); // Start as true
   const [error, setError] = useState<string | null>(null);
   const [aiCopilotVisible, setAiCopilotVisible] = useState(true);
   const [selectedProjectPath, setSelectedProjectPath] = useState<string | null>(() => {
@@ -313,10 +318,91 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const refreshFlows = async () => {
+    if (!selectedProjectPath) return;
+    
+    try {
+      const flowsData = await apiService.getFlows(selectedProjectPath);
+      const transformedFlows = Array.isArray(flowsData) 
+        ? flowsData 
+        : (flowsData?.flows && Array.isArray(flowsData.flows) ? flowsData.flows : []);
+      
+      setFlows(transformedFlows);
+    } catch (error) {
+      console.error('Failed to refresh flows:', error);
+    }
+  };
+  
   const clearError = () => {
     setError(null);
   };
 
+  // Sync with backend on app startup
+  useEffect(() => {
+    const syncOnStartup = async () => {
+      setIsInitializing(true);
+      try {
+        console.log('🚀 App startup: Syncing with backend...');
+        
+        // Sync projects from backend
+        await useProjectStore.getState().syncWithBackend();
+        
+        // Check if we have projects in backend - if so, onboarding is complete
+        const currentProject = useProjectStore.getState().currentProject;
+        const recentProjects = useProjectStore.getState().recentProjects;
+        
+        if (currentProject || recentProjects.length > 0) {
+          console.log('✅ Found projects in database - marking onboarding as complete');
+          // Set onboarding as complete since we have projects
+          if (!onboardingCompleted) {
+            localStorage.setItem('qagent_onboarding_completed', 'true');
+            setOnboardingCompleted(true);
+          }
+          
+          // Set selectedProjectPath from current project
+          if (currentProject?.projectPath && !selectedProjectPath) {
+            setSelectedProjectPath(currentProject.projectPath);
+            setProjectPath(currentProject.projectPath);
+            localStorage.setItem('qagent_project_path', currentProject.projectPath);
+          }
+          
+          // Load cached suites
+          if (currentProject?.projectPath) {
+            console.log('📦 Loading cached suites for:', currentProject.projectName);
+            await useSuiteStore.getState().loadSuitesFromBackend(currentProject.projectPath);
+          }
+        } else {
+          // No projects in database - reset to onboarding state
+          console.log('🚨 No projects in database - resetting to onboarding');
+          
+          // Clear localStorage
+          localStorage.removeItem('qagent_onboarding_completed');
+          localStorage.removeItem('qagent_project_path');
+          localStorage.removeItem('qagent-suite-storage');
+          localStorage.removeItem('qagent-project-storage');
+          
+          // Clear stores
+          useSuiteStore.getState().clear();
+          useProjectStore.getState().clearAll();
+          
+          // Reset state
+          setOnboardingCompleted(false);
+          setSelectedProjectPath(null);
+          setProjectPath('');
+        }
+        
+        console.log('✅ Backend sync complete');
+      } catch (error) {
+        console.warn('⚠️ Failed to sync with backend on startup:', error);
+        // Graceful fallback - app continues with localStorage data
+      } finally {
+        setIsInitializing(false);
+      }
+    };
+    
+    syncOnStartup();
+  }, []); // Run once on mount
+  
   // Auto-refresh data when project path changes
   useEffect(() => {
     if (selectedProjectPath) {
@@ -329,6 +415,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dashboardMetrics,
     recentActivity,
     isLoading,
+    isInitializing,
     error,
     aiCopilotVisible,
     selectedProjectPath,
@@ -345,6 +432,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setProjectPath,
     completeOnboarding,
     refreshData,
+    refreshFlows,
     clearError,
   };
 

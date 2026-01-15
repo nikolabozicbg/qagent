@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Search, ChevronDown, AlertCircle, CheckCircle2, Clock, Sparkles, Eye, Play, Settings, Plus } from 'lucide-react';
+import { Search, ChevronDown, AlertCircle, CheckCircle2, Clock, Sparkles, Eye, Play, Settings, Plus, Code } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@contexts/AppContext';
 import { useToast } from '@contexts/ToastContext';
 import { apiService } from '@services/api';
 import { TestGenerationModal } from '@components/TestGenerationModal';
 import { TestRunnerModal } from '@components/TestRunnerModal';
+import { ViewTestCodeModal } from '@components/ViewTestCodeModal';
 
 interface Flow {
   id: string;
@@ -37,6 +38,10 @@ export default function FlowsList() {
   // Test Runner Modal
   const [selectedFlowForRun, setSelectedFlowForRun] = useState<{ id: string; testFile?: string } | null>(null);
   const [isTestRunnerModalOpen, setIsTestRunnerModalOpen] = useState(false);
+  
+  // View Test Code Modal
+  const [selectedFlowForView, setSelectedFlowForView] = useState<{ testFile: string } | null>(null);
+  const [isViewCodeModalOpen, setIsViewCodeModalOpen] = useState(false);
 
   const filteredFlows = flows
     .filter(flow => {
@@ -93,6 +98,12 @@ export default function FlowsList() {
     e.stopPropagation();
     setSelectedFlowForRun({ id: flow.id, testFile: flow.testFile as unknown as string });
     setIsTestRunnerModalOpen(true);
+  };
+  
+  const handleViewCode = (flow: Flow, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedFlowForView({ testFile: flow.testFile as unknown as string });
+    setIsViewCodeModalOpen(true);
   };
 
   return (
@@ -205,7 +216,8 @@ export default function FlowsList() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {flow.status === 'no-tests' ? (
+                  {/* Show Generate Test if no test file exists */}
+                  {!flow.testFile || flow.status === 'no-tests' ? (
                     <>
                       <button
                         onClick={(e) => handleGenerateTest(flow, e)}
@@ -234,6 +246,13 @@ export default function FlowsList() {
                     </>
                   ) : (
                     <>
+                      <button
+                        onClick={(e) => handleViewCode(flow, e)}
+                        className="text-sm px-4 py-2 glass hover:bg-white/10 rounded-lg font-medium transition-colors flex items-center gap-2"
+                      >
+                        <Code className="w-4 h-4" />
+                        View Code
+                      </button>
                       <button
                         onClick={(e) => handleRunTest(flow, e)}
                         className="text-sm px-4 py-2 bg-primary hover:bg-primary-hover rounded-lg font-medium transition-colors flex items-center gap-2"
@@ -362,8 +381,24 @@ export default function FlowsList() {
             setSelectedFlowForRun(null);
           }}
           projectPath={selectedProjectPath}
-          testFiles={selectedFlowForRun?.testFile ? [selectedFlowForRun.testFile] : undefined}
+          testFiles={selectedFlowForRun?.testFile ? [
+            // Extract just the filename from the path (e.g., "tests/e2e/file.spec.ts" -> "file.spec.ts")
+            selectedFlowForRun.testFile.split('/').pop() || selectedFlowForRun.testFile
+          ] : undefined}
           framework="playwright"
+        />
+      )}
+      
+      {/* View Test Code Modal */}
+      {selectedProjectPath && selectedFlowForView && (
+        <ViewTestCodeModal
+          isOpen={isViewCodeModalOpen}
+          onClose={() => {
+            setIsViewCodeModalOpen(false);
+            setSelectedFlowForView(null);
+          }}
+          testFile={selectedFlowForView.testFile}
+          projectPath={selectedProjectPath}
         />
       )}
     </div>

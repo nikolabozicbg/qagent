@@ -32,7 +32,10 @@ export class APIDiscoveryService {
       // Parse code with Babel
       const ast = babel.parseSync(componentCode, {
         sourceType: 'module',
-        plugins: ['jsx', 'typescript'],
+        plugins: [
+          require('@babel/plugin-syntax-jsx'),
+          require('@babel/plugin-syntax-typescript')
+        ],
         filename: componentPath
       });
       

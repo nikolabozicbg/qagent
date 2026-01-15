@@ -1,0 +1,720 @@
+import { Injectable } from '@nestjs/common';
+import { FlowDiscoveryService } from './flow-discovery.service';
+
+/**
+ * Smart Journey Discovery Service
+ * 
+ * Philosophy: Analyze holistically and return Test Suites directly
+ * - Auto-groups journeys into suites by functionality
+ * - Each journey becomes a test case
+ * - Journey steps become test steps
+ * - No mapping needed - returns final structure
+ */
+
+export interface TestSuite {
+  id: string;
+  name: string;
+  description: string;
+  category: 'authentication' | 'crud' | 'navigation' | 'workflow' | 'other';
+  priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  testCases: TestCase[];
+  stats: {
+    totalCases: number;
+    totalSteps: number;
+    estimatedDuration: number; // seconds
+  };
+  metadata: {
+    components: string[];
+    routes: string[];
+    apis: string[];
+    generatedFrom: 'discovery' | 'manual';
+  };
+}
+
+export interface TestCase {
+  id: string;
+  suiteId: string;
+  name: string;
+  description: string;
+  priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  steps: TestStep[];
+  status: 'not-generated' | 'passing' | 'failing' | 'flaky';
+  testData?: {
+    valid?: Record<string, any>;
+    invalid?: Record<string, any>;
+  };
+  metadata: {
+    components: string[];
+    apis: string[];
+    selectors: string[];
+    edgeCases?: string[];
+    estimatedDuration: number;
+  };
+}
+
+export interface TestStep {
+  id: string;
+  caseId: string;
+  index: number;
+  action: 'navigate' | 'click' | 'fill' | 'submit' | 'verify' | 'wait' | 'api-call';
+  target: string;
+  value?: string;
+  description: string;
+  selector?: string;
+  assertions?: string[];
+  api?: {
+    method: string;
+    endpoint: string;
+    expectedStatus: number;
+  };
+}
+
+export interface SuiteDiscoveryResult {
+  success: boolean;
+  suites: TestSuite[];
+  totalCases: number;
+  totalSteps: number;
+  analysisTime: number;
+  metadata: {
+    analysisLayers: string[];
+    coverage: {
+      routes: { total: number; covered: number };
+      components: { total: number; covered: number };
+      apis: { total: number; covered: number };
+    };
+  };
+}
+
+@Injectable()
+export class SmartJourneyDiscoveryService {
+  
+  constructor(private readonly flowDiscoveryService: FlowDiscoveryService) {}
+  
+  /**
+   * Main entry point: Discover test suites from application
+   * Uses existing FlowDiscoveryService and converts journeys to suites
+   */
+  async discoverTestSuites(workspacePath: string): Promise<SuiteDiscoveryResult> {
+    const startTime = Date.now();
+    
+    console.log('🚀 Smart Journey Discovery: Using advanced journey discovery...');
+    
+    try {
+      // Use existing working discovery service
+      const discoveryResult = await this.flowDiscoveryService.discoverJourneysAdvanced(workspacePath);
+      
+      if (!discoveryResult.success || !discoveryResult.journeys) {
+        console.warn('⚠️ Journey discovery returned no results');
+        return this.emptyResult(Date.now() - startTime);
+      }
+      
+      const journeys = discoveryResult.journeys;
+      console.log(`📊 Found ${journeys.length} journeys, converting to test suites...`);
+      
+      // Convert journeys to test suites
+      const suites = this.convertJourneysToSuites(journeys);
+      
+      const analysisTime = Date.now() - startTime;
+      const totalCases = suites.reduce((sum, s) => sum + s.testCases.length, 0);
+      const totalSteps = suites.reduce((sum, s) => 
+        sum + s.testCases.reduce((caseSum, c) => caseSum + c.steps.length, 0), 0
+      );
+      
+      console.log(`✅ Discovery complete: ${suites.length} suites, ${totalCases} cases, ${totalSteps} steps (${analysisTime}ms)`);
+      
+      return {
+        success: true,
+        suites,
+        totalCases,
+        totalSteps,
+        analysisTime,
+        metadata: {
+          analysisLayers: ['graph', 'navigation', 'intent'],
+          coverage: {
+            routes: { 
+              total: discoveryResult.metadata?.nodeCount || 0, 
+              covered: journeys.length 
+            },
+            components: { total: 0, covered: 0 },
+            apis: { total: 0, covered: 0 }
+          }
+        }
+      };
+    } catch (error) {
+      console.error('❌ Suite discovery failed:', error);
+      return this.emptyResult(Date.now() - startTime);
+    }
+  }
+  
+  /**
+   * Convert journeys from FlowDiscoveryService to TestSuites
+   */
+  private convertJourneysToSuites(journeys: any[]): TestSuite[] {
+    // Group journeys by category
+    const suiteMap = new Map<string, any[]>();
+    
+    for (const journey of journeys) {
+      const category = this.categorizeJourney(journey);
+      if (!suiteMap.has(category)) {
+        suiteMap.set(category, []);
+      }
+      suiteMap.get(category)!.push(journey);
+    }
+    
+    // Convert each group to a suite
+    const suites: TestSuite[] = [];
+    let suiteIndex = 1;
+    
+    for (const [category, journeysInSuite] of suiteMap.entries()) {
+      const suiteId = `suite-${suiteIndex++}`;
+      const testCases: TestCase[] = [];
+      
+      for (const journey of journeysInSuite) {
+        const testCase = this.convertJourneyToTestCase(journey, suiteId);
+        testCases.push(testCase);
+      }
+      
+      const suite: TestSuite = {
+        id: suiteId,
+        name: this.getSuiteName(category),
+        description: `Test suite for ${category} functionality`,
+        category: category as any,
+        priority: this.calculateSuitePriority(testCases),
+        testCases,
+        stats: {
+          totalCases: testCases.length,
+          totalSteps: testCases.reduce((sum, c) => sum + c.steps.length, 0),
+          estimatedDuration: testCases.reduce((sum, c) => sum + (c.metadata?.estimatedDuration || 30), 0)
+        },
+        metadata: {
+          components: [...new Set(testCases.flatMap(c => c.metadata?.components || []))],
+          routes: [...new Set(testCases.map(c => journey.route || '').filter(Boolean))],
+          apis: [...new Set(testCases.flatMap(c => c.metadata?.apis || []))],
+          generatedFrom: 'discovery'
+        }
+      };
+      
+      suites.push(suite);
+    }
+    
+    return suites;
+  }
+  
+  /**
+   * Convert single journey to test case
+   */
+  private convertJourneyToTestCase(journey: any, suiteId: string): TestCase {
+    const caseId = `case-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Convert journey steps to test steps
+    const steps: TestStep[] = (journey.steps || []).map((step: any, index: number) => ({
+      id: `step-${caseId}-${index}`,
+      caseId,
+      index,
+      action: this.mapStepAction(step.action || step.type),
+      target: step.target || step.route || step.component || '',
+      value: step.value,
+      description: step.description || `${step.action} ${step.target}`,
+      selector: step.selector,
+      assertions: step.assertions || [],
+      api: step.api
+    }));
+    
+    return {
+      id: caseId,
+      suiteId,
+      name: journey.name || 'Untitled Test Case',
+      description: journey.description || `Test case for ${journey.name}`,
+      priority: this.mapPriority(journey.priority),
+      steps,
+      status: 'not-generated',
+      testData: journey.testData,
+      metadata: {
+        components: journey.components || [],
+        apis: journey.apis || [],
+        selectors: steps.map(s => s.selector).filter(Boolean),
+        edgeCases: journey.edgeCases || [],
+        estimatedDuration: steps.length * 5 // 5 seconds per step estimate
+      }
+    };
+  }
+  
+  /**
+   * Step 2: Discover user journeys with full context
+   */
+  private discoverUserJourneys(model: ApplicationModel): RawJourney[] {
+    console.log('🔍 Discovering user journeys from application model...');
+    
+    const journeys: RawJourney[] = [];
+    
+    // Strategy 1: Form-based flows (auth, CRUD)
+    journeys.push(...this.discoverFormFlows(model));
+    
+    // Strategy 2: Navigation chains
+    journeys.push(...this.discoverNavigationFlows(model));
+    
+    // Strategy 3: Workflow patterns (multi-step processes)
+    journeys.push(...this.discoverWorkflowFlows(model));
+    
+    console.log(`  Found ${journeys.length} raw journeys`);
+    
+    return journeys;
+  }
+  
+  /**
+   * Discover form-based flows (login, register, create, edit, etc.)
+   */
+  private discoverFormFlows(model: ApplicationModel): RawJourney[] {
+    const flows: RawJourney[] = [];
+    
+    // Find all form components
+    const formComponents = model.components.filter(c => c.type === 'form' || this.isFormComponent(c));
+    
+    for (const form of formComponents) {
+      const formName = this.extractFormName(form.filePath);
+      const route = this.inferRouteFromComponent(form, model);
+      const category = this.categorizeForm(formName, form);
+      
+      // Detect form fields
+      const fields = this.extractFormFields(form);
+      
+      // Detect submit action
+      const submitAction = this.detectSubmitAction(form, model);
+      
+      // Detect post-submit navigation
+      const successRoute = this.detectSuccessNavigation(form, model);
+      
+      flows.push({
+        name: `${formName}`,
+        description: `User completes ${formName.toLowerCase()} form`,
+        category,
+        priority: this.calculateFormPriority(formName, category),
+        route,
+        steps: [
+          {
+            action: 'navigate',
+            target: route,
+            description: `Navigate to ${formName} page`,
+            component: form.filePath
+          },
+          {
+            action: 'fill',
+            target: 'form',
+            description: `Fill ${fields.length} form fields`,
+            component: form.filePath,
+            fields,
+            selectors: fields.map(f => f.selector).filter(Boolean)
+          },
+          {
+            action: 'submit',
+            target: 'form',
+            description: 'Submit the form',
+            component: form.filePath,
+            api: submitAction.api
+          },
+          ...(successRoute ? [{
+            action: 'verify' as const,
+            target: 'redirect',
+            description: `Verify redirect to ${successRoute}`,
+            component: form.filePath,
+            assertions: [`URL should be ${successRoute}`]
+          }] : [])
+        ],
+        metadata: {
+          components: [form.filePath],
+          apis: submitAction.api ? [submitAction.api.endpoint] : [],
+          requiresAuth: this.requiresAuth(formName),
+          testDataAvailable: fields.length > 0
+        }
+      });
+    }
+    
+    return flows;
+  }
+  
+  /**
+   * Discover navigation flows
+   */
+  private discoverNavigationFlows(model: ApplicationModel): RawJourney[] {
+    const flows: RawJourney[] = [];
+    
+    // Find important navigation patterns (not simple link clicks)
+    const layoutComponents = model.components.filter(c => 
+      c.type === 'layout' || c.filePath.includes('Layout') || c.filePath.includes('Header')
+    );
+    
+    for (const layout of layoutComponents) {
+      const navInteractions = layout.interactions.filter(i => i.type === 'navigation');
+      
+      for (const nav of navInteractions) {
+        // Skip if it's a simple navigation (handled elsewhere)
+        if (this.isSimpleNavigation(nav)) continue;
+        
+        const sourceName = this.getComponentName(layout.filePath);
+        const targetRoute = nav.target;
+        const category = this.categorizeRoute(targetRoute);
+        
+        flows.push({
+          name: `Navigate to ${this.getRouteName(targetRoute)}`,
+          description: `User navigates from ${sourceName} to ${targetRoute}`,
+          category,
+          priority: this.calculateNavigationPriority(targetRoute, category),
+          route: nav.source || '/',
+          steps: [
+            {
+              action: 'navigate',
+              target: nav.source || '/',
+              description: `Start at ${nav.source || 'homepage'}`,
+              component: layout.filePath
+            },
+            {
+              action: 'click',
+              target: targetRoute,
+              description: `Click navigation link to ${targetRoute}`,
+              component: layout.filePath,
+              selector: this.inferNavigationSelector(nav, layout)
+            },
+            {
+              action: 'verify',
+              target: 'page',
+              description: `Verify page loaded`,
+              component: layout.filePath,
+              assertions: [
+                `URL should be ${targetRoute}`,
+                'Page content should be visible'
+              ]
+            }
+          ],
+          metadata: {
+            components: [layout.filePath],
+            apis: [],
+            requiresAuth: this.routeRequiresAuth(targetRoute),
+            testDataAvailable: false
+          }
+        });
+      }
+    }
+    
+    return flows;
+  }
+  
+  /**
+   * Discover workflow flows (multi-step processes)
+   */
+  private discoverWorkflowFlows(model: ApplicationModel): RawJourney[] {
+    const flows: RawJourney[] = [];
+    
+    // Detect workflows: Create → View → Edit → Delete patterns
+    const crudPatterns = this.detectCRUDPatterns(model);
+    
+    for (const pattern of crudPatterns) {
+      flows.push(...this.createCRUDFlows(pattern, model));
+    }
+    
+    // Detect checkout/payment flows
+    const checkoutFlows = this.detectCheckoutFlows(model);
+    flows.push(...checkoutFlows);
+    
+    return flows;
+  }
+  
+  /**
+   * Step 3: Group journeys into logical suites by category
+   */
+  private groupJourneysIntoSuites(journeys: RawJourney[], model: ApplicationModel): TestSuite[] {
+    console.log('📦 Grouping journeys into test suites...');
+    
+    // Group by category
+    const grouped = new Map<string, RawJourney[]>();
+    
+    for (const journey of journeys) {
+      const category = journey.category || 'other';
+      if (!grouped.has(category)) {
+        grouped.set(category, []);
+      }
+      grouped.get(category)!.push(journey);
+    }
+    
+    // Convert groups to suites
+    const suites: TestSuite[] = [];
+    let suiteIndex = 0;
+    
+    for (const [category, categoryJourneys] of grouped) {
+      const suiteId = `suite-${category}`;
+      const suiteName = this.generateSuiteName(category);
+      const suiteDescription = this.generateSuiteDescription(category, categoryJourneys.length);
+      
+      // Convert journeys to test cases
+      const testCases: TestCase[] = categoryJourneys.map((journey, index) => {
+        const caseId = `case-${category}-${index}`;
+        
+        return {
+          id: caseId,
+          suiteId,
+          name: journey.name,
+          description: journey.description,
+          priority: journey.priority,
+          steps: journey.steps.map((step, stepIndex) => ({
+            id: `${caseId}-step-${stepIndex}`,
+            caseId,
+            index: stepIndex,
+            action: step.action,
+            target: step.target,
+            value: step.value,
+            description: step.description,
+            selector: step.selector || step.selectors?.[0],
+            assertions: step.assertions,
+            api: step.api
+          })),
+          status: 'not-generated' as const,
+          testData: this.generateTestData(journey),
+          metadata: {
+            components: journey.metadata.components,
+            apis: journey.metadata.apis,
+            selectors: journey.steps
+              .flatMap(s => s.selectors || [])
+              .filter(Boolean) as string[],
+            edgeCases: this.suggestEdgeCases(journey),
+            estimatedDuration: journey.steps.length * 2 // 2s per step average
+          }
+        };
+      });
+      
+      // Calculate suite stats
+      const totalSteps = testCases.reduce((sum, c) => sum + c.steps.length, 0);
+      const maxPriority = this.getMaxPriority(testCases.map(c => c.priority));
+      
+      suites.push({
+        id: suiteId,
+        name: suiteName,
+        description: suiteDescription,
+        category: category as any,
+        priority: maxPriority,
+        testCases,
+        stats: {
+          totalCases: testCases.length,
+          totalSteps,
+          estimatedDuration: totalSteps * 2
+        },
+        metadata: {
+          components: [...new Set(testCases.flatMap(c => c.metadata.components))],
+          routes: [...new Set(categoryJourneys.map(j => j.route))],
+          apis: [...new Set(testCases.flatMap(c => c.metadata.apis))],
+          generatedFrom: 'discovery'
+        }
+      });
+    }
+    
+    console.log(`  Created ${suites.length} test suites`);
+    
+    return suites;
+  }
+  
+  /**
+   * Step 4: Enrich suites with smart data
+   */
+  private async enrichSuites(suites: TestSuite[], workspacePath: string): Promise<TestSuite[]> {
+    console.log('✨ Enriching suites with smart data...');
+    
+    for (const suite of suites) {
+      for (const testCase of suite.testCases) {
+        // Enrich selectors (find actual DOM selectors from components)
+        await this.enrichSelectors(testCase, workspacePath);
+        
+        // Enrich test data (generate realistic test data)
+        testCase.testData = await this.enrichTestData(testCase);
+        
+        // Add edge cases
+        testCase.metadata.edgeCases = this.generateEdgeCases(testCase);
+      }
+    }
+    
+    return suites;
+  }
+  
+  /**
+   * Step 5: Finalize suites (calculate priorities, sort)
+   */
+  private finalizeSuites(suites: TestSuite[], model: ApplicationModel): TestSuite[] {
+    // Sort suites by priority
+    suites.sort((a, b) => this.priorityToNumber(b.priority) - this.priorityToNumber(a.priority));
+    
+    // Sort test cases within each suite
+    for (const suite of suites) {
+      suite.testCases.sort((a, b) => this.priorityToNumber(b.priority) - this.priorityToNumber(a.priority));
+    }
+    
+    return suites;
+  }
+  
+  // ============================================================================
+  // Helper Methods
+  // ============================================================================
+  
+  private isFormComponent(component: any): boolean {
+    const lowerPath = component.filePath.toLowerCase();
+    return lowerPath.includes('form') || 
+           lowerPath.includes('login') || 
+           lowerPath.includes('register') ||
+           lowerPath.includes('signup');
+  }
+  
+  private extractFormName(filePath: string): string {
+    const fileName = filePath.split('/').pop()?.replace(/\.(tsx?|jsx?)$/, '') || 'Form';
+    return fileName
+      .replace(/Form$/, '')
+      .replace(/([A-Z])/g, ' $1')
+      .trim();
+  }
+  
+  private categorizeForm(name: string, form: any): 'authentication' | 'crud' | 'workflow' | 'other' {
+    const lower = name.toLowerCase();
+    if (lower.includes('login') || lower.includes('register') || lower.includes('signup') || lower.includes('auth')) {
+      return 'authentication';
+    }
+    if (lower.includes('create') || lower.includes('edit') || lower.includes('update') || lower.includes('delete')) {
+      return 'crud';
+    }
+    if (lower.includes('checkout') || lower.includes('payment') || lower.includes('order')) {
+      return 'workflow';
+    }
+    return 'other';
+  }
+  
+  private calculateFormPriority(name: string, category: string): 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' {
+    if (category === 'authentication') return 'CRITICAL';
+    if (category === 'workflow') return 'HIGH';
+    if (category === 'crud') return 'MEDIUM';
+    return 'LOW';
+  }
+  
+  private categorizeRoute(route: string): string {
+    const lower = route.toLowerCase();
+    if (lower.includes('login') || lower.includes('auth') || lower.includes('register')) return 'authentication';
+    if (lower.includes('dashboard') || lower.includes('home')) return 'navigation';
+    if (lower.includes('profile') || lower.includes('settings')) return 'crud';
+    return 'navigation';
+  }
+  
+  private calculateNavigationPriority(route: string, category: string): 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' {
+    if (route === '/' || route.includes('dashboard')) return 'HIGH';
+    if (category === 'authentication') return 'CRITICAL';
+    return 'MEDIUM';
+  }
+  
+  private generateSuiteName(category: string): string {
+    const names: Record<string, string> = {
+      authentication: '🔐 Authentication Suite',
+      crud: '📝 CRUD Operations Suite',
+      navigation: '🧭 Navigation Suite',
+      workflow: '💰 Workflow Suite',
+      other: '🔧 General Suite'
+    };
+    return names[category] || `${category} Suite`;
+  }
+  
+  private generateSuiteDescription(category: string, caseCount: number): string {
+    return `Test cases for ${category} functionality (${caseCount} cases)`;
+  }
+  
+  private getMaxPriority(priorities: string[]): 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' {
+    if (priorities.includes('CRITICAL')) return 'CRITICAL';
+    if (priorities.includes('HIGH')) return 'HIGH';
+    if (priorities.includes('MEDIUM')) return 'MEDIUM';
+    return 'LOW';
+  }
+  
+  private priorityToNumber(priority: string): number {
+    const map: Record<string, number> = {
+      CRITICAL: 4,
+      HIGH: 3,
+      MEDIUM: 2,
+      LOW: 1
+    };
+    return map[priority] || 0;
+  }
+  
+  private countTotalCases(suites: TestSuite[]): number {
+    return suites.reduce((sum, s) => sum + s.testCases.length, 0);
+  }
+  
+  private countTotalSteps(suites: TestSuite[]): number {
+    return suites.reduce((sum, s) => 
+      sum + s.testCases.reduce((caseSum, c) => caseSum + c.steps.length, 0), 0
+    );
+  }
+  
+  private calculateCoverage(suites: TestSuite[], model: ApplicationModel) {
+    const coveredRoutes = new Set(suites.flatMap(s => s.metadata.routes));
+    const coveredComponents = new Set(suites.flatMap(s => s.metadata.components));
+    const coveredApis = new Set(suites.flatMap(s => s.metadata.apis));
+    
+    return {
+      routes: {
+        total: model.routes?.length || 0,
+        covered: coveredRoutes.size
+      },
+      components: {
+        total: model.components?.length || 0,
+        covered: coveredComponents.size
+      },
+      apis: {
+        total: model.apiCalls?.length || 0,
+        covered: coveredApis.size
+      }
+    };
+  }
+  
+  // Stub methods (to be implemented with actual logic)
+  private inferRouteFromComponent(component: any, model: ApplicationModel): string { return '/'; }
+  private extractFormFields(form: any): any[] { return []; }
+  private detectSubmitAction(form: any, model: ApplicationModel): any { return {}; }
+  private detectSuccessNavigation(form: any, model: ApplicationModel): string | null { return null; }
+  private requiresAuth(name: string): boolean { return name.toLowerCase().includes('login'); }
+  private getComponentName(path: string): string { return path.split('/').pop()?.replace(/\.(tsx?|jsx?)$/, '') || 'Component'; }
+  private getRouteName(route: string): string { return route.split('/').filter(Boolean).pop() || 'page'; }
+  private isSimpleNavigation(nav: any): boolean { return false; }
+  private inferNavigationSelector(nav: any, layout: any): string { return '[data-test="nav-link"]'; }
+  private routeRequiresAuth(route: string): boolean { return !route.includes('login') && route !== '/'; }
+  private detectCRUDPatterns(model: ApplicationModel): any[] { return []; }
+  private createCRUDFlows(pattern: any, model: ApplicationModel): RawJourney[] { return []; }
+  private detectCheckoutFlows(model: ApplicationModel): RawJourney[] { return []; }
+  private generateTestData(journey: RawJourney): any { return {}; }
+  private suggestEdgeCases(journey: RawJourney): string[] { return []; }
+  private async enrichSelectors(testCase: TestCase, workspacePath: string): Promise<void> {}
+  private async enrichTestData(testCase: TestCase): Promise<any> { return {}; }
+  private generateEdgeCases(testCase: TestCase): string[] { return []; }
+}
+
+// Internal types
+interface RawJourney {
+  name: string;
+  description: string;
+  category: string;
+  priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  route: string;
+  steps: RawStep[];
+  metadata: {
+    components: string[];
+    apis: string[];
+    requiresAuth: boolean;
+    testDataAvailable: boolean;
+  };
+}
+
+interface RawStep {
+  action: 'navigate' | 'click' | 'fill' | 'submit' | 'verify' | 'wait';
+  target: string;
+  description: string;
+  component: string;
+  value?: string;
+  selector?: string;
+  selectors?: string[];
+  fields?: any[];
+  assertions?: string[];
+  api?: {
+    method: string;
+    endpoint: string;
+    expectedStatus: number;
+  };
+}

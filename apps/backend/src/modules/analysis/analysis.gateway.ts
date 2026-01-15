@@ -119,4 +119,102 @@ export class AnalysisGateway {
     const room = `discovery:${workspacePath}`;
     this.server.to(room).emit('progress', progress);
   }
+
+  /**
+   * Test Generation WebSocket Events
+   */
+  emitTestGenerationProgress(workspacePath: string, data: {
+    step: string;
+    percentage: number;
+    message: string;
+  }) {
+    const room = `discovery:${workspacePath}`;
+    this.server.to(room).emit('test:generation:progress', data);
+  }
+
+  emitTestGenerationStep(workspacePath: string, data: {
+    step: string;
+    message: string;
+  }) {
+    const room = `discovery:${workspacePath}`;
+    this.server.to(room).emit('test:generation:step', data);
+  }
+
+  emitTestGenerationDecision(workspacePath: string, data: {
+    decision: string;
+    reason?: string;
+  }) {
+    const room = `discovery:${workspacePath}`;
+    this.server.to(room).emit('test:generation:decision', data);
+  }
+
+  emitTestGenerationComplete(workspacePath: string, data: {
+    code: string;
+    filePath: string;
+    stats?: {
+      lines: number;
+      testCases: number;
+      assertions: number;
+    };
+    testCases?: Array<{ name: string; type: string }>;
+  }) {
+    const room = `discovery:${workspacePath}`;
+    this.server.to(room).emit('test:generation:complete', data);
+  }
+
+  emitTestGenerationError(workspacePath: string, error: string) {
+    const room = `discovery:${workspacePath}`;
+    this.server.to(room).emit('test:generation:error', { error });
+  }
+
+  /**
+   * Test Execution WebSocket Events
+   */
+  emitTestRunUpdate(workspacePath: string, data: {
+    testFile: string;
+    status: 'running' | 'passed' | 'failed' | 'skipped';
+    duration?: number;
+    error?: string;
+  }) {
+    const room = `discovery:${workspacePath}`;
+    this.server.to(room).emit('test:run:update', data);
+  }
+
+  emitTestRunConsole(workspacePath: string, data: {
+    timestamp: string;
+    level: 'info' | 'warn' | 'error' | 'debug';
+    message: string;
+  }) {
+    const room = `discovery:${workspacePath}`;
+    this.server.to(room).emit('test:run:console', data);
+  }
+
+  emitTestRunNetwork(workspacePath: string, data: {
+    method: string;
+    url: string;
+    status: number;
+    duration: number;
+  }) {
+    const room = `discovery:${workspacePath}`;
+    this.server.to(room).emit('test:run:network', data);
+  }
+
+  emitTestRunArtifact(workspacePath: string, data: {
+    type: 'screenshot' | 'video' | 'trace';
+    path: string;
+    testId: string;
+  }) {
+    const room = `discovery:${workspacePath}`;
+    this.server.to(room).emit('test:run:artifact', data);
+  }
+
+  emitTestRunComplete(workspacePath: string, data: {
+    passed: number;
+    failed: number;
+    total: number;
+    duration: number;
+  }) {
+    const room = `discovery:${workspacePath}`;
+    this.server.to(room).emit('test:run:complete', data);
+  }
 }

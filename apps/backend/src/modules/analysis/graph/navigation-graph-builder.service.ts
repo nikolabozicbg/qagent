@@ -104,7 +104,10 @@ export class NavigationGraphBuilderService {
     try {
       return parser.parse(code, {
         sourceType: 'module',
-        plugins: ['jsx', 'typescript']
+        plugins: [
+          require('@babel/plugin-syntax-jsx'),
+          require('@babel/plugin-syntax-typescript')
+        ]
       });
     } catch (error) {
       console.warn('Failed to parse component:', error.message);

@@ -10,11 +10,13 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('/health')
-  getHealth() {
-    return {
-      status: 'ok',
-      timestamp: new Date().toISOString(),
+  @Get('health')
+  health() {
+    return { 
+      status: 'ok', 
+      timestamp: Date.now(),
+      service: 'qagent-backend',
+      version: '1.0.0'
     };
   }
 }

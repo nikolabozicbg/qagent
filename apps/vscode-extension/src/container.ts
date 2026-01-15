@@ -2,7 +2,8 @@ import * as vscode from 'vscode';
 import { OnboardingService } from './services/onboarding.service';
 import { DashboardService } from './services/dashboard.service';
 import { TestGenerationService } from './services/test-generation.service';
-import { UnifiedMainViewProvider } from './webviews/unified-main.webview';
+import { PanelManager } from './services/panel-manager.service';
+import { CompactSidebarWebview } from './webviews/compact-sidebar.webview';
 import { DiscoveredFlow } from './types';
 
 /**
@@ -15,7 +16,8 @@ export class ServiceContainer {
   private _onboardingService?: OnboardingService;
   private _dashboardService?: DashboardService;
   private _testGenerationService?: TestGenerationService;
-  private _mainViewProvider?: UnifiedMainViewProvider;
+  private _panelManager?: PanelManager;
+  private _sidebarProvider?: CompactSidebarWebview;
 
   constructor(private readonly context: vscode.ExtensionContext) {
     this.registerProviders();
@@ -46,15 +48,21 @@ export class ServiceContainer {
     return this._testGenerationService;
   }
 
-  get mainViewProvider(): UnifiedMainViewProvider {
-    if (!this._mainViewProvider) {
-      this._mainViewProvider = new UnifiedMainViewProvider(
+  get panelManager(): PanelManager {
+    if (!this._panelManager) {
+      this._panelManager = new PanelManager(this.context, this.dashboardService);
+    }
+    return this._panelManager;
+  }
+
+  get sidebarProvider(): CompactSidebarWebview {
+    if (!this._sidebarProvider) {
+      this._sidebarProvider = new CompactSidebarWebview(
         this.context,
-        this.dashboardService,
-        this.testGenerationService
+        this.dashboardService
       );
     }
-    return this._mainViewProvider;
+    return this._sidebarProvider;
   }
 
   // ============================================
@@ -62,11 +70,11 @@ export class ServiceContainer {
   // ============================================
 
   private registerProviders(): void {
-    // Register unified main webview provider
+    // Register compact sidebar webview provider
     this.context.subscriptions.push(
       vscode.window.registerWebviewViewProvider(
-        UnifiedMainViewProvider.viewType,
-        this.mainViewProvider
+        CompactSidebarWebview.viewType,
+        this.sidebarProvider
       )
     );
   }
@@ -83,14 +91,25 @@ export class ServiceContainer {
   }
 
   /**
-   * Show main dashboard
+   * Show sidebar (focus sidebar view)
+   */
+  async showSidebar(): Promise<void> {
+    // Refresh sidebar
+    await this.sidebarProvider.refresh();
+    
+    // Focus the sidebar
+    await vscode.commands.executeCommand('workbench.view.extension.qagenai');
+  }
+
+  /**
+   * Show main dashboard in central editor
    */
   async showDashboard(): Promise<void> {
-    // Force refresh first
-    await this.mainViewProvider.refresh();
+    // Open dashboard in central editor via PanelManager
+    this.panelManager.openDashboard();
     
-    // Focus the unified main view
-    await vscode.commands.executeCommand('workbench.view.extension.qagenai');
+    // Also show sidebar for quick access
+    await this.showSidebar();
   }
 
   /**
@@ -102,9 +121,37 @@ export class ServiceContainer {
   }
 
   /**
+   * Get dashboard service (for commands)
+   */
+  get dashboardServicePublic(): DashboardService {
+    return this.dashboardService;
+  }
+
+  /**
+   * Get test generation service (for commands)
+   */
+  get testGenerationServicePublic(): TestGenerationService {
+    return this.testGenerationService;
+  }
+
+  /**
    * Show discovery results screen
    */
   async showDiscoveryResults(journeys: DiscoveredFlow[], projectInfo?: any): Promise<void> {
-    await this.mainViewProvider.showResults(journeys);
+    // TODO: Implement discovery results in central editor panel
+    // For now, just refresh sidebar
+    await this.sidebarProvider.refresh();
+  }
+
+  /**
+   * Refresh all views (sidebar + panels)
+   * Call this after any data change (add/update/delete flow, test run, etc.)
+   */
+  async refreshAll(): Promise<void> {
+    // Refresh sidebar
+    await this.sidebarProvider.refresh();
+    
+    // Refresh all open panels
+    await this.panelManager.refreshAll();
   }
 }

@@ -4,17 +4,9 @@ import { useApp } from '@contexts/AppContext';
 import { useToast } from '@contexts/ToastContext';
 import { apiService } from '@services/api';
 
-interface ProjectConfig {
-  projectPath: string;
-  framework: 'playwright' | 'cypress';
-  baseUrl: string;
-  testDir: string;
-  auth?: {
-    enabled: boolean;
-    username?: string;
-    password?: string;
-  };
-}
+import type { ProjectConfig } from '@/types/suite.types';
+
+// Use unified ProjectConfig from suite.types
 
 interface Preferences {
   theme: 'dark' | 'light' | 'system';
@@ -31,8 +23,9 @@ export default function Settings() {
   const [isSaving, setIsSaving] = useState(false);
   const [testConnectionStatus, setTestConnectionStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
 
-  const [projectConfig, setProjectConfig] = useState<ProjectConfig>({
+const [projectConfig, setProjectConfig] = useState<ProjectConfig>({
     projectPath: selectedProjectPath || '',
+    projectName: selectedProjectPath?.split('/').pop() || 'project',
     framework: 'playwright',
     baseUrl: 'http://localhost:3000',
     testDir: 'tests/e2e',
@@ -60,8 +53,20 @@ export default function Settings() {
 
   const loadProjectConfig = async () => {
     try {
-      const config = await apiService.getProjectConfig(selectedProjectPath!);
-      setProjectConfig(prev => ({ ...prev, ...config }));
+      // Load from /projects endpoint (same storage as Setup flow)
+      const response = await apiService.getProject(selectedProjectPath!);
+      // API returns { config: {...}, suites: [...] } - extract config
+      const project = response?.config || response;
+      if (project) {
+        setProjectConfig({
+          projectPath: project.projectPath || selectedProjectPath!,
+          projectName: project.projectName || selectedProjectPath!.split('/').pop() || 'project',
+          framework: project.framework || 'playwright',
+          baseUrl: project.baseUrl || 'http://localhost:3000',
+          testDir: project.testDir || 'tests/e2e',
+          auth: project.auth || { enabled: false, username: '', password: '' },
+        });
+      }
     } catch (error) {
       console.error('Failed to load config:', error);
     }
@@ -70,11 +75,20 @@ export default function Settings() {
   const handleSaveProject = async () => {
     setIsSaving(true);
     try {
-      await apiService.saveProjectConfig(projectConfig);
-      showToast({
-        type: 'success',
-        message: 'Project configuration saved successfully',
+      // Upsert via /projects so Setup and Settings share the same source
+      await apiService.createProject({
+        projectPath: projectConfig.projectPath,
+        projectName: projectConfig.projectPath.split('/').pop() || 'project',
+        framework: projectConfig.framework,
+        baseUrl: projectConfig.baseUrl,
+        testDir: projectConfig.testDir,
+        auth: projectConfig.auth,
       });
+      // If auth enabled or changed, regenerate auth setup
+      if (projectConfig.auth?.enabled && projectConfig.auth.username && projectConfig.auth.password) {
+        await apiService.generateAuthSetup({ projectPath: projectConfig.projectPath, auth: projectConfig.auth, testDir: projectConfig.testDir });
+      }
+      showToast({ type: 'success', message: 'Project configuration saved successfully' });
     } catch (error: any) {
       showToast({
         type: 'error',

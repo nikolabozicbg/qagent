@@ -6,6 +6,8 @@ import {
   FlowsSummary,
   TestingSummary,
   RiskQueueSummary,
+  TestResult,
+  TestRun,
 } from '../types/dashboard.types';
 import { OnboardingState, DiscoveredFlow, DetectedStack } from '../types/onboarding.types';
 import { RiskQueueService } from './risk-queue.service';
@@ -22,7 +24,12 @@ import { log } from '../extension';
 export class DashboardService {
   private static readonly ONBOARDING_STATE_KEY = 'qagenai.onboardingState';
   private static readonly FLOWS_KEY = 'qagenai.dashboardFlows';
+  private static readonly TEST_RESULTS_KEY = 'qagenai.testResults';
+  private static readonly TEST_HISTORY_KEY = 'qagenai.testHistory';
   private riskQueueService: RiskQueueService;
+  
+  // Track currently running test (SCREEN 5)
+  private runningFlowId: string | null = null;
 
   constructor(private readonly context: vscode.ExtensionContext) {
     this.riskQueueService = new RiskQueueService(context);
@@ -106,13 +113,40 @@ export class DashboardService {
    */
   async addFlow(flow: Partial<DashboardFlow>): Promise<DashboardFlow> {
     const flows = await this.getFlows();
+    
+    // Extract data from journeyData if available
+    let routes: string[] = flow.routes || [];
+    let components: string[] = flow.components || [];
+    let description = flow.description || '';
+    
+    if (flow.journeyData) {
+      log('[DashboardService] journeyData keys:', Object.keys(flow.journeyData));
+      log('[DashboardService] journeyData.journey:', (flow.journeyData as any).journey);
+      const journey = (flow.journeyData as any).journey;
+      
+      // Extract routes from journey
+      if (journey?.routes && Array.isArray(journey.routes)) {
+        routes = journey.routes;
+      }
+      
+      // Extract components from journey steps or componentsAnalysis
+      if (journey?.steps && Array.isArray(journey.steps)) {
+        components = journey.steps.map((s: any) => s.component || s.name).filter(Boolean);
+      }
+      
+      // Use journey description if not provided
+      if (!description && journey?.description) {
+        description = journey.description;
+      }
+    }
+    
     const newFlow: DashboardFlow = {
       id: this.generateId(),
       name: flow.name || 'New Flow',
-      description: flow.description || '',
+      description,
       confidence: flow.confidence || 100,
-      routes: flow.routes || [],
-      components: flow.components || [],
+      routes,
+      components,
       selected: true,
       status: 'draft',
       ...flow,
@@ -172,6 +206,20 @@ export class DashboardService {
    */
   getRiskQueueService(): RiskQueueService {
     return this.riskQueueService;
+  }
+
+  /**
+   * Set currently running flow (SCREEN 5)
+   */
+  setRunningFlow(flowId: string | null): void {
+    this.runningFlowId = flowId;
+  }
+
+  /**
+   * Get currently running flow ID (SCREEN 5)
+   */
+  getRunningFlowId(): string | null {
+    return this.runningFlowId;
   }
 
   // ============================================
@@ -243,20 +291,275 @@ export class DashboardService {
     // Get coverage goal from settings
     const coverageGoal = vscode.workspace.getConfiguration('qagenai').get<number>('coverageGoal') || 80;
     
-    // TODO: In Phase 3+, get real coverage data
-    // For now, return placeholder data
+    // Get real test results from workspace state
+    const testResults = this.getTestResults();
+    
+    // Calculate real metrics
+    const totalTests = testResults.length;
+    const passingTests = testResults.filter(r => r.status === 'passed').length;
+    const failingTests = testResults.filter(r => r.status === 'failed').length;
+    
+    // Calculate flaky tests (tests that have both passed and failed in recent runs)
+    const flakyTests = this.calculateFlakyTests(testResults);
+    
+    // Get coverage from latest test run (if available)
+    const latestRun = this.getLatestTestRun();
+    const coverage = latestRun?.coverage || 0;
+    
     return {
-      coverage: 0,
+      coverage,
       coverageGoal,
-      totalTests: 0,
-      passingTests: 0,
-      failingTests: 0,
-      flakyTests: 0,
+      totalTests,
+      passingTests,
+      failingTests,
+      flakyTests,
     };
   }
 
 
   private generateId(): string {
     return `flow-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  // ============================================
+  // Test Results & Health Score
+  // ============================================
+
+  /**
+   * Get all test results from workspace state
+   */
+  getTestResults(): Array<TestRun & { flowId: string; flowName: string }> {
+    return this.context.workspaceState.get<Array<TestRun & { flowId: string; flowName: string }>>(
+      DashboardService.TEST_RESULTS_KEY
+    ) || [];
+  }
+
+  /**
+   * Get test results for a specific flow
+   */
+  getFlowTestResults(flowId: string): Array<TestRun> {
+    const allResults = this.getTestResults();
+    return allResults.filter(r => r.flowId === flowId);
+  }
+
+  /**
+   * Get latest test run across all flows
+   */
+  getLatestTestRun(): (TestRun & { flowId: string; flowName: string; coverage?: number }) | undefined {
+    const results = this.getTestResults();
+    if (results.length === 0) return undefined;
+    
+    return results.sort((a, b) => 
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    )[0];
+  }
+
+  /**
+   * Record a test execution result
+   */
+  async recordTestResult(flowId: string, flowName: string, result: TestRun): Promise<void> {
+    const results = this.getTestResults();
+    
+    // Add flow info to result
+    const testResult = {
+      ...result,
+      flowId,
+      flowName,
+    };
+    
+    results.push(testResult);
+    
+    // Keep only last 100 results to avoid bloat
+    const trimmedResults = results.slice(-100);
+    
+    await this.context.workspaceState.update(DashboardService.TEST_RESULTS_KEY, trimmedResults);
+    
+    // Update test history for trends
+    await this.updateTestHistory();
+    
+    log(`[DashboardService] Recorded test result for flow ${flowName}:`, result.status);
+  }
+
+  /**
+   * Calculate health score (0-100)
+   * Formula: (passingTests / totalTests * 70) + (coverage / coverageGoal * 30)
+   */
+  calculateHealthScore(): number {
+    const testing = this.getTestingSummary();
+    
+    // If no tests, health = 0
+    if (testing.totalTests === 0) {
+      return 0;
+    }
+    
+    // Test pass rate (70% weight)
+    const testScore = (testing.passingTests / testing.totalTests) * 70;
+    
+    // Coverage score (30% weight)
+    const coverageScore = testing.coverageGoal > 0 
+      ? (testing.coverage / testing.coverageGoal) * 30
+      : 0;
+    
+    // Total score
+    const healthScore = Math.min(100, Math.round(testScore + coverageScore));
+    
+    log(`[DashboardService] Health score: ${healthScore}% (tests: ${testScore.toFixed(1)}, coverage: ${coverageScore.toFixed(1)})`);
+    
+    return healthScore;
+  }
+
+  /**
+   * Calculate flaky tests (tests with inconsistent results)
+   */
+  private calculateFlakyTests(testResults: Array<TestRun & { flowId: string }>): number {
+    // Group by flowId
+    const flowGroups = new Map<string, TestRun[]>();
+    
+    testResults.forEach(result => {
+      if (!flowGroups.has(result.flowId)) {
+        flowGroups.set(result.flowId, []);
+      }
+      flowGroups.get(result.flowId)!.push(result);
+    });
+    
+    // Count flows with both passed and failed results
+    let flakyCount = 0;
+    
+    flowGroups.forEach(runs => {
+      // Look at last 5 runs
+      const recentRuns = runs.slice(-5);
+      const hasPassed = recentRuns.some(r => r.status === 'passed');
+      const hasFailed = recentRuns.some(r => r.status === 'failed');
+      
+      if (hasPassed && hasFailed) {
+        flakyCount++;
+      }
+    });
+    
+    return flakyCount;
+  }
+
+  /**
+   * Update test history for trend charts
+   */
+  private async updateTestHistory(): Promise<void> {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    
+    // Get existing history
+    interface TestHistoryEntry {
+      date: string;
+      healthScore: number;
+      totalTests: number;
+      passingTests: number;
+      failingTests: number;
+      coverage: number;
+    }
+    
+    const history = this.context.workspaceState.get<TestHistoryEntry[]>(
+      DashboardService.TEST_HISTORY_KEY
+    ) || [];
+    
+    // Calculate current stats
+    const testing = this.getTestingSummary();
+    const healthScore = this.calculateHealthScore();
+    
+    // Find today's entry or create new one
+    const todayIndex = history.findIndex(h => h.date === today);
+    const todayEntry: TestHistoryEntry = {
+      date: today,
+      healthScore,
+      totalTests: testing.totalTests,
+      passingTests: testing.passingTests,
+      failingTests: testing.failingTests,
+      coverage: testing.coverage,
+    };
+    
+    if (todayIndex >= 0) {
+      // Update existing entry
+      history[todayIndex] = todayEntry;
+    } else {
+      // Add new entry
+      history.push(todayEntry);
+    }
+    
+    // Keep only last 30 days
+    const trimmedHistory = history.slice(-30);
+    
+    await this.context.workspaceState.update(DashboardService.TEST_HISTORY_KEY, trimmedHistory);
+  }
+
+  /**
+   * Get test history for trend charts
+   */
+  getTestHistory(days: number = 7): Array<{
+    date: string;
+    healthScore: number;
+    totalTests: number;
+    passingTests: number;
+    failingTests: number;
+    coverage: number;
+  }> {
+    const history = this.context.workspaceState.get<Array<{
+      date: string;
+      healthScore: number;
+      totalTests: number;
+      passingTests: number;
+      failingTests: number;
+      coverage: number;
+    }>>(
+      DashboardService.TEST_HISTORY_KEY
+    ) || [];
+    
+    // Return last N days
+    return history.slice(-days);
+  }
+
+  /**
+   * Get average test duration across all tests
+   */
+  getAverageTestDuration(): number {
+    const results = this.getTestResults();
+    if (results.length === 0) return 0;
+    
+    const totalRuntime = results.reduce((sum, r) => sum + r.runtime, 0);
+    return totalRuntime / results.length;
+  }
+
+  /**
+   * Get slow tests (> 10 seconds)
+   */
+  getSlowTests(): Array<{ flowId: string; flowName: string; runtime: number }> {
+    const results = this.getTestResults();
+    return results
+      .filter(r => r.runtime > 10)
+      .map(r => ({
+        flowId: r.flowId,
+        flowName: r.flowName,
+        runtime: r.runtime,
+      }))
+      .sort((a, b) => b.runtime - a.runtime)
+      .slice(0, 5); // Top 5 slowest
+  }
+
+  /**
+   * Get failing tests with error messages
+   */
+  getFailingTests(): Array<{ 
+    flowId: string; 
+    flowName: string; 
+    error?: string;
+    timestamp: Date;
+  }> {
+    const results = this.getTestResults();
+    return results
+      .filter(r => r.status === 'failed')
+      .map(r => ({
+        flowId: r.flowId,
+        flowName: r.flowName,
+        error: r.artifacts?.htmlReport, // Error details can be in artifacts
+        timestamp: r.timestamp,
+      }))
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, 10); // Last 10 failures
   }
 }

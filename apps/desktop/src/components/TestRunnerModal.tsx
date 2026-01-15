@@ -58,6 +58,17 @@ export function TestRunnerModal({
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
   const [activeTab, setActiveTab] = useState<'tests' | 'console' | 'network' | 'artifacts'>('tests');
 
+  // Auto-run tests when modal opens
+  useEffect(() => {
+    if (isOpen && !isRunning && tests.length === 0) {
+      // Small delay to ensure UI is ready
+      const timer = setTimeout(() => {
+        handleRunTests();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+  
   useEffect(() => {
     if (!isOpen) return;
 
@@ -137,6 +148,14 @@ export function TestRunnerModal({
   }, [isOpen, showToast]);
 
   const handleRunTests = async () => {
+    // Debug: Check if Electron API is available
+    console.log('🔍 Checking Electron API:', {
+      hasWindow: typeof window !== 'undefined',
+      hasElectronAPI: !!window.electronAPI,
+      hasRunPlaywrightTests: !!window.electronAPI?.runPlaywrightTests,
+      allAPIs: window.electronAPI ? Object.keys(window.electronAPI) : []
+    });
+    
     setIsRunning(true);
     setIsPaused(false);
     setTests([]);
@@ -149,8 +168,12 @@ export function TestRunnerModal({
     try {
       // Use Electron IPC to run tests directly in project
       if (window.electronAPI?.runPlaywrightTests) {
-        // Setup event listeners for live output
-        const consoleCleanup = window.electronAPI.onTestConsole((data) => {
+        // Setup event listeners for live output BEFORE running tests
+        let consoleCleanup: (() => void) | undefined;
+        let completeCleanup: (() => void) | undefined;
+        
+        consoleCleanup = window.electronAPI.onTestConsole((data) => {
+          console.log('📟 Test console:', data.message);
           setConsoleLogs(prev => [...prev, {
             timestamp: data.timestamp,
             level: data.level as 'info' | 'warn' | 'error' | 'debug',
@@ -158,7 +181,15 @@ export function TestRunnerModal({
           }]);
         });
         
-        const completeCleanup = window.electronAPI.onTestComplete((data) => {
+        completeCleanup = window.electronAPI.onTestComplete((data: any) => {
+          console.log('✅ Test complete:', data);
+          
+          // Update tests from completion data if available
+          if (data.tests && Array.isArray(data.tests)) {
+            console.log('📝 Test results:', data.tests);
+            setTests(data.tests);
+          }
+          
           setSummary({
             passed: data.passed,
             failed: data.failed,
@@ -183,12 +214,48 @@ export function TestRunnerModal({
             });
           }
           
-          // Cleanup event listeners
-          consoleCleanup();
-          completeCleanup();
+          // Cleanup event listeners after completion
+          if (consoleCleanup) consoleCleanup();
+          if (completeCleanup) completeCleanup();
         });
         
+        // Small delay to ensure listeners are registered
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Check if app is running before executing tests
+        // Read baseURL from .qagent/config.json
+        let baseURL = 'http://localhost:3000'; // default
+        try {
+          const configPath = `${projectPath}/.qagent/config.json`;
+          if (window.electronAPI?.readFile) {
+            const configResult = await window.electronAPI.readFile(configPath);
+            if (configResult.ok && configResult.contents) {
+              const config = JSON.parse(configResult.contents);
+              baseURL = config.baseUrl || baseURL;
+            }
+          }
+        } catch (err) {
+          console.warn('Could not read baseURL from config:', err);
+        }
+        
+        // Test connection
+        try {
+          const response = await fetch(baseURL, { method: 'HEAD' });
+          if (!response.ok) {
+            throw new Error(`App not responding at ${baseURL}`);
+          }
+          console.log('✅ App is running at', baseURL);
+        } catch (err) {
+          setIsRunning(false);
+          showToast({
+            type: 'error',
+            message: `App not running at ${baseURL}. Please start your app first.`,
+          });
+          return;
+        }
+        
         // Run tests
+        console.log('🚀 Starting test execution...');
         const result = await window.electronAPI.runPlaywrightTests({
           projectPath,
           testFiles
@@ -196,12 +263,8 @@ export function TestRunnerModal({
         
         console.log('Test execution completed:', result);
       } else {
-        // Fallback to backend API (shouldn't happen in Electron)
-        await apiService.runTests({
-          projectPath,
-          testFiles,
-          framework,
-        });
+        // Electron API not available
+        throw new Error('Test execution not available - Electron API required');
       }
     } catch (error: any) {
       setIsRunning(false);

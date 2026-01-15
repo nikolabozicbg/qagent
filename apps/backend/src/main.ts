@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { json, urlencoded } from 'express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -30,17 +31,34 @@ async function bootstrap() {
     next();
   });
 
+  // Swagger setup (only in development)
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('QAgent API')
+      .setDescription('AI-powered test generation backend')
+      .setVersion('1.0')
+      .addTag('projects', 'Project management')
+      .addTag('admin', 'Admin/Dev operations')
+      .addTag('analysis', 'Code analysis and discovery')
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, document);
+  }
+
   const port = process.env.PORT || 3001;
   await app.listen(port);
 
   const hasOpenAIKey = !!process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'sk-your-api-key-here';
+  const hasDB = !!process.env.DATABASE_URL;
 
   console.log('\n' + '='.repeat(60));
   console.log('🚀 QAgent Backend Started');
   console.log('='.repeat(60));
   console.log(`📍 Server: http://localhost:${port}`);
+  console.log(`📚 Swagger: http://localhost:${port}/api`);
   console.log(`📡 Health: http://localhost:${port}/system/health`);
   console.log(`🔑 OpenAI: ${hasOpenAIKey ? '✅ Configured' : '⚠️  Mock Mode (no API key)'}`);
+  console.log(`🗄️  Database: ${hasDB ? '✅ PostgreSQL' : '⚠️  In-Memory'}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log('='.repeat(60) + '\n');
 }

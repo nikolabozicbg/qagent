@@ -34,7 +34,10 @@ export class ReactRouterParserService {
       // Parse with Babel (supports JSX + TypeScript)
       const ast = parser.parse(code, {
         sourceType: 'module',
-        plugins: ['jsx', 'typescript'],
+        plugins: [
+          require('@babel/plugin-syntax-jsx'),
+          require('@babel/plugin-syntax-typescript')
+        ],
       });
       
       const routes: ParsedRoute[] = [];

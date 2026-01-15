@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Sparkles, CheckCircle2, AlertCircle, Loader2, Code, Download, Clock } from 'lucide-react';
 import { apiService } from '@services/api';
 import { wsService } from '@services/websocket';
+import { playwrightService } from '@services/playwright';
 import { useToast } from '@contexts/ToastContext';
 import { notificationService } from '@services/notification';
 import { useApp } from '@contexts/AppContext';
@@ -44,7 +45,6 @@ export function TestGenerationModal({
 }: TestGenerationModalProps) {
   const { showToast } = useToast();
   const { flows } = useApp();
-  const [framework, setFramework] = useState<'playwright' | 'cypress'>('playwright');
   const [includeEdgeCases, setIncludeEdgeCases] = useState(true);
   const [includeAccessibility, setIncludeAccessibility] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -271,14 +271,25 @@ export function TestGenerationModal({
       // Use Electron IPC to save file
       if (window.electronAPI?.saveTestFile) {
         const fileName = `${flowName.toLowerCase().replace(/\s+/g, '-')}.spec.ts`;
-        const filePath = `tests/e2e/${fileName}`;
         
-        const result = await window.electronAPI.saveTestFile(filePath, codeToSave);
+        // Get testDir from Playwright config, fallback to 'tests/e2e'
+        let testDir = 'tests/e2e';
+        try {
+          testDir = await playwrightService.getTestDir(projectPath);
+        } catch (err) {
+          console.warn('Failed to get testDir from config, using default:', err);
+        }
+        
+        const relativePath = `${testDir}/${fileName}`;
+        // Construct absolute path using project path from context
+        const absolutePath = `${projectPath}/${relativePath}`;
+        
+        const result = await window.electronAPI.saveTestFile(absolutePath, codeToSave);
         
         if (result.ok) {
           // Open in editor if requested
           if (saveOptions.openInEditor && window.electronAPI?.openInEditor) {
-            await window.electronAPI.openInEditor(filePath);
+            await window.electronAPI.openInEditor(absolutePath);
           }
           
           // Add to git if requested
@@ -292,12 +303,12 @@ export function TestGenerationModal({
           
           showToast({
             type: 'success',
-            message: `Test saved to ${filePath}`,
+            message: `Test saved to ${relativePath}`,
           });
           
-          // Call onComplete callback with file path before closing
+          // Call onComplete callback with relative path for display purposes
           if (onComplete) {
-            onComplete(filePath);
+            onComplete(relativePath);
           }
           
           onClose();
@@ -380,24 +391,10 @@ export function TestGenerationModal({
                     <label className="text-sm text-white/80 mb-2 block">Test Framework</label>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => setFramework('playwright')}
-                        className={`flex-1 px-4 py-3 rounded-lg font-medium transition-colors ${
-                          framework === 'playwright'
-                            ? 'bg-primary text-white'
-                            : 'glass hover:bg-white/10'
-                        }`}
+                        className="flex-1 px-4 py-3 rounded-lg font-medium bg-primary text-white cursor-default"
+                        disabled
                       >
                         Playwright
-                      </button>
-                      <button
-                        onClick={() => setFramework('cypress')}
-                        className={`flex-1 px-4 py-3 rounded-lg font-medium transition-colors ${
-                          framework === 'cypress'
-                            ? 'bg-primary text-white'
-                            : 'glass hover:bg-white/10'
-                        }`}
-                      >
-                        Cypress
                       </button>
                     </div>
                   </div>
