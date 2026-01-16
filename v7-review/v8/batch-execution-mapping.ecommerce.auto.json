@@ -1,0 +1,17 @@
+{
+  "version": "v8-mapping-1",
+  "startPath": "/",
+  "actions": {
+    "ua:ccc7b6e9": {
+      "type": "click",
+      "selector": "a[href='/shop']"
+    }
+  },
+  "batch": {
+    "goalIds": [
+      "goal:ua:ccc7b6e9"
+    ],
+    "mode": "isolated",
+    "timeoutMs": 10000
+  }
+}

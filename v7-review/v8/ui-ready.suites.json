@@ -1,0 +1,308 @@
+{
+  "success": true,
+  "suites": [
+    {
+      "name": "UNCLUSTERED",
+      "cases": [
+        {
+          "name": "HTTP:15 | STATE:delta | UI:errors",
+          "goalId": "goal:ua:ccc7b6e9",
+          "steps": [
+            {
+              "action": {
+                "type": "click",
+                "selector": "a[href='/shop']"
+              },
+              "assertions": [
+                {
+                  "type": "http_observed",
+                  "method": "GET",
+                  "url": "http://localhost:5000/api/v1/users/me"
+                },
+                {
+                  "type": "http_observed",
+                  "method": "POST",
+                  "url": "http://localhost:3005/__nextjs_original-stack-frames",
+                  "status": 200
+                },
+                {
+                  "type": "http_observed",
+                  "method": "GET",
+                  "url": "http://localhost:3005/__nextjs_font/geist-latin.woff2",
+                  "status": 200
+                },
+                {
+                  "type": "http_observed",
+                  "method": "POST",
+                  "url": "http://localhost:5000/api/v1/graphql"
+                },
+                {
+                  "type": "http_observed",
+                  "method": "GET",
+                  "url": "http://localhost:3005/_next/static/chunks/_app-pages-browser_app_components_templates_MainLayout_tsx.js",
+                  "status": 200
+                },
+                {
+                  "type": "http_observed",
+                  "method": "POST",
+                  "url": "http://localhost:3005/__nextjs_original-stack-frames",
+                  "status": 200
+                },
+                {
+                  "type": "http_observed",
+                  "method": "GET",
+                  "url": "http://localhost:3005/_next/static/chunks/_app-pages-browser_app_public_home_HeroSection_tsx.js",
+                  "status": 200
+                },
+                {
+                  "type": "http_observed",
+                  "method": "GET",
+                  "url": "http://localhost:3005/_next/static/chunks/_app-pages-browser_app_public_home_CategoryBar_tsx.js",
+                  "status": 200
+                },
+                {
+                  "type": "http_observed",
+                  "method": "GET",
+                  "url": "http://localhost:3005/_next/static/chunks/_app-pages-browser_app_public_product_ProductSection_tsx.js",
+                  "status": 200
+                },
+                {
+                  "type": "http_observed",
+                  "method": "POST",
+                  "url": "http://localhost:5000/api/v1/graphql"
+                },
+                {
+                  "type": "http_observed",
+                  "method": "GET",
+                  "url": "http://localhost:5000/api/v1/cart/count"
+                },
+                {
+                  "type": "http_observed",
+                  "method": "POST",
+                  "url": "http://localhost:3005/__nextjs_original-stack-frames",
+                  "status": 200
+                },
+                {
+                  "type": "http_observed",
+                  "method": "GET",
+                  "url": "http://localhost:3005/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flaptop-slider.788634ff.jpg&w=1200&q=75",
+                  "status": 200
+                },
+                {
+                  "type": "http_observed",
+                  "method": "GET",
+                  "url": "http://localhost:5000/api/v1/categories"
+                },
+                {
+                  "type": "http_observed",
+                  "method": "GET",
+                  "url": "http://localhost:3005/shop?_rsc=rxx9e"
+                },
+                {
+                  "type": "storage_delta",
+                  "scope": "cookies",
+                  "details": {
+                    "added": [],
+                    "removed": [],
+                    "changed": []
+                  }
+                },
+                {
+                  "type": "storage_delta",
+                  "scope": "localStorage",
+                  "details": {
+                    "added": {
+                      "recentQueries": "[]"
+                    },
+                    "removed": [],
+                    "changed": []
+                  }
+                },
+                {
+                  "type": "storage_delta",
+                  "scope": "sessionStorage",
+                  "details": {
+                    "added": {},
+                    "removed": [],
+                    "changed": []
+                  }
+                },
+                {
+                  "type": "ui_signal_observed",
+                  "kind": "console.error",
+                  "message": "Failed to load resource: net::ERR_CONNECTION_RESET"
+                },
+                {
+                  "type": "ui_signal_observed",
+                  "kind": "console.error",
+                  "message": "Unexpected error during auth {status: FETCH_ERROR, error: TypeError: Failed to fetch}"
+                },
+                {
+                  "type": "ui_signal_observed",
+                  "kind": "console.error",
+                  "message": "Failed to load resource: net::ERR_CONNECTION_RESET"
+                },
+                {
+                  "type": "ui_signal_observed",
+                  "kind": "console.error",
+                  "message": "Network Error TypeError: Failed to fetch\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/link/http/createHttpLink.js:146:13)\n    at new Subscription (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:194:34)\n    at Observable.subscribe (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:268:12)\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/link/error/index.js:21:42)\n    at new Subscription (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:194:34)\n    at Observable.subscribe (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:268:12)\n    at Object.complete (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/utilities/observables/Concast.js:119:43)\n    at Concast.start (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/utilities/observables/Concast.js:160:23)\n    at new Concast (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/utilities/observables/Concast.js:145:19)\n    at QueryManager.getObservableFromLink (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:774:37)\n    at QueryManager.getResultsFromLink (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:816:83)\n    at resultsFromLink (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:1142:26)\n    at QueryManager.fetchQueryByPolicy (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:1205:52)\n    at fromVariables (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:886:41)\n    at QueryManager.fetchConcastWithInfo (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:928:35)\n    at ObservableQuery.fetch (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/ObservableQuery.js:605:57)\n    at ObservableQuery.reobserveAsConcast (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/ObservableQuery.js:726:23)\n    at ObservableQuery.reobserve (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/ObservableQuery.js:760:101)\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/ObservableQuery.js:66:23)\n    at new Subscription (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:194:34)\n    at ObservableQuery.subscribe (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:268:12)\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/react/hooks/useQuery.js:278:50)\n    at subscribeToStore (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:5658:14)\n    at react-stack-bottom-frame (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:24036:20)\n    at runWithFiberInDEV (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:1511:30)\n    at commitHookEffectListMount (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:10515:29)\n    at commitHookPassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:10636:11)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12605:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12598:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12652:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12652:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12598:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12652:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12598:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12652:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12598:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12537:17)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12504:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12435:11)"
+                },
+                {
+                  "type": "ui_signal_observed",
+                  "kind": "console.error",
+                  "message": "Failed to load resource: net::ERR_CONNECTION_RESET"
+                },
+                {
+                  "type": "ui_signal_observed",
+                  "kind": "console.error",
+                  "message": "Network Error TypeError: Failed to fetch\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/link/http/createHttpLink.js:146:13)\n    at new Subscription (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:194:34)\n    at Observable.subscribe (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:268:12)\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/link/error/index.js:21:42)\n    at new Subscription (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:194:34)\n    at Observable.subscribe (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:268:12)\n    at Object.complete (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/utilities/observables/Concast.js:119:43)\n    at Concast.start (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/utilities/observables/Concast.js:160:23)\n    at new Concast (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/utilities/observables/Concast.js:145:19)\n    at QueryManager.getObservableFromLink (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:774:37)\n    at QueryManager.getResultsFromLink (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:816:83)\n    at resultsFromLink (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:1142:26)\n    at QueryManager.fetchQueryByPolicy (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:1170:52)\n    at fromVariables (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:886:41)\n    at QueryManager.fetchConcastWithInfo (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:928:35)\n    at ObservableQuery.fetch (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/ObservableQuery.js:605:57)\n    at ObservableQuery.reobserveAsConcast (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/ObservableQuery.js:726:23)\n    at ObservableQuery.reobserve (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/ObservableQuery.js:760:101)\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/ObservableQuery.js:66:23)\n    at new Subscription (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:194:34)\n    at ObservableQuery.subscribe (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:268:12)\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/react/hooks/useQuery.js:278:50)\n    at subscribeToStore (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:5658:14)\n    at react-stack-bottom-frame (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:24036:20)\n    at runWithFiberInDEV (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:1511:30)\n    at commitHookEffectListMount (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:10515:29)\n    at commitHookPassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:10636:11)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12605:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12652:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12598:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12598:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12537:17)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12504:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12435:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12435:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12435:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12558:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12558:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12435:11)"
+                },
+                {
+                  "type": "ui_signal_observed",
+                  "kind": "console.error",
+                  "message": "Failed to load resource: net::ERR_SOCKET_NOT_CONNECTED"
+                },
+                {
+                  "type": "ui_signal_observed",
+                  "kind": "console.error",
+                  "message": "Failed to load resource: net::ERR_CONNECTION_RESET"
+                }
+              ]
+            }
+          ],
+          "provenance": {
+            "v7": {
+              "startUserActionId": "ua:ccc7b6e9",
+              "terminalNodeId": "nav:85ccdb4"
+            },
+            "v8": {
+              "reportSource": "v7-review/v8/v8-report.batch.json",
+              "verifiedGoalId": "goal:ua:ccc7b6e9"
+            },
+            "mapping": {
+              "startUserActionId": "ua:ccc7b6e9"
+            },
+            "signalsUsed": [
+              "apiCalls",
+              "stateChanges",
+              "uiSignals"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "v8Report": {
+    "verifiedGoals": [
+      {
+        "goalId": "goal:ua:ccc7b6e9",
+        "observedEffects": {
+          "apiCalls": [
+            {
+              "method": "GET",
+              "url": "http://localhost:5000/api/v1/users/me"
+            },
+            {
+              "method": "POST",
+              "url": "http://localhost:3005/__nextjs_original-stack-frames",
+              "status": 200
+            },
+            {
+              "method": "GET",
+              "url": "http://localhost:3005/__nextjs_font/geist-latin.woff2",
+              "status": 200
+            },
+            {
+              "method": "POST",
+              "url": "http://localhost:5000/api/v1/graphql"
+            },
+            {
+              "method": "GET",
+              "url": "http://localhost:3005/_next/static/chunks/_app-pages-browser_app_components_templates_MainLayout_tsx.js",
+              "status": 200
+            },
+            {
+              "method": "POST",
+              "url": "http://localhost:3005/__nextjs_original-stack-frames",
+              "status": 200
+            },
+            {
+              "method": "GET",
+              "url": "http://localhost:3005/_next/static/chunks/_app-pages-browser_app_public_home_HeroSection_tsx.js",
+              "status": 200
+            },
+            {
+              "method": "GET",
+              "url": "http://localhost:3005/_next/static/chunks/_app-pages-browser_app_public_home_CategoryBar_tsx.js",
+              "status": 200
+            },
+            {
+              "method": "GET",
+              "url": "http://localhost:3005/_next/static/chunks/_app-pages-browser_app_public_product_ProductSection_tsx.js",
+              "status": 200
+            },
+            {
+              "method": "POST",
+              "url": "http://localhost:5000/api/v1/graphql"
+            },
+            {
+              "method": "GET",
+              "url": "http://localhost:5000/api/v1/cart/count"
+            },
+            {
+              "method": "POST",
+              "url": "http://localhost:3005/__nextjs_original-stack-frames",
+              "status": 200
+            },
+            {
+              "method": "GET",
+              "url": "http://localhost:3005/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flaptop-slider.788634ff.jpg&w=1200&q=75",
+              "status": 200
+            },
+            {
+              "method": "GET",
+              "url": "http://localhost:5000/api/v1/categories"
+            },
+            {
+              "method": "GET",
+              "url": "http://localhost:3005/shop?_rsc=rxx9e"
+            }
+          ],
+          "stateChanges": {
+            "cookiesDelta": {
+              "added": [],
+              "removed": [],
+              "changed": []
+            },
+            "localStorageDelta": {
+              "added": {
+                "recentQueries": "[]"
+              },
+              "removed": [],
+              "changed": []
+            },
+            "sessionStorageDelta": {
+              "added": {},
+              "removed": [],
+              "changed": []
+            }
+          },
+          "uiSignals": {
+            "pageErrors": [],
+            "consoleErrors": [
+              "Failed to load resource: net::ERR_CONNECTION_RESET",
+              "Unexpected error during auth {status: FETCH_ERROR, error: TypeError: Failed to fetch}",
+              "Failed to load resource: net::ERR_CONNECTION_RESET",
+              "Network Error TypeError: Failed to fetch\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/link/http/createHttpLink.js:146:13)\n    at new Subscription (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:194:34)\n    at Observable.subscribe (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:268:12)\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/link/error/index.js:21:42)\n    at new Subscription (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:194:34)\n    at Observable.subscribe (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:268:12)\n    at Object.complete (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/utilities/observables/Concast.js:119:43)\n    at Concast.start (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/utilities/observables/Concast.js:160:23)\n    at new Concast (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/utilities/observables/Concast.js:145:19)\n    at QueryManager.getObservableFromLink (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:774:37)\n    at QueryManager.getResultsFromLink (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:816:83)\n    at resultsFromLink (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:1142:26)\n    at QueryManager.fetchQueryByPolicy (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:1205:52)\n    at fromVariables (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:886:41)\n    at QueryManager.fetchConcastWithInfo (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:928:35)\n    at ObservableQuery.fetch (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/ObservableQuery.js:605:57)\n    at ObservableQuery.reobserveAsConcast (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/ObservableQuery.js:726:23)\n    at ObservableQuery.reobserve (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/ObservableQuery.js:760:101)\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/ObservableQuery.js:66:23)\n    at new Subscription (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:194:34)\n    at ObservableQuery.subscribe (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:268:12)\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/react/hooks/useQuery.js:278:50)\n    at subscribeToStore (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:5658:14)\n    at react-stack-bottom-frame (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:24036:20)\n    at runWithFiberInDEV (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:1511:30)\n    at commitHookEffectListMount (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:10515:29)\n    at commitHookPassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:10636:11)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12605:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12598:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12652:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12652:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12598:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12652:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12598:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12652:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12598:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12537:17)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12504:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12435:11)",
+              "Failed to load resource: net::ERR_CONNECTION_RESET",
+              "Network Error TypeError: Failed to fetch\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/link/http/createHttpLink.js:146:13)\n    at new Subscription (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:194:34)\n    at Observable.subscribe (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:268:12)\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/link/error/index.js:21:42)\n    at new Subscription (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:194:34)\n    at Observable.subscribe (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:268:12)\n    at Object.complete (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/utilities/observables/Concast.js:119:43)\n    at Concast.start (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/utilities/observables/Concast.js:160:23)\n    at new Concast (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/utilities/observables/Concast.js:145:19)\n    at QueryManager.getObservableFromLink (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:774:37)\n    at QueryManager.getResultsFromLink (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:816:83)\n    at resultsFromLink (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:1142:26)\n    at QueryManager.fetchQueryByPolicy (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:1170:52)\n    at fromVariables (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:886:41)\n    at QueryManager.fetchConcastWithInfo (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/QueryManager.js:928:35)\n    at ObservableQuery.fetch (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/ObservableQuery.js:605:57)\n    at ObservableQuery.reobserveAsConcast (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/ObservableQuery.js:726:23)\n    at ObservableQuery.reobserve (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/ObservableQuery.js:760:101)\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/core/ObservableQuery.js:66:23)\n    at new Subscription (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:194:34)\n    at ObservableQuery.subscribe (webpack-internal:///(app-pages-browser)/./node_modules/zen-observable-ts/module.js:268:12)\n    at eval (webpack-internal:///(app-pages-browser)/./node_modules/@apollo/client/react/hooks/useQuery.js:278:50)\n    at subscribeToStore (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:5658:14)\n    at react-stack-bottom-frame (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:24036:20)\n    at runWithFiberInDEV (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:1511:30)\n    at commitHookEffectListMount (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:10515:29)\n    at commitHookPassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:10636:11)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12605:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12652:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12598:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at reconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12598:11)\n    at recursivelyTraverseReconnectPassiveEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12577:9)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12537:17)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12504:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12435:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12435:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12435:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12558:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12558:11)\n    at recursivelyTraversePassiveMountEffects (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12416:11)\n    at commitPassiveMountOnFiber (webpack-internal:///(app-pages-browser)/./node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:12435:11)",
+              "Failed to load resource: net::ERR_SOCKET_NOT_CONNECTED",
+              "Failed to load resource: net::ERR_CONNECTION_RESET"
+            ]
+          }
+        }
+      }
+    ],
+    "unverifiedGoals": []
+  }
+}
