@@ -1,0 +1,18 @@
+{
+  "version": "v8-mapping-1",
+  "startPath": "/",
+  "actions": {
+    "ua:634c1f8f": { "type": "click", "selector": "button[data-testid='go-next']" },
+    "ua:d6b7a040": { "type": "click", "selector": "a[href='/account']" },
+    "ua:abcd1234": { "type": "fill", "selector": "input[name='email']", "value": "test@example.com" }
+  },
+  "batch": {
+    "goalIds": [
+      "goal:ua:634c1f8f",
+      "goal:ua:d6b7a040",
+      "goal:ua:abcd1234"
+    ],
+    "mode": "isolated",
+    "timeoutMs": 10000
+  }
+}

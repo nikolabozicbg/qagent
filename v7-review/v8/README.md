@@ -49,17 +49,17 @@ Output:
   - assertions: derived only from observed effects
   - provenance: goal + report source + signals used
 
-## How to reproduce (one goal → one execution → one report)
+## How to reproduce (batch goal execution → v8-report.batch.json → UI-ready suites)
 Prereqs:
 - A running app (dev server or preview) reachable at `--baseUrl`
-- A goal id to execute (from `v7-review/artifacts/v7-ecommerce-goals.json`)
-- A deterministic execution mapping JSON (because V8 does not infer selectors)
+- V7 derived goals file (e.g. `v7-review/artifacts/v7-ecommerce-goals.json`)
+- A batch execution mapping JSON (explicit selectors; no discovery)
 
 ## Example: VERIFIED goal → Executable Test Case (JSON)
 See `v8/promotion-example.testcase.json`.
 
 ## Where Electron UI displays this (read-only)
-Electron UI must only read and display the promoted `ExecutableTestCase` JSON.
+Electron UI must only read and display the promoted `ExecutableTestCase` JSON and/or the grouped `ui-ready.suites.json` output.
 UI MUST NOT:
 - infer selectors
 - invent steps
@@ -70,9 +70,17 @@ Build:
 - `npm --prefix packages/v8-runtime install`
 - `npm --prefix packages/v8-runtime run build`
 
-Run (example):
-- `node packages/v8-runtime/dist/cli.js --baseUrl http://localhost:3000 --goals v7-review/artifacts/v7-ecommerce-goals.json --goalId goal:ua:634c1f8f --mapping v7-review/v8/execution-mapping.example.json --out v7-review/v8/v8-report.example.json`
+Run (batch example):
+- `node packages/v8-runtime/dist/cli.js --baseUrl http://localhost:3000 --goals v7-review/artifacts/v7-ecommerce-goals.json --mapping v7-review/v8/batch-execution-mapping.example.json --reportOut v7-review/v8/v8-report.batch.json --out v7-review/v8/ui-ready.suites.json`
+
+Outputs:
+- `v8-report.batch.json` contains verifiedGoals[] / unverifiedGoals[]
+- `ui-ready.suites.json` contains suites[] grouped deterministically:
+  - `NAV_TO:<toUrl>`
+  - fallback `UNCLUSTERED`
 
 Notes:
-- If no mapping is provided for the goal's `startUserActionId`, the goal is returned as unverified with reason `NO_EXECUTION_MAPPING`.
+- If mapping is missing for a goal's startUserActionId, that goal is unverified (`NO_EXECUTION_MAPPING`).
+- No retries, no smart waits, no implicit setup steps.
+- Each goal executes in an isolated browser context.
 - V8 does not attempt to discover UI selectors.

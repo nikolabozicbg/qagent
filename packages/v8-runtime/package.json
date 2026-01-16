@@ -9,6 +9,7 @@
     "dev": "ts-node src/cli.ts"
   },
   "dependencies": {
+    "@qagent/v8-promotion": "file:../v8-promotion",
     "playwright": "^1.55.0"
   },
   "devDependencies": {

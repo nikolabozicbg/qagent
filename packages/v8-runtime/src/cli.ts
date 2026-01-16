@@ -1,8 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { chromium } from 'playwright';
-import type { V8ExecutionMapping, V8InputFile, V8Report } from './types';
+import type { V8BatchExecutionMapping, V8ExecutionMapping, V8Report, UiReadyOutput } from './types';
 import { executeOneGoal } from './executor';
+import { executeBatchGoals } from './batch';
 
 function arg(name: string): string | undefined {
   const idx = process.argv.indexOf(name);
@@ -29,9 +30,10 @@ function writeJson(p: string, obj: any) {
 async function main() {
   const baseUrl = requireArg('--baseUrl');
   const goalsPath = requireArg('--goals');
-  const goalId = requireArg('--goalId');
   const outPath = requireArg('--out');
-  const mappingPath = arg('--mapping');
+
+  const mappingPath = requireArg('--mapping');
+  const reportOutPath = arg('--reportOut');
 
   const input = readJson<any>(goalsPath);
   const derivedUserGoals = (input.derivedUserGoals || input.goals || []) as Array<{
@@ -40,21 +42,42 @@ async function main() {
     terminalNodeId: string;
   }>;
 
-  const goal = derivedUserGoals.find(g => g.id === goalId);
-  if (!goal) {
-    const report: V8Report = {
-      verifiedGoals: [],
-      unverifiedGoals: [{ goalId, reason: 'GOAL_NOT_FOUND' }],
-    };
-    writeJson(outPath, report);
-    return;
-  }
-
-  const mapping = mappingPath ? readJson<V8ExecutionMapping>(mappingPath) : undefined;
+  const mapping = readJson<any>(mappingPath);
 
   const browser = await chromium.launch({ headless: true });
   try {
-    const report = await executeOneGoal({ browser, baseUrl, goal, mapping });
+    // Batch mode if mapping declares batch.goalIds
+    if (mapping && mapping.version === 'v8-mapping-1' && mapping.batch && Array.isArray(mapping.batch.goalIds)) {
+      const result = await executeBatchGoals({
+        browser,
+        baseUrl,
+        derivedUserGoals,
+        mapping: mapping as V8BatchExecutionMapping,
+        reportSource: reportOutPath || 'v8-report.batch.json',
+      });
+
+      if (reportOutPath) {
+        writeJson(reportOutPath, result.v8Report);
+      }
+
+      writeJson(outPath, result);
+      return;
+    }
+
+    // Backward-compatible single-goal mode
+    const goalId = requireArg('--goalId');
+    const goal = derivedUserGoals.find(g => g.id === goalId);
+    if (!goal) {
+      const report: V8Report = {
+        verifiedGoals: [],
+        unverifiedGoals: [{ goalId, reason: 'GOAL_NOT_FOUND' }],
+      };
+      writeJson(outPath, report);
+      return;
+    }
+
+    const report = await executeOneGoal({ browser, baseUrl, goal, mapping: mapping as V8ExecutionMapping });
+    if (reportOutPath) writeJson(reportOutPath, report);
     writeJson(outPath, report);
   } finally {
     await browser.close().catch(() => undefined);
