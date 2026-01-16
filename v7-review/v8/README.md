@@ -22,11 +22,49 @@ V8 produces:
 
 No naming/domains/suites/cases are produced by V8.
 
+## From VERIFIED goal to Test Case (Promotion Layer)
+Promotion happens ONLY when:
+- there is a V7 derived user goal
+- there is a matching V8 verified goal with at least one concrete observed effect
+- there is an explicit execution mapping for the goal's `startUserActionId`
+
+Promotion is FORBIDDEN when:
+- the goal is unverified
+- there are zero observed effects
+- there is no execution mapping
+
+Unverified goals:
+- remain unverified
+- are not promoted
+- do not invoke AI
+
+Implementation:
+- Pure functional promotion (no UI, no Playwright): `packages/v8-promotion/src/promote.ts`
+- Function: `promoteVerifiedGoal()`
+
+Output:
+- One serializable `ExecutableTestCase`:
+  - name: derived deterministically from observed effects (no AI)
+  - steps: derived from explicit execution mapping
+  - assertions: derived only from observed effects
+  - provenance: goal + report source + signals used
+
 ## How to reproduce (one goal → one execution → one report)
 Prereqs:
 - A running app (dev server or preview) reachable at `--baseUrl`
 - A goal id to execute (from `v7-review/artifacts/v7-ecommerce-goals.json`)
 - A deterministic execution mapping JSON (because V8 does not infer selectors)
+
+## Example: VERIFIED goal → Executable Test Case (JSON)
+See `v8/promotion-example.testcase.json`.
+
+## Where Electron UI displays this (read-only)
+Electron UI must only read and display the promoted `ExecutableTestCase` JSON.
+UI MUST NOT:
+- infer selectors
+- invent steps
+- change assertions
+- run AI
 
 Build:
 - `npm --prefix packages/v8-runtime install`

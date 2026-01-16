@@ -1,0 +1,35 @@
+{
+  "name": "NAV:http://localhost:3000/→http://localhost:3000/next",
+  "goalId": "goal:ua:634c1f8f",
+  "steps": [
+    {
+      "action": {
+        "type": "click",
+        "selector": "button"
+      },
+      "assertions": [
+        {
+          "type": "url_changed",
+          "fromUrl": "http://localhost:3000/",
+          "toUrl": "http://localhost:3000/next"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "v7": {
+      "startUserActionId": "ua:634c1f8f",
+      "terminalNodeId": "nav:4a11ba25"
+    },
+    "v8": {
+      "reportSource": "v7-review/v8/v8-report.example.json",
+      "verifiedGoalId": "goal:ua:634c1f8f"
+    },
+    "mapping": {
+      "startUserActionId": "ua:634c1f8f"
+    },
+    "signalsUsed": [
+      "navigation"
+    ]
+  }
+}

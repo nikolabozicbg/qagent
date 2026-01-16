@@ -74,6 +74,12 @@ Note:
   - Consumes only derivedUserGoals + runtime signals; no source analysis.
   - Produces V8 report: verifiedGoals[] / unverifiedGoals[] (no semantic naming).
 
+## V8 Promotion Layer (new)
+- Added: `packages/v8-promotion/*`
+  - Pure functional promotion from a VERIFIED V8 goal into one serializable ExecutableTestCase.
+  - No UI logic, no Playwright code, no AI.
+  - Assertions come ONLY from observedEffects.
+
 ## V8 review bundle (new)
 - Added: `v7-review/v8/*`
   - Minimal docs + example mapping/report for independent review.
