@@ -296,7 +296,7 @@ export class AnalysisController {
   async discoverFromPayload(
     @Body() payload: any,
     @Query('version') version?: string
-  ): Promise<DiscoveryResponse> {
+  ): Promise<any> {
     if (version === 'v7') {
       console.log(`🧠 API: Behavior-Driven Discovery V7 for ${payload?.project?.name || 'UNKNOWN'}`);
       return this.cloudDiscovery.discoverV7(payload);

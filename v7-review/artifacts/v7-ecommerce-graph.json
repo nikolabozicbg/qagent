@@ -1,0 +1,2216 @@
+{
+  "version": "v7",
+  "project": {
+    "name": "client",
+    "framework": {
+      "name": "next",
+      "router": "UNKNOWN"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "page:/password-reset/[token]",
+        "type": "Page",
+        "route": "/password-reset/[token]",
+        "filePath": "app/(auth)/password-reset/[token]/page.tsx"
+      },
+      {
+        "id": "page:/password-reset",
+        "type": "Page",
+        "route": "/password-reset",
+        "filePath": "app/(auth)/password-reset/page.tsx"
+      },
+      {
+        "id": "page:/sign-in",
+        "type": "Page",
+        "route": "/sign-in",
+        "filePath": "app/(auth)/sign-in/page.tsx"
+      },
+      {
+        "id": "page:/sign-up",
+        "type": "Page",
+        "route": "/sign-up",
+        "filePath": "app/(auth)/sign-up/page.tsx"
+      },
+      {
+        "id": "page:/cancel",
+        "type": "Page",
+        "route": "/cancel",
+        "filePath": "app/(private)/(payment)/cancel/page.tsx"
+      },
+      {
+        "id": "page:/failure",
+        "type": "Page",
+        "route": "/failure",
+        "filePath": "app/(private)/(payment)/failure/page.tsx"
+      },
+      {
+        "id": "page:/orders/[orderId]",
+        "type": "Page",
+        "route": "/orders/[orderId]",
+        "filePath": "app/(private)/(user)/orders/[orderId]/page.tsx"
+      },
+      {
+        "id": "page:/orders",
+        "type": "Page",
+        "route": "/orders",
+        "filePath": "app/(private)/(user)/orders/page.tsx"
+      },
+      {
+        "id": "page:/profile",
+        "type": "Page",
+        "route": "/profile",
+        "filePath": "app/(private)/(user)/profile/page.tsx"
+      },
+      {
+        "id": "page:/dashboard/analytics",
+        "type": "Page",
+        "route": "/dashboard/analytics",
+        "filePath": "app/(private)/dashboard/analytics/page.tsx"
+      },
+      {
+        "id": "page:/dashboard/attributes",
+        "type": "Page",
+        "route": "/dashboard/attributes",
+        "filePath": "app/(private)/dashboard/attributes/page.tsx"
+      },
+      {
+        "id": "page:/dashboard/categories",
+        "type": "Page",
+        "route": "/dashboard/categories",
+        "filePath": "app/(private)/dashboard/categories/page.tsx"
+      },
+      {
+        "id": "page:/dashboard/chats",
+        "type": "Page",
+        "route": "/dashboard/chats",
+        "filePath": "app/(private)/dashboard/chats/page.tsx"
+      },
+      {
+        "id": "page:/dashboard/inventory",
+        "type": "Page",
+        "route": "/dashboard/inventory",
+        "filePath": "app/(private)/dashboard/inventory/page.tsx"
+      },
+      {
+        "id": "page:/dashboard/logs/[logId]",
+        "type": "Page",
+        "route": "/dashboard/logs/[logId]",
+        "filePath": "app/(private)/dashboard/logs/[logId]/page.tsx"
+      },
+      {
+        "id": "page:/dashboard/logs",
+        "type": "Page",
+        "route": "/dashboard/logs",
+        "filePath": "app/(private)/dashboard/logs/page.tsx"
+      },
+      {
+        "id": "page:/dashboard",
+        "type": "Page",
+        "route": "/dashboard",
+        "filePath": "app/(private)/dashboard/page.tsx"
+      },
+      {
+        "id": "page:/dashboard/products/[id]",
+        "type": "Page",
+        "route": "/dashboard/products/[id]",
+        "filePath": "app/(private)/dashboard/products/[id]/page.tsx"
+      },
+      {
+        "id": "page:/dashboard/products",
+        "type": "Page",
+        "route": "/dashboard/products",
+        "filePath": "app/(private)/dashboard/products/page.tsx"
+      },
+      {
+        "id": "page:/dashboard/reports",
+        "type": "Page",
+        "route": "/dashboard/reports",
+        "filePath": "app/(private)/dashboard/reports/page.tsx"
+      },
+      {
+        "id": "page:/dashboard/transactions",
+        "type": "Page",
+        "route": "/dashboard/transactions",
+        "filePath": "app/(private)/dashboard/transactions/page.tsx"
+      },
+      {
+        "id": "page:/dashboard/users",
+        "type": "Page",
+        "route": "/dashboard/users",
+        "filePath": "app/(private)/dashboard/users/page.tsx"
+      },
+      {
+        "id": "page:/support",
+        "type": "Page",
+        "route": "/support",
+        "filePath": "app/(private)/support/page.tsx"
+      },
+      {
+        "id": "page:/cart",
+        "type": "Page",
+        "route": "/cart",
+        "filePath": "app/(public)/cart/page.tsx"
+      },
+      {
+        "id": "page:/product/[slug]",
+        "type": "Page",
+        "route": "/product/[slug]",
+        "filePath": "app/(public)/product/[slug]/page.tsx"
+      },
+      {
+        "id": "page:/shop",
+        "type": "Page",
+        "route": "/shop",
+        "filePath": "app/(public)/shop/page.tsx"
+      },
+      {
+        "id": "page:/success",
+        "type": "Page",
+        "route": "/success",
+        "filePath": "app/(public)/success/page.tsx"
+      },
+      {
+        "id": "page:/maintenance",
+        "type": "Page",
+        "route": "/maintenance",
+        "filePath": "app/maintenance/page.tsx"
+      },
+      {
+        "id": "form:8fe5f4f4",
+        "type": "Form",
+        "filePath": "app/(auth)/password-reset/[token]/page.tsx",
+        "line": 48,
+        "fields": []
+      },
+      {
+        "id": "ua:36879d76",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSubmit(onSubmit)",
+        "filePath": "app/(auth)/password-reset/[token]/page.tsx",
+        "line": 48
+      },
+      {
+        "id": "nav:976b09a5",
+        "type": "Navigation",
+        "to": "/sign-in",
+        "filePath": "app/(auth)/password-reset/[token]/page.tsx",
+        "line": 95
+      },
+      {
+        "id": "form:dd0ed95e",
+        "type": "Form",
+        "filePath": "app/(auth)/password-reset/page.tsx",
+        "line": 42,
+        "fields": []
+      },
+      {
+        "id": "ua:6bda23e0",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSubmit(onSubmit)",
+        "filePath": "app/(auth)/password-reset/page.tsx",
+        "line": 42
+      },
+      {
+        "id": "api:4850a956",
+        "type": "ApiCall",
+        "method": "POST",
+        "endpoint": "/auth/forgot-password",
+        "filePath": "app/(auth)/password-reset/page.tsx",
+        "line": 18
+      },
+      {
+        "id": "nav:2e7216db",
+        "type": "Navigation",
+        "to": "/sign-in",
+        "filePath": "app/(auth)/password-reset/page.tsx",
+        "line": 79
+      },
+      {
+        "id": "form:30257bd1",
+        "type": "Form",
+        "filePath": "app/(auth)/sign-in/page.tsx",
+        "line": 63,
+        "fields": []
+      },
+      {
+        "id": "ua:634c1f8f",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSubmit(onSubmit)",
+        "filePath": "app/(auth)/sign-in/page.tsx",
+        "line": 63
+      },
+      {
+        "id": "nav:4a11ba25",
+        "type": "Navigation",
+        "to": "/",
+        "filePath": "app/(auth)/sign-in/page.tsx",
+        "line": 38
+      },
+      {
+        "id": "ua:350fd674",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleOAuthLogin(provider)",
+        "filePath": "app/(auth)/sign-in/page.tsx",
+        "line": 167
+      },
+      {
+        "id": "nav:bfc6a59a",
+        "type": "Navigation",
+        "to": "/password-reset",
+        "filePath": "app/(auth)/sign-in/page.tsx",
+        "line": 90
+      },
+      {
+        "id": "nav:252fd8ce",
+        "type": "Navigation",
+        "to": "/sign-up",
+        "filePath": "app/(auth)/sign-in/page.tsx",
+        "line": 113
+      },
+      {
+        "id": "form:a390fc82",
+        "type": "Form",
+        "filePath": "app/(auth)/sign-up/page.tsx",
+        "line": 80,
+        "fields": []
+      },
+      {
+        "id": "ua:d6b7a040",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSubmit(onSubmit)",
+        "filePath": "app/(auth)/sign-up/page.tsx",
+        "line": 80
+      },
+      {
+        "id": "nav:bd7d3ad7",
+        "type": "Navigation",
+        "to": "/",
+        "filePath": "app/(auth)/sign-up/page.tsx",
+        "line": 56
+      },
+      {
+        "id": "ua:2f14649e",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleOAuthLogin(provider)",
+        "filePath": "app/(auth)/sign-up/page.tsx",
+        "line": 156
+      },
+      {
+        "id": "nav:4607bdc3",
+        "type": "Navigation",
+        "to": "/sign-in",
+        "filePath": "app/(auth)/sign-up/page.tsx",
+        "line": 125
+      },
+      {
+        "id": "ua:1d2d04e8",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "togglePlay",
+        "filePath": "app/(private)/(chat)/AudioPlayer.tsx",
+        "line": 117
+      },
+      {
+        "id": "ua:ef8fd6d8",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onCancel",
+        "filePath": "app/(private)/(chat)/CallConnectingScreen.tsx",
+        "line": 35
+      },
+      {
+        "id": "ua:67c5a821",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "startCall",
+        "filePath": "app/(private)/(chat)/CallControls.tsx",
+        "line": 30
+      },
+      {
+        "id": "ua:67c5a845",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "startCall",
+        "filePath": "app/(private)/(chat)/CallControls.tsx",
+        "line": 45
+      },
+      {
+        "id": "ua:67c5a881",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "endCall",
+        "filePath": "app/(private)/(chat)/CallControls.tsx",
+        "line": 63
+      },
+      {
+        "id": "ua:67c5a8a2",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "toggleMute",
+        "filePath": "app/(private)/(chat)/CallControls.tsx",
+        "line": 75
+      },
+      {
+        "id": "ua:67c5a8c2",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "endCall",
+        "filePath": "app/(private)/(chat)/CallControls.tsx",
+        "line": 86
+      },
+      {
+        "id": "ua:67c5a8de",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "toggleSpeaker",
+        "filePath": "app/(private)/(chat)/CallControls.tsx",
+        "line": 93
+      },
+      {
+        "id": "ua:95d0f5db",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "toggleMute",
+        "filePath": "app/(private)/(chat)/CallInProgressScreen.tsx",
+        "line": 76
+      },
+      {
+        "id": "ua:95d0f5fc",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "toggleVideo",
+        "filePath": "app/(private)/(chat)/CallInProgressScreen.tsx",
+        "line": 88
+      },
+      {
+        "id": "ua:244dae75",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onEndCall",
+        "filePath": "app/(private)/(chat)/CallInProgressScreen.tsx",
+        "line": 100
+      },
+      {
+        "id": "ua:244dae7d",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "swapVideos",
+        "filePath": "app/(private)/(chat)/CallInProgressScreen.tsx",
+        "line": 108
+      },
+      {
+        "id": "ua:685d4072",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onResolve",
+        "filePath": "app/(private)/(chat)/ChatHeader.tsx",
+        "line": 32
+      },
+      {
+        "id": "ua:1c022943",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "cancelMedia",
+        "filePath": "app/(private)/(chat)/ChatInput.tsx",
+        "line": 128
+      },
+      {
+        "id": "ua:1c02295e",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "confirmSend",
+        "filePath": "app/(private)/(chat)/ChatInput.tsx",
+        "line": 134
+      },
+      {
+        "id": "ua:1c02299b",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => fileInputRef.current?.click()",
+        "filePath": "app/(private)/(chat)/ChatInput.tsx",
+        "line": 153
+      },
+      {
+        "id": "ua:1c0229b7",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "recording ? stopRecording : startRecording",
+        "filePath": "app/(private)/(chat)/ChatInput.tsx",
+        "line": 160
+      },
+      {
+        "id": "ua:1c0229df",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "confirmSend",
+        "filePath": "app/(private)/(chat)/ChatInput.tsx",
+        "line": 179
+      },
+      {
+        "id": "ua:81f2aae2",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "retry",
+        "filePath": "app/(private)/(chat)/ErrorDisplay.tsx",
+        "line": 26
+      },
+      {
+        "id": "ua:9a84edef",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "cancelMedia",
+        "filePath": "app/(private)/(chat)/components/ChatInput.tsx",
+        "line": 196
+      },
+      {
+        "id": "ua:9a84f0d4",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "stopRecording",
+        "filePath": "app/(private)/(chat)/components/ChatInput.tsx",
+        "line": 223
+      },
+      {
+        "id": "ua:9a84f0f7",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => fileInputRef.current?.click()",
+        "filePath": "app/(private)/(chat)/components/ChatInput.tsx",
+        "line": 237
+      },
+      {
+        "id": "ua:9a84f116",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setShowEmojiPicker(!showEmojiPicker)",
+        "filePath": "app/(private)/(chat)/components/ChatInput.tsx",
+        "line": 247
+      },
+      {
+        "id": "ua:9a84f151",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => addEmoji(emoji)",
+        "filePath": "app/(private)/(chat)/components/ChatInput.tsx",
+        "line": 264
+      },
+      {
+        "id": "ua:9a84f1ad",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleSend",
+        "filePath": "app/(private)/(chat)/components/ChatInput.tsx",
+        "line": 293
+      },
+      {
+        "id": "ua:9a84f457",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "recording ? stopRecording : startRecording",
+        "filePath": "app/(private)/(chat)/components/ChatInput.tsx",
+        "line": 303
+      },
+      {
+        "id": "ua:c517893d",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onMenuClick",
+        "filePath": "app/(private)/(chat)/components/ChatMain.tsx",
+        "line": 45
+      },
+      {
+        "id": "ua:c5178977",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "toggleTabs",
+        "filePath": "app/(private)/(chat)/components/ChatMain.tsx",
+        "line": 61
+      },
+      {
+        "id": "ua:7cac9d87",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onClose",
+        "filePath": "app/(private)/(chat)/components/ChatSidebar.tsx",
+        "line": 71
+      },
+      {
+        "id": "ua:4b092bf6",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onResolve",
+        "filePath": "app/(private)/(chat)/components/ChatTabs.tsx",
+        "line": 140
+      },
+      {
+        "id": "ua:4b092c97",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onClose",
+        "filePath": "app/(private)/(chat)/components/ChatTabs.tsx",
+        "line": 196
+      },
+      {
+        "id": "ua:4b092f44",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setActiveTab(tab.id)",
+        "filePath": "app/(private)/(chat)/components/ChatTabs.tsx",
+        "line": 209
+      },
+      {
+        "id": "ua:6ad3cdef",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleRetry",
+        "filePath": "app/(private)/(chat)/components/ErrorDisplay.tsx",
+        "line": 62
+      },
+      {
+        "id": "ua:6ad3ce0c",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleGoHome",
+        "filePath": "app/(private)/(chat)/components/ErrorDisplay.tsx",
+        "line": 70
+      },
+      {
+        "id": "nav:c9a44eef",
+        "type": "Navigation",
+        "to": "/",
+        "filePath": "app/(private)/(chat)/components/ErrorDisplay.tsx",
+        "line": 20
+      },
+      {
+        "id": "ua:6d66ea32",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "toggleAudio",
+        "filePath": "app/(private)/(chat)/components/MessageItem.tsx",
+        "line": 94
+      },
+      {
+        "id": "ua:ff9758bd",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleRedirect(\"/orders\")",
+        "filePath": "app/(private)/(payment)/cancel/page.tsx",
+        "line": 43
+      },
+      {
+        "id": "ua:ff9758d9",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleRedirect(\"/support\")",
+        "filePath": "app/(private)/(payment)/cancel/page.tsx",
+        "line": 50
+      },
+      {
+        "id": "ua:ffc1e487",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleRedirect(\"/orders\")",
+        "filePath": "app/(private)/(payment)/failure/page.tsx",
+        "line": 43
+      },
+      {
+        "id": "ua:ffc1e4a3",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleRedirect(\"/support\")",
+        "filePath": "app/(private)/(payment)/failure/page.tsx",
+        "line": 50
+      },
+      {
+        "id": "ua:71bc6a2a",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setStatusFilter(\"\")",
+        "filePath": "app/(private)/(user)/orders/page.tsx",
+        "line": 280
+      },
+      {
+        "id": "nav:3170124e",
+        "type": "Navigation",
+        "to": "/products",
+        "filePath": "app/(private)/(user)/orders/page.tsx",
+        "line": 264
+      },
+      {
+        "id": "ua:a450a4bd",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setIsEditing(!isEditing)",
+        "filePath": "app/(private)/(user)/profile/page.tsx",
+        "line": 184
+      },
+      {
+        "id": "ua:3e5eb528",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleExport",
+        "filePath": "app/(private)/dashboard/analytics/AnalyticsContent.tsx",
+        "line": 221
+      },
+      {
+        "id": "ua:24732e09",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleExport",
+        "filePath": "app/(private)/dashboard/analytics/page.tsx",
+        "line": 226
+      },
+      {
+        "id": "form:b9bb4eec",
+        "type": "Form",
+        "filePath": "app/(private)/dashboard/attributes/AttributeForm.tsx",
+        "line": 38,
+        "fields": []
+      },
+      {
+        "id": "ua:fc8dbcee",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleCreateAttribute",
+        "filePath": "app/(private)/dashboard/attributes/AttributeForm.tsx",
+        "line": 38
+      },
+      {
+        "id": "ua:ae9de937",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "placeholderHandleUpdate",
+        "filePath": "app/(private)/dashboard/attributes/AttributeValueItem.tsx",
+        "line": 75
+      },
+      {
+        "id": "ua:ae9de957",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setIsEditing(true)",
+        "filePath": "app/(private)/dashboard/attributes/AttributeValueItem.tsx",
+        "line": 86
+      },
+      {
+        "id": "ua:ae9de972",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "placeholderHandleDelete",
+        "filePath": "app/(private)/dashboard/attributes/AttributeValueItem.tsx",
+        "line": 92
+      },
+      {
+        "id": "ua:753cc13b",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setIsExpanded(!isExpanded)",
+        "filePath": "app/(private)/dashboard/attributes/AttributesCard.tsx",
+        "line": 78
+      },
+      {
+        "id": "ua:753cc15b",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onDelete",
+        "filePath": "app/(private)/dashboard/attributes/AttributesCard.tsx",
+        "line": 89
+      },
+      {
+        "id": "ua:325b4edd",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setShowAddForm(!showAddForm)",
+        "filePath": "app/(private)/dashboard/attributes/AttributesCard.tsx",
+        "line": 106
+      },
+      {
+        "id": "ua:325b4f1b",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => onDeleteValue(value.id)",
+        "filePath": "app/(private)/dashboard/attributes/AttributesCard.tsx",
+        "line": 126
+      },
+      {
+        "id": "ua:325b4fb4",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleAddValue",
+        "filePath": "app/(private)/dashboard/attributes/AttributesCard.tsx",
+        "line": 174
+      },
+      {
+        "id": "form:3671cc52",
+        "type": "Form",
+        "filePath": "app/(private)/dashboard/attributes/CategoryAssignment.tsx",
+        "line": 28,
+        "fields": []
+      },
+      {
+        "id": "ua:9f5dcf90",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSubmit(onAssignToCategory)",
+        "filePath": "app/(private)/dashboard/attributes/CategoryAssignment.tsx",
+        "line": 28
+      },
+      {
+        "id": "form:843350ad",
+        "type": "Form",
+        "filePath": "app/(private)/dashboard/attributes/ProductsAssignment.tsx",
+        "line": 29,
+        "fields": []
+      },
+      {
+        "id": "ua:ed1f53eb",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSubmit(onAssignToProduct)",
+        "filePath": "app/(private)/dashboard/attributes/ProductsAssignment.tsx",
+        "line": 29
+      },
+      {
+        "id": "form:acb9aa5f",
+        "type": "Form",
+        "filePath": "app/(private)/dashboard/categories/CategoryForm.tsx",
+        "line": 38,
+        "fields": []
+      },
+      {
+        "id": "ua:2ac0741d",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSubmit(onSubmit)",
+        "filePath": "app/(private)/dashboard/categories/CategoryForm.tsx",
+        "line": 38
+      },
+      {
+        "id": "ua:d385fe59",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleDeletePrompt(row?.id)",
+        "filePath": "app/(private)/dashboard/categories/page.tsx",
+        "line": 57
+      },
+      {
+        "id": "ua:9d39bd7b",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setIsCreateModalOpen(true)",
+        "filePath": "app/(private)/dashboard/categories/page.tsx",
+        "line": 134
+      },
+      {
+        "id": "ua:1270f84f",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onClose",
+        "filePath": "app/(private)/dashboard/inventory/RestockHistoryModal.tsx",
+        "line": 76
+      },
+      {
+        "id": "form:90d6cab5",
+        "type": "Form",
+        "filePath": "app/(private)/dashboard/inventory/RestockModal.tsx",
+        "line": 69,
+        "fields": []
+      },
+      {
+        "id": "ua:3a10d137",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSubmit((data) => onSubmit(variant!.id, data))",
+        "filePath": "app/(private)/dashboard/inventory/RestockModal.tsx",
+        "line": 69
+      },
+      {
+        "id": "ua:d25ab06b",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => {\n                  onClose();\n                  reset();\n                }",
+        "filePath": "app/(private)/dashboard/inventory/RestockModal.tsx",
+        "line": 58
+      },
+      {
+        "id": "ua:1f73586a",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => {\n              setSelectedVariant(row);\n              setIsRestockModalOpen(true);\n            }",
+        "filePath": "app/(private)/dashboard/inventory/page.tsx",
+        "line": 140
+      },
+      {
+        "id": "ua:1f73588a",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => {\n              setSelectedVariant(row);\n              setIsHistoryModalOpen(true);\n            }",
+        "filePath": "app/(private)/dashboard/inventory/page.tsx",
+        "line": 151
+      },
+      {
+        "id": "ua:99cd9235",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleViewDetails",
+        "filePath": "app/(private)/dashboard/logs/LogContext.tsx",
+        "line": 29
+      },
+      {
+        "id": "ua:99cd92ad",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleViewDetails",
+        "filePath": "app/(private)/dashboard/logs/LogContext.tsx",
+        "line": 65
+      },
+      {
+        "id": "ua:99cd92e8",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleViewDetails",
+        "filePath": "app/(private)/dashboard/logs/LogContext.tsx",
+        "line": 82
+      },
+      {
+        "id": "ua:223cab6",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => router.push(\"/dashboard/logs\")",
+        "filePath": "app/(private)/dashboard/logs/[logId]/page.tsx",
+        "line": 57
+      },
+      {
+        "id": "nav:932730ef",
+        "type": "Navigation",
+        "to": "/dashboard/logs",
+        "filePath": "app/(private)/dashboard/logs/[logId]/page.tsx",
+        "line": 58
+      },
+      {
+        "id": "ua:af6a4cf0",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "(e) => handleDeleteLog(e, row.id)",
+        "filePath": "app/(private)/dashboard/logs/page.tsx",
+        "line": 109
+      },
+      {
+        "id": "ua:af6a4d2e",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleClearLogs",
+        "filePath": "app/(private)/dashboard/logs/page.tsx",
+        "line": 129
+      },
+      {
+        "id": "ua:af6a4d4a",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setShowConfirmClear(false)",
+        "filePath": "app/(private)/dashboard/logs/page.tsx",
+        "line": 136
+      },
+      {
+        "id": "ua:af6a4d66",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setShowConfirmClear(true)",
+        "filePath": "app/(private)/dashboard/logs/page.tsx",
+        "line": 143
+      },
+      {
+        "id": "ua:8f1a180c",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleButtonClick",
+        "filePath": "app/(private)/dashboard/products/ProductFileUpload.tsx",
+        "line": 154
+      },
+      {
+        "id": "ua:8f1a186a",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "resetState",
+        "filePath": "app/(private)/dashboard/products/ProductFileUpload.tsx",
+        "line": 185
+      },
+      {
+        "id": "form:44c47ba3",
+        "type": "Form",
+        "filePath": "app/(private)/dashboard/products/ProductForm.tsx",
+        "line": 40,
+        "fields": []
+      },
+      {
+        "id": "ua:a2723aa5",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSubmit(onSubmit)",
+        "filePath": "app/(private)/dashboard/products/ProductForm.tsx",
+        "line": 40
+      },
+      {
+        "id": "ua:42bb38f4",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onDelete",
+        "filePath": "app/(private)/dashboard/products/ProductHeader.tsx",
+        "line": 77
+      },
+      {
+        "id": "ua:5853122",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onClose",
+        "filePath": "app/(private)/dashboard/products/ProductModal.tsx",
+        "line": 123
+      },
+      {
+        "id": "ua:d32e8881",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onSave",
+        "filePath": "app/(private)/dashboard/products/ProductSummary.tsx",
+        "line": 118
+      },
+      {
+        "id": "ua:d32e88b8",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() =>\n                router.push(`/dashboard/products/inventory/${product.id}`)",
+        "filePath": "app/(private)/dashboard/products/ProductSummary.tsx",
+        "line": 131
+      },
+      {
+        "id": "ua:7d03a1a4",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() =>\n            append({\n              id: \"\",\n              sku: \"\",\n              price: 0,\n              stock: 0,\n              lowStockThreshold: 10,\n              barcode: \"\",\n              warehouseLocation: \"\",\n              images: [],\n              attributes: categoryAttributes\n                .filter((attr) => attr.isRequired)\n                .map((attr) => ({ attributeId: attr.id, valueId: \"\" })),\n            })",
+        "filePath": "app/(private)/dashboard/products/VariantForm.tsx",
+        "line": 41
+      },
+      {
+        "id": "ua:7d03a203",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => remove(index)",
+        "filePath": "app/(private)/dashboard/products/VariantForm.tsx",
+        "line": 73
+      },
+      {
+        "id": "ua:f65f45be",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => router.push(\"/dashboard/products\")",
+        "filePath": "app/(private)/dashboard/products/[id]/page.tsx",
+        "line": 49
+      },
+      {
+        "id": "ua:f65f45fc",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => router.push(\"/dashboard/products\")",
+        "filePath": "app/(private)/dashboard/products/[id]/page.tsx",
+        "line": 69
+      },
+      {
+        "id": "ua:f65f463a",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => router.push(\"/dashboard/products\")",
+        "filePath": "app/(private)/dashboard/products/[id]/page.tsx",
+        "line": 89
+      },
+      {
+        "id": "ua:6ea8b817",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => {\n              setEditingProduct({\n                id: row.id,\n                name: row.name,\n                isNew: row.isNew,\n                isTrending: row.isTrending,\n                isBestSeller: row.isBestSeller,\n                isFeatured: row.isFeatured,\n                categoryId: row.categoryId,\n                description: row.description || \"\",\n                variants: row.variants || [],\n              });\n              setIsModalOpen(true);\n            }",
+        "filePath": "app/(private)/dashboard/products/page.tsx",
+        "line": 204
+      },
+      {
+        "id": "ua:6ea8b855",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleDeleteProduct(row.id)",
+        "filePath": "app/(private)/dashboard/products/page.tsx",
+        "line": 224
+      },
+      {
+        "id": "ua:6ea8b896",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setIsFileUploadOpen(!isFileUploadOpen)",
+        "filePath": "app/(private)/dashboard/products/page.tsx",
+        "line": 247
+      },
+      {
+        "id": "ua:6ea8b8b2",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => {\n              setEditingProduct(null);\n              setIsModalOpen(true);\n            }",
+        "filePath": "app/(private)/dashboard/products/page.tsx",
+        "line": 254
+      },
+      {
+        "id": "ua:6ea8b8ec",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setIsFileUploadOpen(false)",
+        "filePath": "app/(private)/dashboard/products/page.tsx",
+        "line": 270
+      },
+      {
+        "id": "form:5e7069c2",
+        "type": "Form",
+        "filePath": "app/(private)/dashboard/reports/page.tsx",
+        "line": 123,
+        "fields": []
+      },
+      {
+        "id": "ua:7c96a900",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleGenerateReport",
+        "filePath": "app/(private)/dashboard/reports/page.tsx",
+        "line": 123
+      },
+      {
+        "id": "ua:9139eed6",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onBack",
+        "filePath": "app/(private)/dashboard/transactions/ErrorState.tsx",
+        "line": 11
+      },
+      {
+        "id": "ua:2e0db0ea",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onBack",
+        "filePath": "app/(private)/dashboard/transactions/PageHeader.tsx",
+        "line": 18
+      },
+      {
+        "id": "ua:2e0db129",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onUpdateStatus",
+        "filePath": "app/(private)/dashboard/transactions/PageHeader.tsx",
+        "line": 39
+      },
+      {
+        "id": "ua:64fab1db",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleViewDetails(row.id)",
+        "filePath": "app/(private)/dashboard/transactions/page.tsx",
+        "line": 171
+      },
+      {
+        "id": "ua:64fab1e2",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleUpdateStatus(row)",
+        "filePath": "app/(private)/dashboard/transactions/page.tsx",
+        "line": 178
+      },
+      {
+        "id": "ua:64fab1fe",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleDeleteTransaction(row.id)",
+        "filePath": "app/(private)/dashboard/transactions/page.tsx",
+        "line": 185
+      },
+      {
+        "id": "ua:64fab57f",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "cancelStatusUpdate",
+        "filePath": "app/(private)/dashboard/transactions/page.tsx",
+        "line": 263
+      },
+      {
+        "id": "ua:64fab585",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "confirmStatusUpdate",
+        "filePath": "app/(private)/dashboard/transactions/page.tsx",
+        "line": 269
+      },
+      {
+        "id": "form:bd25c920",
+        "type": "Form",
+        "filePath": "app/(private)/dashboard/users/CreateAdminForm.tsx",
+        "line": 34,
+        "fields": []
+      },
+      {
+        "id": "ua:152fea5e",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSubmit(onSubmit)",
+        "filePath": "app/(private)/dashboard/users/CreateAdminForm.tsx",
+        "line": 34
+      },
+      {
+        "id": "form:9526a2f6",
+        "type": "Form",
+        "filePath": "app/(private)/dashboard/users/UserForm.tsx",
+        "line": 85,
+        "fields": []
+      },
+      {
+        "id": "ua:3bc84b78",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSubmit(onSubmit)",
+        "filePath": "app/(private)/dashboard/users/UserForm.tsx",
+        "line": 85
+      },
+      {
+        "id": "ua:3dda40d9",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => {\n                  setEditingUser(row);\n                  form.reset(row);\n                  setIsModalOpen(true);\n                }",
+        "filePath": "app/(private)/dashboard/users/page.tsx",
+        "line": 190
+      },
+      {
+        "id": "ua:3dda43a2",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => {\n                  setUserToDelete(row.id);\n                  setIsConfirmModalOpen(true);\n                }",
+        "filePath": "app/(private)/dashboard/users/page.tsx",
+        "line": 210
+      },
+      {
+        "id": "ua:3dda449f",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setIsCreateAdminModalOpen(true)",
+        "filePath": "app/(private)/dashboard/users/page.tsx",
+        "line": 295
+      },
+      {
+        "id": "ua:3dda47e8",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setIsModalOpen(false)",
+        "filePath": "app/(private)/dashboard/users/page.tsx",
+        "line": 359
+      },
+      {
+        "id": "ua:3dda4b05",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setIsCreateAdminModalOpen(false)",
+        "filePath": "app/(private)/dashboard/users/page.tsx",
+        "line": 400
+      },
+      {
+        "id": "ua:353df5d4",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleCreateChat",
+        "filePath": "app/(private)/support/page.tsx",
+        "line": 69
+      },
+      {
+        "id": "nav:63798d4f",
+        "type": "Navigation",
+        "to": "/shop",
+        "filePath": "app/(public)/(home)/CategoryBar.tsx",
+        "line": 229
+      },
+      {
+        "id": "ua:a0344488",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setActiveCategory(slug)",
+        "filePath": "app/(public)/(home)/CategoryBrowser.tsx",
+        "line": 32
+      },
+      {
+        "id": "ua:5f8be02a",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "prevSlide",
+        "filePath": "app/(public)/(home)/HeroSection.tsx",
+        "line": 189
+      },
+      {
+        "id": "ua:5f8be047",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "nextSlide",
+        "filePath": "app/(public)/(home)/HeroSection.tsx",
+        "line": 197
+      },
+      {
+        "id": "ua:5f8be2f1",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => goToSlide(index)",
+        "filePath": "app/(public)/(home)/HeroSection.tsx",
+        "line": 207
+      },
+      {
+        "id": "ua:25bf18a",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleInitiateCheckout",
+        "filePath": "app/(public)/cart/CartSummary.tsx",
+        "line": 94
+      },
+      {
+        "id": "nav:3a3f0ca7",
+        "type": "Navigation",
+        "to": "/sign-in",
+        "filePath": "app/(public)/cart/CartSummary.tsx",
+        "line": 102
+      },
+      {
+        "id": "ua:2c3623f6",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleRemoveFromCart(item.id)",
+        "filePath": "app/(public)/cart/page.tsx",
+        "line": 143
+      },
+      {
+        "id": "ua:f28c8908",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleAddToCart",
+        "filePath": "app/(public)/product/AddToCartButton.tsx",
+        "line": 20
+      },
+      {
+        "id": "ua:8e2984e6",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleShowMore",
+        "filePath": "app/(public)/product/CategorySection.tsx",
+        "line": 106
+      },
+      {
+        "id": "ua:1b58cd5c",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "(e) => {\n              e.stopPropagation();\n              handleClick();\n            }",
+        "filePath": "app/(public)/product/ProductCard.tsx",
+        "line": 137
+      },
+      {
+        "id": "ua:6e8bcec1",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleFullScreenToggle",
+        "filePath": "app/(public)/product/ProductImageGallery.tsx",
+        "line": 135
+      },
+      {
+        "id": "ua:6e8bcf00",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleImageSelect(img, index)",
+        "filePath": "app/(public)/product/ProductImageGallery.tsx",
+        "line": 156
+      },
+      {
+        "id": "ua:6e8bcf77",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handlePrevImage",
+        "filePath": "app/(public)/product/ProductImageGallery.tsx",
+        "line": 191
+      },
+      {
+        "id": "ua:6e8bd221",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleNextImage",
+        "filePath": "app/(public)/product/ProductImageGallery.tsx",
+        "line": 201
+      },
+      {
+        "id": "ua:6e8bd241",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleZoomToggle",
+        "filePath": "app/(public)/product/ProductImageGallery.tsx",
+        "line": 212
+      },
+      {
+        "id": "ua:c49f3c59",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => onVariantChange(attributeName, \"\")",
+        "filePath": "app/(public)/product/ProductInfo.tsx",
+        "line": 202
+      },
+      {
+        "id": "ua:c49f40d2",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleAddToCart",
+        "filePath": "app/(public)/product/ProductInfo.tsx",
+        "line": 360
+      },
+      {
+        "id": "form:ad5cfda6",
+        "type": "Form",
+        "filePath": "app/(public)/product/ProductReviews.tsx",
+        "line": 204,
+        "fields": []
+      },
+      {
+        "id": "ua:21f2dea8",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSubmitReview",
+        "filePath": "app/(public)/product/ProductReviews.tsx",
+        "line": 204
+      },
+      {
+        "id": "ua:52581718",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setRating(index + 1)",
+        "filePath": "app/(public)/product/ProductReviews.tsx",
+        "line": 211
+      },
+      {
+        "id": "ua:52581ae1",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleDeleteReview(review.id)",
+        "filePath": "app/(public)/product/ProductReviews.tsx",
+        "line": 319
+      },
+      {
+        "id": "ua:52581b1b",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => toggleReviewExpansion(review.id)",
+        "filePath": "app/(public)/product/ProductReviews.tsx",
+        "line": 335
+      },
+      {
+        "id": "form:fc0fbd99",
+        "type": "Form",
+        "filePath": "app/(public)/shop/ProductFilters.tsx",
+        "line": 105,
+        "fields": []
+      },
+      {
+        "id": "ua:17434bd7",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSubmit(onSubmit)",
+        "filePath": "app/(public)/shop/ProductFilters.tsx",
+        "line": 105
+      },
+      {
+        "id": "ua:933d143e",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleReset",
+        "filePath": "app/(public)/shop/ProductFilters.tsx",
+        "line": 122
+      },
+      {
+        "id": "ua:933d145d",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onCloseMobile",
+        "filePath": "app/(public)/shop/ProductFilters.tsx",
+        "line": 132
+      },
+      {
+        "id": "ua:e58b813a",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleShowMore",
+        "filePath": "app/(public)/shop/ShopContent.tsx",
+        "line": 204
+      },
+      {
+        "id": "ua:ccc7affe",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setFiltersVisible(!filtersVisible)",
+        "filePath": "app/(public)/shop/page.tsx",
+        "line": 152
+      },
+      {
+        "id": "ua:ccc7b023",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setSidebarOpen(true)",
+        "filePath": "app/(public)/shop/page.tsx",
+        "line": 168
+      },
+      {
+        "id": "ua:ccc7b41f",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => window.location.reload()",
+        "filePath": "app/(public)/shop/page.tsx",
+        "line": 285
+      },
+      {
+        "id": "ua:ccc7b6e9",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleReset",
+        "filePath": "app/(public)/shop/page.tsx",
+        "line": 306
+      },
+      {
+        "id": "nav:85ccdb4",
+        "type": "Navigation",
+        "to": "/shop",
+        "filePath": "app/(public)/shop/page.tsx",
+        "line": 129
+      },
+      {
+        "id": "ua:ccc7b762",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleShowMore",
+        "filePath": "app/(public)/shop/page.tsx",
+        "line": 343
+      },
+      {
+        "id": "ua:6389f5ce",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => this.setState({ hasError: false })",
+        "filePath": "app/components/ErrorBoundary..tsx",
+        "line": 28
+      },
+      {
+        "id": "ua:21743a1b",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => removeFile(index)",
+        "filePath": "app/components/atoms/FileInput.tsx",
+        "line": 114
+      },
+      {
+        "id": "ua:c9d08b7a",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "toggleFullVisible",
+        "filePath": "app/components/atoms/ToggleableText.tsx",
+        "line": 42
+      },
+      {
+        "id": "nav:8b90176e",
+        "type": "Navigation",
+        "to": "/",
+        "filePath": "app/components/feedback/BreadCrumb.tsx",
+        "line": 14
+      },
+      {
+        "id": "ua:7d823a51",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "actionOnClick",
+        "filePath": "app/components/feedback/EmptyState.tsx",
+        "line": 49
+      },
+      {
+        "id": "ua:7d823aa9",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "secondaryActionOnClick",
+        "filePath": "app/components/feedback/EmptyState.tsx",
+        "line": 74
+      },
+      {
+        "id": "ua:45772cbf",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleClose(toast.id)",
+        "filePath": "app/components/feedback/Toast.tsx",
+        "line": 91
+      },
+      {
+        "id": "form:e33a2ea8",
+        "type": "Form",
+        "filePath": "app/components/layout/Footer.tsx",
+        "line": 271,
+        "fields": []
+      },
+      {
+        "id": "ua:7c7a8be6",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "(e) => e.preventDefault()",
+        "filePath": "app/components/layout/Footer.tsx",
+        "line": 271
+      },
+      {
+        "id": "nav:dc28aae7",
+        "type": "Navigation",
+        "to": "/shop",
+        "filePath": "app/components/layout/Footer.tsx",
+        "line": 137
+      },
+      {
+        "id": "nav:c9cdc31e",
+        "type": "Navigation",
+        "to": "/about",
+        "filePath": "app/components/layout/Footer.tsx",
+        "line": 157
+      },
+      {
+        "id": "nav:eaa4ac89",
+        "type": "Navigation",
+        "to": "/contact",
+        "filePath": "app/components/layout/Footer.tsx",
+        "line": 166
+      },
+      {
+        "id": "nav:3769132",
+        "type": "Navigation",
+        "to": "/careers",
+        "filePath": "app/components/layout/Footer.tsx",
+        "line": 175
+      },
+      {
+        "id": "nav:76161253",
+        "type": "Navigation",
+        "to": "/blog",
+        "filePath": "app/components/layout/Footer.tsx",
+        "line": 184
+      },
+      {
+        "id": "nav:a83e9ca0",
+        "type": "Navigation",
+        "to": "/press",
+        "filePath": "app/components/layout/Footer.tsx",
+        "line": 193
+      },
+      {
+        "id": "nav:70ea1cfa",
+        "type": "Navigation",
+        "to": "/help",
+        "filePath": "app/components/layout/Footer.tsx",
+        "line": 212
+      },
+      {
+        "id": "nav:cd438acb",
+        "type": "Navigation",
+        "to": "/shipping",
+        "filePath": "app/components/layout/Footer.tsx",
+        "line": 221
+      },
+      {
+        "id": "nav:25a4f4a4",
+        "type": "Navigation",
+        "to": "/returns",
+        "filePath": "app/components/layout/Footer.tsx",
+        "line": 230
+      },
+      {
+        "id": "nav:d6018b44",
+        "type": "Navigation",
+        "to": "/track-order",
+        "filePath": "app/components/layout/Footer.tsx",
+        "line": 239
+      },
+      {
+        "id": "nav:f3a5cdce",
+        "type": "Navigation",
+        "to": "/size-guide",
+        "filePath": "app/components/layout/Footer.tsx",
+        "line": 248
+      },
+      {
+        "id": "ua:38bdd2a0",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setMobileSearchOpen(!mobileSearchOpen)",
+        "filePath": "app/components/layout/Navbar.tsx",
+        "line": 83
+      },
+      {
+        "id": "ua:defc66f4",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setMenuOpen(!menuOpen)",
+        "filePath": "app/components/layout/Navbar.tsx",
+        "line": 108
+      },
+      {
+        "id": "ua:defc67a6",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setMobileMenuOpen(!mobileMenuOpen)",
+        "filePath": "app/components/layout/Navbar.tsx",
+        "line": 160
+      },
+      {
+        "id": "ua:defc6b0d",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => {\n                      handleSignOut();\n                      setMobileMenuOpen(false);\n                    }",
+        "filePath": "app/components/layout/Navbar.tsx",
+        "line": 233
+      },
+      {
+        "id": "nav:e80d0fe5",
+        "type": "Navigation",
+        "to": "/",
+        "filePath": "app/components/layout/Navbar.tsx",
+        "line": 68
+      },
+      {
+        "id": "nav:b9d6ef5c",
+        "type": "Navigation",
+        "to": "/cart",
+        "filePath": "app/components/layout/Navbar.tsx",
+        "line": 92
+      },
+      {
+        "id": "nav:e6c387ce",
+        "type": "Navigation",
+        "to": "/sign-in",
+        "filePath": "app/components/layout/Navbar.tsx",
+        "line": 149
+      },
+      {
+        "id": "nav:e6c38847",
+        "type": "Navigation",
+        "to": "/sign-in",
+        "filePath": "app/components/layout/Navbar.tsx",
+        "line": 186
+      },
+      {
+        "id": "nav:157458ad",
+        "type": "Navigation",
+        "to": "/sign-up",
+        "filePath": "app/components/layout/Navbar.tsx",
+        "line": 193
+      },
+      {
+        "id": "nav:1994dcf1",
+        "type": "Navigation",
+        "to": "/",
+        "filePath": "app/components/layout/Navbar.tsx",
+        "line": 202
+      },
+      {
+        "id": "nav:f4dca733",
+        "type": "Navigation",
+        "to": "/orders",
+        "filePath": "app/components/layout/Navbar.tsx",
+        "line": 209
+      },
+      {
+        "id": "nav:cc8dcfde",
+        "type": "Navigation",
+        "to": "/shop",
+        "filePath": "app/components/layout/Navbar.tsx",
+        "line": 216
+      },
+      {
+        "id": "nav:30ab3d4c",
+        "type": "Navigation",
+        "to": "/dashboard",
+        "filePath": "app/components/layout/Navbar.tsx",
+        "line": 223
+      },
+      {
+        "id": "ua:a91185c3",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setIsOpen(!isOpen)",
+        "filePath": "app/components/layout/Sidebar.tsx",
+        "line": 121
+      },
+      {
+        "id": "ua:a9118625",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleSignOut",
+        "filePath": "app/components/layout/Sidebar.tsx",
+        "line": 156
+      },
+      {
+        "id": "nav:3685a144",
+        "type": "Navigation",
+        "to": "/sign-in",
+        "filePath": "app/components/layout/Sidebar.tsx",
+        "line": 71
+      },
+      {
+        "id": "ua:72f9bb9",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setCollapsed(!collapsed)",
+        "filePath": "app/components/layout/Topbar.tsx",
+        "line": 121
+      },
+      {
+        "id": "ua:72f9c5a",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() =>\n                  setCurrentAnnouncement(\n                    (prev) =>\n                      (prev - 1 + announcements.length) % announcements.length\n                  )",
+        "filePath": "app/components/layout/Topbar.tsx",
+        "line": 177
+      },
+      {
+        "id": "ua:72f9f5c",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() =>\n                  setCurrentAnnouncement(\n                    (prev) => (prev + 1) % announcements.length\n                  )",
+        "filePath": "app/components/layout/Topbar.tsx",
+        "line": 212
+      },
+      {
+        "id": "ua:1b6b974b",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setIsOpen(true)",
+        "filePath": "app/components/molecules/DashboardSearchbar.tsx",
+        "line": 77
+      },
+      {
+        "id": "ua:79469c0b",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleMonthChange(false)",
+        "filePath": "app/components/molecules/DatePicker.tsx",
+        "line": 144
+      },
+      {
+        "id": "ua:79469c83",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleMonthChange(true)",
+        "filePath": "app/components/molecules/DatePicker.tsx",
+        "line": 180
+      },
+      {
+        "id": "ua:79469fcf",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleDateSelect(new Date())",
+        "filePath": "app/components/molecules/DatePicker.tsx",
+        "line": 247
+      },
+      {
+        "id": "ua:79469fea",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setIsOpen(false)",
+        "filePath": "app/components/molecules/DatePicker.tsx",
+        "line": 253
+      },
+      {
+        "id": "ua:a17ebbb1",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleMonthChange(false)",
+        "filePath": "app/components/molecules/DateRangePicker.tsx",
+        "line": 176
+      },
+      {
+        "id": "ua:a17ebebb",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => handleMonthChange(true)",
+        "filePath": "app/components/molecules/DateRangePicker.tsx",
+        "line": 219
+      },
+      {
+        "id": "ua:a17ec25c",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => {\n                    const today = new Date();\n                    startField.onChange(today);\n                    endField.onChange(today);\n                    setSelecting(\"start\");\n                  }",
+        "filePath": "app/components/molecules/DateRangePicker.tsx",
+        "line": 308
+      },
+      {
+        "id": "ua:a17ec27c",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => {\n                    startField.onChange(null);\n                    endField.onChange(null);\n                    setSelecting(\"start\");\n                    setIsOpen(false);\n                  }",
+        "filePath": "app/components/molecules/DateRangePicker.tsx",
+        "line": 319
+      },
+      {
+        "id": "ua:8bf83d41",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => removeImage(index)",
+        "filePath": "app/components/molecules/ImageUploader.tsx",
+        "line": 136
+      },
+      {
+        "id": "ua:3be0dcda",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() =>\n            onSortOrderChange(sortOrder === \"desc\" ? \"asc\" : \"desc\")",
+        "filePath": "app/components/molecules/OrderFilters.tsx",
+        "line": 49
+      },
+      {
+        "id": "form:d3f6bf79",
+        "type": "Form",
+        "filePath": "app/components/molecules/SearchBar.tsx",
+        "line": 86,
+        "fields": []
+      },
+      {
+        "id": "ua:1f34f8fb",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSubmit(handleSearch)",
+        "filePath": "app/components/molecules/SearchBar.tsx",
+        "line": 86
+      },
+      {
+        "id": "ua:2c127964",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setRecentQueries([])",
+        "filePath": "app/components/molecules/SearchBar.tsx",
+        "line": 159
+      },
+      {
+        "id": "ua:2c1279b8",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "(e) => removeRecentQuery(index, e)",
+        "filePath": "app/components/molecules/SearchBar.tsx",
+        "line": 180
+      },
+      {
+        "id": "ua:9293369b",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setIsOpen(false)",
+        "filePath": "app/components/molecules/SearchModal.tsx",
+        "line": 101
+      },
+      {
+        "id": "ua:3d28c68b",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleExport",
+        "filePath": "app/components/molecules/TableActions.tsx",
+        "line": 80
+      },
+      {
+        "id": "ua:88865de",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onRefresh",
+        "filePath": "app/components/molecules/TableHeader.tsx",
+        "line": 41
+      },
+      {
+        "id": "ua:5eae4b5b",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => {\n                handleSignOut();\n                closeMenu();\n              }",
+        "filePath": "app/components/molecules/UserMenu.tsx",
+        "line": 157
+      },
+      {
+        "id": "ua:538183a8",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onCancel",
+        "filePath": "app/components/organisms/ConfirmModal.tsx",
+        "line": 98
+      },
+      {
+        "id": "ua:1caed28d",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "onConfirm",
+        "filePath": "app/components/organisms/ConfirmModal.tsx",
+        "line": 105
+      },
+      {
+        "id": "ua:b7c4b16d",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "prevSlide",
+        "filePath": "app/components/organisms/ImageSlider.tsx",
+        "line": 89
+      },
+      {
+        "id": "ua:b7c4b189",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "nextSlide",
+        "filePath": "app/components/organisms/ImageSlider.tsx",
+        "line": 96
+      },
+      {
+        "id": "ua:40d1610e",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => setCurrentIndex(index)",
+        "filePath": "app/components/organisms/ImageSlider.tsx",
+        "line": 109
+      },
+      {
+        "id": "ua:cf470c1c",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => changePage(currentPage - 1)",
+        "filePath": "app/components/organisms/Pagination.tsx",
+        "line": 22
+      },
+      {
+        "id": "ua:cf470c23",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => changePage(currentPage + 1)",
+        "filePath": "app/components/organisms/Pagination.tsx",
+        "line": 29
+      },
+      {
+        "id": "ua:f2c18ba0",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleRetry",
+        "filePath": "app/error.tsx",
+        "line": 148
+      },
+      {
+        "id": "ua:f2c18bdd",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleGoBack",
+        "filePath": "app/error.tsx",
+        "line": 167
+      },
+      {
+        "id": "ua:f2c18bfa",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleGoHome",
+        "filePath": "app/error.tsx",
+        "line": 175
+      },
+      {
+        "id": "ua:f2c18c18",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleReport",
+        "filePath": "app/error.tsx",
+        "line": 184
+      },
+      {
+        "id": "ua:be233799",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleRetry",
+        "filePath": "app/maintenance/page.tsx",
+        "line": 197
+      },
+      {
+        "id": "form:23273ec5",
+        "type": "Form",
+        "filePath": "app/not-found.tsx",
+        "line": 143,
+        "fields": []
+      },
+      {
+        "id": "ua:ca8bcd47",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSearch",
+        "filePath": "app/not-found.tsx",
+        "line": 143
+      },
+      {
+        "id": "ua:6c87ffdd",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => window.history.back()",
+        "filePath": "app/not-found.tsx",
+        "line": 200
+      },
+      {
+        "id": "nav:3fb591e3",
+        "type": "Navigation",
+        "to": "/",
+        "filePath": "app/not-found.tsx",
+        "line": 208
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge:ua:36879d76:triggers:form:8fe5f4f4",
+        "type": "triggers",
+        "source": "ua:36879d76",
+        "target": "form:8fe5f4f4"
+      },
+      {
+        "id": "edge:ua:6bda23e0:triggers:form:dd0ed95e",
+        "type": "triggers",
+        "source": "ua:6bda23e0",
+        "target": "form:dd0ed95e"
+      },
+      {
+        "id": "edge:ua:6bda23e0:triggers:api:4850a956",
+        "type": "triggers",
+        "source": "ua:6bda23e0",
+        "target": "api:4850a956"
+      },
+      {
+        "id": "edge:ua:634c1f8f:triggers:form:30257bd1",
+        "type": "triggers",
+        "source": "ua:634c1f8f",
+        "target": "form:30257bd1"
+      },
+      {
+        "id": "edge:ua:634c1f8f:results_in:nav:4a11ba25",
+        "type": "results_in",
+        "source": "ua:634c1f8f",
+        "target": "nav:4a11ba25"
+      },
+      {
+        "id": "edge:ua:d6b7a040:triggers:form:a390fc82",
+        "type": "triggers",
+        "source": "ua:d6b7a040",
+        "target": "form:a390fc82"
+      },
+      {
+        "id": "edge:ua:d6b7a040:results_in:nav:bd7d3ad7",
+        "type": "results_in",
+        "source": "ua:d6b7a040",
+        "target": "nav:bd7d3ad7"
+      },
+      {
+        "id": "edge:ua:6ad3ce0c:results_in:nav:c9a44eef",
+        "type": "results_in",
+        "source": "ua:6ad3ce0c",
+        "target": "nav:c9a44eef"
+      },
+      {
+        "id": "edge:ua:fc8dbcee:triggers:form:b9bb4eec",
+        "type": "triggers",
+        "source": "ua:fc8dbcee",
+        "target": "form:b9bb4eec"
+      },
+      {
+        "id": "edge:ua:9f5dcf90:triggers:form:3671cc52",
+        "type": "triggers",
+        "source": "ua:9f5dcf90",
+        "target": "form:3671cc52"
+      },
+      {
+        "id": "edge:ua:ed1f53eb:triggers:form:843350ad",
+        "type": "triggers",
+        "source": "ua:ed1f53eb",
+        "target": "form:843350ad"
+      },
+      {
+        "id": "edge:ua:2ac0741d:triggers:form:acb9aa5f",
+        "type": "triggers",
+        "source": "ua:2ac0741d",
+        "target": "form:acb9aa5f"
+      },
+      {
+        "id": "edge:ua:3a10d137:triggers:form:90d6cab5",
+        "type": "triggers",
+        "source": "ua:3a10d137",
+        "target": "form:90d6cab5"
+      },
+      {
+        "id": "edge:ua:223cab6:results_in:nav:932730ef",
+        "type": "results_in",
+        "source": "ua:223cab6",
+        "target": "nav:932730ef"
+      },
+      {
+        "id": "edge:ua:a2723aa5:triggers:form:44c47ba3",
+        "type": "triggers",
+        "source": "ua:a2723aa5",
+        "target": "form:44c47ba3"
+      },
+      {
+        "id": "edge:ua:7c96a900:triggers:form:5e7069c2",
+        "type": "triggers",
+        "source": "ua:7c96a900",
+        "target": "form:5e7069c2"
+      },
+      {
+        "id": "edge:ua:152fea5e:triggers:form:bd25c920",
+        "type": "triggers",
+        "source": "ua:152fea5e",
+        "target": "form:bd25c920"
+      },
+      {
+        "id": "edge:ua:3bc84b78:triggers:form:9526a2f6",
+        "type": "triggers",
+        "source": "ua:3bc84b78",
+        "target": "form:9526a2f6"
+      },
+      {
+        "id": "edge:ua:21f2dea8:triggers:form:ad5cfda6",
+        "type": "triggers",
+        "source": "ua:21f2dea8",
+        "target": "form:ad5cfda6"
+      },
+      {
+        "id": "edge:ua:17434bd7:triggers:form:fc0fbd99",
+        "type": "triggers",
+        "source": "ua:17434bd7",
+        "target": "form:fc0fbd99"
+      },
+      {
+        "id": "edge:ua:ccc7b6e9:results_in:nav:85ccdb4",
+        "type": "results_in",
+        "source": "ua:ccc7b6e9",
+        "target": "nav:85ccdb4"
+      },
+      {
+        "id": "edge:ua:7c7a8be6:triggers:form:e33a2ea8",
+        "type": "triggers",
+        "source": "ua:7c7a8be6",
+        "target": "form:e33a2ea8"
+      },
+      {
+        "id": "edge:ua:a9118625:results_in:nav:3685a144",
+        "type": "results_in",
+        "source": "ua:a9118625",
+        "target": "nav:3685a144"
+      },
+      {
+        "id": "edge:ua:1f34f8fb:triggers:form:d3f6bf79",
+        "type": "triggers",
+        "source": "ua:1f34f8fb",
+        "target": "form:d3f6bf79"
+      },
+      {
+        "id": "edge:ua:ca8bcd47:triggers:form:23273ec5",
+        "type": "triggers",
+        "source": "ua:ca8bcd47",
+        "target": "form:23273ec5"
+      }
+    ]
+  }
+}

@@ -48,9 +48,18 @@ export class CloudDiscoveryService {
    * V7: Behavior-Driven Discovery (Behavior Graph + deterministic goal extraction + semantic AI)
    * Strict separation from v2-v6 discovery logic.
    */
-  async discoverV7(payload: BehaviorGraphPayload): Promise<DiscoveryResponse> {
-    const startTime = Date.now();
-
+  async discoverV7(
+    payload: BehaviorGraphPayload
+  ): Promise<{
+    success: true;
+    suites: import('./intelligence/v7-semantic/semantic-summarizer').V7SemanticSuite[];
+    unknowns?: string[];
+    reason?: 'NO_DETERMINISTIC_USER_GOALS';
+  } | {
+    success: false;
+    suites: [];
+    reason: 'INVALID_BEHAVIOR_GRAPH';
+  }> {
     console.log(`\n🧠 API: Behavior-Driven Discovery V7 for ${payload.project.name}`);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
@@ -59,88 +68,30 @@ export class CloudDiscoveryService {
       return {
         success: false,
         suites: [],
-        summary: {
-          totalSuites: 0,
-          totalCases: 0,
-          totalSteps: 0,
-          coverage: {
-            routes: { total: 0, covered: 0 },
-            forms: { total: 0, covered: 0 },
-            entities: { total: 0, covered: 0 },
-          },
-        },
-        analysis: {
-          detectedEntities: [],
-          detectedFlows: [],
-          processingTime: Date.now() - startTime,
-          aiModel: null,
-        },
+        reason: 'INVALID_BEHAVIOR_GRAPH',
+      };
+    }
+
+    // V7 rule: if there are ZERO deterministic user goals, we MUST return empty suites and skip AI.
+    const deterministicGoals = processed.goals.filter(g => g.terminalNodeId !== 'UNKNOWN');
+    if (deterministicGoals.length === 0) {
+      return {
+        success: true,
+        suites: [],
+        reason: 'NO_DETERMINISTIC_USER_GOALS',
       };
     }
 
     const llmClient = createV7LLMClient(this.aiProvider);
     const semantic = await summarizeBehaviorGraphSemantically(
-      { payload: processed.payload, goals: processed.goals },
+      { payload: processed.payload, goals: deterministicGoals },
       llmClient
-    );
-
-    // Convert V7 semantic output into existing DiscoveryResponse output model.
-    // V7 does not include selectors; we keep selector/value null.
-    const suites: TestSuiteOutput[] = semantic.suites.map((s, suiteIdx) => ({
-      id: `v7-suite-${suiteIdx}`,
-      name: s.name,
-      description: s.description,
-      category: 'v7-domain',
-      priority: 'medium',
-      tags: [],
-      testCases: (s.cases || []).map((c, caseIdx) => ({
-        id: `v7-case-${suiteIdx}-${caseIdx}`,
-        name: c.name,
-        description: c.intent,
-        type: 'navigation',
-        priority: 'medium',
-        steps: (c.steps || []).map((st, i) => ({
-          index: i + 1,
-          action: st.action,
-          target: st.action,
-          selector: null,
-          value: null,
-          description: st.expected,
-        })),
-        estimatedDuration: 30,
-      })),
-      coverage: {
-        routes: [],
-        forms: [],
-        entities: [],
-      },
-    }));
-
-    const totalCases = suites.reduce((sum, s) => sum + s.testCases.length, 0);
-    const totalSteps = suites.reduce(
-      (sum, s) => sum + s.testCases.reduce((cs, c) => cs + c.steps.length, 0),
-      0
     );
 
     return {
       success: true,
-      suites,
-      summary: {
-        totalSuites: suites.length,
-        totalCases,
-        totalSteps,
-        coverage: {
-          routes: { total: 0, covered: 0 },
-          forms: { total: 0, covered: 0 },
-          entities: { total: 0, covered: 0 },
-        },
-      },
-      analysis: {
-        detectedEntities: [],
-        detectedFlows: semantic.suites.map(x => x.name),
-        processingTime: Date.now() - startTime,
-        aiModel: 'v7-semantic',
-      },
+      suites: semantic.suites,
+      unknowns: semantic.unknowns,
     };
   }
   

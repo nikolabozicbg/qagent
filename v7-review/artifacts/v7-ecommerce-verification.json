@@ -1,0 +1,164 @@
+{
+  "summary": {
+    "nodesByType": {
+      "Page": 28,
+      "Form": 18,
+      "UserAction": 187,
+      "Navigation": 36,
+      "ApiCall": 1
+    },
+    "edgesByType": {
+      "triggers": 19,
+      "results_in": 6
+    },
+    "derivedUserGoalsTotal": 187,
+    "deterministicGoals": 6
+  },
+  "topChains": [
+    {
+      "kind": "UA->NAV",
+      "ua": {
+        "id": "ua:634c1f8f",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSubmit(onSubmit)",
+        "filePath": "app/(auth)/sign-in/page.tsx",
+        "line": 63
+      },
+      "nav": {
+        "id": "nav:4a11ba25",
+        "type": "Navigation",
+        "to": "/",
+        "filePath": "app/(auth)/sign-in/page.tsx"
+      }
+    },
+    {
+      "kind": "UA->NAV",
+      "ua": {
+        "id": "ua:d6b7a040",
+        "type": "UserAction",
+        "actionType": "submit",
+        "label": "handleSubmit(onSubmit)",
+        "filePath": "app/(auth)/sign-up/page.tsx",
+        "line": 80
+      },
+      "nav": {
+        "id": "nav:bd7d3ad7",
+        "type": "Navigation",
+        "to": "/",
+        "filePath": "app/(auth)/sign-up/page.tsx"
+      }
+    },
+    {
+      "kind": "UA->NAV",
+      "ua": {
+        "id": "ua:6ad3ce0c",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleGoHome",
+        "filePath": "app/(private)/(chat)/components/ErrorDisplay.tsx",
+        "line": 70
+      },
+      "nav": {
+        "id": "nav:c9a44eef",
+        "type": "Navigation",
+        "to": "/",
+        "filePath": "app/(private)/(chat)/components/ErrorDisplay.tsx"
+      }
+    },
+    {
+      "kind": "UA->NAV",
+      "ua": {
+        "id": "ua:223cab6",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "() => router.push(\"/dashboard/logs\")",
+        "filePath": "app/(private)/dashboard/logs/[logId]/page.tsx",
+        "line": 57
+      },
+      "nav": {
+        "id": "nav:932730ef",
+        "type": "Navigation",
+        "to": "/dashboard/logs",
+        "filePath": "app/(private)/dashboard/logs/[logId]/page.tsx"
+      }
+    },
+    {
+      "kind": "UA->NAV",
+      "ua": {
+        "id": "ua:ccc7b6e9",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleReset",
+        "filePath": "app/(public)/shop/page.tsx",
+        "line": 306
+      },
+      "nav": {
+        "id": "nav:85ccdb4",
+        "type": "Navigation",
+        "to": "/shop",
+        "filePath": "app/(public)/shop/page.tsx"
+      }
+    },
+    {
+      "kind": "UA->NAV",
+      "ua": {
+        "id": "ua:a9118625",
+        "type": "UserAction",
+        "actionType": "click",
+        "label": "handleSignOut",
+        "filePath": "app/components/layout/Sidebar.tsx",
+        "line": 156
+      },
+      "nav": {
+        "id": "nav:3685a144",
+        "type": "Navigation",
+        "to": "/sign-in",
+        "filePath": "app/components/layout/Sidebar.tsx"
+      }
+    }
+  ],
+  "delta": {
+    "apiCallNodes": {
+      "previous": 1,
+      "now": 1,
+      "delta": 0
+    },
+    "stateMutationNodes": {
+      "previous": 0,
+      "now": 0,
+      "delta": 0
+    },
+    "resultsInEdges": {
+      "previous": 6,
+      "now": 6,
+      "delta": 0
+    },
+    "deterministicGoals": {
+      "previous": 6,
+      "now": 6,
+      "delta": 0
+    }
+  },
+  "ambiguousOrSkippedByPhase": {
+    "phase1": {
+      "handlers": 148,
+      "deterministicHandlers": 6,
+      "ambiguousHandlers": 0,
+      "skippedNonLiteralCalls": 5,
+      "backCalls": 0
+    },
+    "phase2": {
+      "handlers": 148,
+      "deterministicHandlers": 1,
+      "ambiguousHandlers": 0,
+      "skippedCalls": 0
+    },
+    "phase3": {
+      "handlers": 148,
+      "deterministicHandlers": 0,
+      "ambiguousHandlers": 0,
+      "skippedCalls": 0
+    }
+  }
+}
