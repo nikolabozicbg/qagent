@@ -10,6 +10,11 @@ V7 pipeline:
 3) Backend deterministically extracts user goals (NO AI)
 4) AI is used ONLY as a semantic naming/grouping layer over VERIFIED behavior
 
+V8 (separate, above V7):
+- Runtime-only executor/observer that attempts to verify V7 derivedUserGoals against a running app.
+- No static analysis, no heuristics over source, and no application assumptions.
+- Produces verified/unverified goal reports only (no semantic naming).
+
 V6 remains legacy/fallback.
 
 ## Where the V7 artifacts are
@@ -40,6 +45,11 @@ V6 remains legacy/fallback.
 
 ### Patch
 - `patches/working-tree.diff` contains the current git diff for all local changes.
+
+## V8 (runtime observation layer) artifacts
+- V8 implementation lives in `packages/v8-runtime/` (outside this bundle).
+- Review notes + reproduction commands are included under:
+  - `v8/README.md`
 
 ## V7 Behavior Graph model (fixed universal model)
 ### Node types

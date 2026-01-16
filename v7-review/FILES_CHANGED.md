@@ -68,6 +68,16 @@ Note:
 - Added: `v7-review/sample-output/goals.after.json`
 - Added: `v7-review/sample-output/ai-output.after.json`
 
+## V8 (new)
+- Added: `packages/v8-runtime/*`
+  - V8 runtime executor/observer (Playwright-based), strictly above V7.
+  - Consumes only derivedUserGoals + runtime signals; no source analysis.
+  - Produces V8 report: verifiedGoals[] / unverifiedGoals[] (no semantic naming).
+
+## V8 review bundle (new)
+- Added: `v7-review/v8/*`
+  - Minimal docs + example mapping/report for independent review.
+
 ## Review snapshots included in this folder
 - Backend snapshots under `v7-review/backend/`
 - Electron snapshots under `v7-review/electron/`
