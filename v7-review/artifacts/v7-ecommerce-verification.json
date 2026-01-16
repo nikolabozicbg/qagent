@@ -160,5 +160,6 @@
       "ambiguousHandlers": 0,
       "skippedCalls": 0
     }
-  }
+  },
+  "ambiguousOrSkippedByPhaseNote": "Phase 2.1 affects call-through; skipped/ambiguity counts are computed in a separate script if needed."
 }

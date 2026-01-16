@@ -53,6 +53,13 @@ export async function scanProjectV7(projectPath: string): Promise<BehaviorGraphP
   const nodes: any[] = [];
   const edges: any[] = [];
 
+  // Phase 2.1: file-level caches for deterministic one-hop call-through
+  const sfCache = new Map<string, ts.SourceFile>();
+  const functionIndexCache = new Map<string, FunctionIndex>();
+  const exportsCache = new Map<string, Set<string>>();
+  const importIndexCache = new Map<string, ImportIndex>();
+  const moduleResolveCache = new Map<string, string | null>();
+
   // Pages
   for (const r of routes) {
     const pageId = `page:${r.route}`;
@@ -82,12 +89,29 @@ export async function scanProjectV7(projectPath: string): Promise<BehaviorGraphP
     );
 
     const rel = path.relative(projectPath, filePath);
+    sfCache.set(rel, sf);
+
     const pageIdForFile = pageIdByFile.get(rel);
 
     const imports = collectImports(sf);
+    importIndexCache.set(rel, imports);
+
+    // Phase 2.1: deterministically resolve relative imports (one-hop only) so call-through can inline.
+    await prewarmRelativeImports(projectPath, rel, imports, {
+      sfCache,
+      functionIndexCache,
+      exportsCache,
+      importIndexCache,
+      moduleResolveCache,
+    });
+
     const navVars = collectNavigationVariables(sf);
     const mutationVars = collectMutationVariables(sf);
+
     const functionIndex = indexFunctions(sf);
+    functionIndexCache.set(rel, functionIndex);
+
+    exportsCache.set(rel, collectExportedNames(sf));
 
     // C) Conditional → Navigation (page-level only when deterministically tied to a Page file)
     // Detect: if (...) redirect('<literal>') / ternary returning redirect('<literal>')
@@ -177,7 +201,14 @@ export async function scanProjectV7(projectPath: string): Promise<BehaviorGraphP
             });
           }
 
-          const api = detectDeterministicApiCallFromHandler(handler, sf, imports);
+          const api = detectDeterministicApiCallFromHandler(handler, sf, rel, imports, {
+            projectPath,
+            sfCache,
+            functionIndexCache,
+            exportsCache,
+            importIndexCache,
+            moduleResolveCache,
+          });
           const apiId = api && api.unique
             ? stableId(`api:${api.method}:${api.endpoint}:${rel}:${api.line}`)
             : null;
@@ -191,7 +222,14 @@ export async function scanProjectV7(projectPath: string): Promise<BehaviorGraphP
             });
           }
 
-          const mutations = detectDeterministicStateMutationsFromHandler(handler, sf, mutationVars);
+          const mutations = detectDeterministicStateMutationsFromHandler(handler, sf, rel, mutationVars, {
+            projectPath,
+            sfCache,
+            functionIndexCache,
+            exportsCache,
+            importIndexCache,
+            moduleResolveCache,
+          });
           if (mutations.length > 0) {
             const stateIds: string[] = [];
             for (const m of mutations) {
@@ -257,7 +295,14 @@ export async function scanProjectV7(projectPath: string): Promise<BehaviorGraphP
           edges.push({ id: `edge:${actionId}:results_in:${navId}`, type: 'results_in', source: actionId, target: navId });
         }
 
-        const api = detectDeterministicApiCallFromHandler(handler, sf, imports);
+        const api = detectDeterministicApiCallFromHandler(handler, sf, rel, imports, {
+          projectPath,
+          sfCache,
+          functionIndexCache,
+          exportsCache,
+          importIndexCache,
+          moduleResolveCache,
+        });
         const apiId = api && api.unique
           ? stableId(`api:${api.method}:${api.endpoint}:${rel}:${api.line}`)
           : null;
@@ -266,7 +311,14 @@ export async function scanProjectV7(projectPath: string): Promise<BehaviorGraphP
           edges.push({ id: `edge:${actionId}:triggers:${apiId}`, type: 'triggers', source: actionId, target: apiId });
         }
 
-        const mutations = detectDeterministicStateMutationsFromHandler(handler, sf, mutationVars);
+        const mutations = detectDeterministicStateMutationsFromHandler(handler, sf, rel, mutationVars, {
+          projectPath,
+          sfCache,
+          functionIndexCache,
+          exportsCache,
+          importIndexCache,
+          moduleResolveCache,
+        });
         if (mutations.length > 0) {
           const stateIds: string[] = [];
           for (const m of mutations) {
@@ -501,6 +553,10 @@ function collectInputFieldNames(_formEl: ts.JsxOpeningLikeElement): string[] {
 type ImportIndex = {
   axiosNames: Set<string>;
   clientNames: Set<string>;
+
+  // Phase 2.1: deterministic call-through support (relative imports only)
+  relativeNamedImports: Map<string, { module: string; imported: string }>;
+  relativeDefaultImports: Map<string, { module: string }>;
 };
 
 type MutationVarIndex = {
@@ -512,12 +568,17 @@ function collectImports(sf: ts.SourceFile): ImportIndex {
   const axiosNames = new Set<string>();
   const clientNames = new Set<string>();
 
+  const relativeNamedImports = new Map<string, { module: string; imported: string }>();
+  const relativeDefaultImports = new Map<string, { module: string }>();
+
   for (const st of sf.statements) {
     if (!ts.isImportDeclaration(st)) continue;
     const moduleName = st.moduleSpecifier && ts.isStringLiteral(st.moduleSpecifier) ? st.moduleSpecifier.text : null;
     const clause = st.importClause;
 
-    if (!clause) continue;
+    if (!clause || !moduleName) continue;
+
+    const isRelative = moduleName.startsWith('.');
 
     // default import: import axios from 'axios'
     if (clause.name) {
@@ -527,6 +588,10 @@ function collectImports(sf: ts.SourceFile): ImportIndex {
       } else {
         // generic explicit client import (allowed pattern)
         clientNames.add(local);
+      }
+
+      if (isRelative) {
+        relativeDefaultImports.set(local, { module: moduleName });
       }
     }
 
@@ -538,23 +603,30 @@ function collectImports(sf: ts.SourceFile): ImportIndex {
       } else {
         clientNames.add(local);
       }
+      // No deterministic function resolution for namespace imports.
     }
 
-    // named imports: import { client } from 'x'
+    // named imports: import { foo as bar } from './x'
     if (clause.namedBindings && ts.isNamedImports(clause.namedBindings)) {
       for (const spec of clause.namedBindings.elements) {
         const local = spec.name.text;
+        const imported = (spec.propertyName ? spec.propertyName.text : spec.name.text);
+
         clientNames.add(local);
         // also treat named 'axios' import from 'axios'
         if (moduleName === 'axios') {
           clientNames.delete(local);
           axiosNames.add(local);
         }
+
+        if (isRelative) {
+          relativeNamedImports.set(local, { module: moduleName, imported });
+        }
       }
     }
   }
 
-  return { axiosNames, clientNames };
+  return { axiosNames, clientNames, relativeNamedImports, relativeDefaultImports };
 }
 
 type NavigationVarIndex = {
@@ -758,17 +830,44 @@ function extractDeterministicNavigation(
 }
 
 type DetectedApi = { unique: boolean; endpoint: string; method: string; line: number };
+type InlineContext = {
+  projectPath: string;
+  sfCache: Map<string, ts.SourceFile>;
+  functionIndexCache: Map<string, FunctionIndex>;
+  exportsCache: Map<string, Set<string>>;
+  importIndexCache: Map<string, ImportIndex>;
+  moduleResolveCache: Map<string, string | null>;
+};
+
 function detectDeterministicApiCallFromHandler(
   fn: ts.FunctionLikeDeclaration,
   sf: ts.SourceFile,
-  imports: ImportIndex
+  relPath: string,
+  imports: ImportIndex,
+  inlineCtx: InlineContext
 ): DetectedApi | null {
   const calls: Array<{ endpoint: string; method: string; line: number }> = [];
 
   const visit = (node: ts.Node) => {
     if (ts.isCallExpression(node)) {
+      // Phase 2 base detection
       const api = extractDeterministicApiCall(node, sf, imports);
       if (api) calls.push(api);
+
+      // Phase 2.1: one-hop call-through
+      const callee = resolveOneHopCallee(node, relPath, inlineCtx);
+      if (callee && callee.fn.body) {
+        const targetImports = inlineCtx.importIndexCache.get(callee.relPath) || collectImports(callee.sf);
+        const scan = (n: ts.Node) => {
+          if (ts.isCallExpression(n)) {
+            const found = extractDeterministicApiCall(n, callee.sf, targetImports);
+            if (found) calls.push(found);
+          }
+          ts.forEachChild(n, scan);
+        };
+        // one-hop only: we scan the callee body but do not inline further.
+        scan(callee.fn.body);
+      }
     }
     ts.forEachChild(node, visit);
   };
@@ -847,7 +946,9 @@ type DetectedConditional = { unique: boolean; to: string; line: number; conditio
 function detectDeterministicStateMutationsFromHandler(
   fn: ts.FunctionLikeDeclaration,
   sf: ts.SourceFile,
-  vars: MutationVarIndex
+  relPath: string,
+  vars: MutationVarIndex,
+  inlineCtx: InlineContext
 ): DetectedStateMutation[] {
   const out: DetectedStateMutation[] = [];
   if (!fn.body) return out;
@@ -856,6 +957,20 @@ function detectDeterministicStateMutationsFromHandler(
     if (ts.isCallExpression(node)) {
       const m = extractDeterministicStateMutation(node, sf, vars);
       if (m) out.push(m);
+
+      // Phase 2.1: one-hop call-through
+      const callee = resolveOneHopCallee(node, relPath, inlineCtx);
+      if (callee && callee.fn.body) {
+        const targetVars = collectMutationVariables(callee.sf);
+        const scan = (n: ts.Node) => {
+          if (ts.isCallExpression(n)) {
+            const mm = extractDeterministicStateMutation(n, callee.sf, targetVars);
+            if (mm) out.push(mm);
+          }
+          ts.forEachChild(n, scan);
+        };
+        scan(callee.fn.body);
+      }
     }
     ts.forEachChild(node, visit);
   };
@@ -1063,6 +1178,194 @@ function getDeterministicEndpoint(expr: ts.Expression): string | null {
     const prefix = expr.head.text;
     // Require a non-empty prefix to be useful and deterministic.
     if (prefix && prefix.length > 0) return prefix;
+  }
+
+  return null;
+}
+
+function collectExportedNames(sf: ts.SourceFile): Set<string> {
+  const exported = new Set<string>();
+
+  for (const st of sf.statements) {
+    // export function foo() {}
+    if (ts.isFunctionDeclaration(st) && st.name && hasExportModifier(st)) {
+      exported.add(st.name.text);
+    }
+
+    // export const foo = () => {}
+    if (ts.isVariableStatement(st) && hasExportModifier(st)) {
+      for (const decl of st.declarationList.declarations) {
+        if (ts.isIdentifier(decl.name)) exported.add(decl.name.text);
+      }
+    }
+
+    // export { foo, bar as baz } from './x'
+    if (ts.isExportDeclaration(st) && st.exportClause && ts.isNamedExports(st.exportClause)) {
+      for (const el of st.exportClause.elements) {
+        exported.add(el.name.text);
+      }
+    }
+  }
+
+  return exported;
+}
+
+function hasExportModifier(node: ts.Node): boolean {
+  const mods = (node as any).modifiers as ts.NodeArray<ts.Modifier> | undefined;
+  if (!mods) return false;
+  return mods.some(m => m.kind === ts.SyntaxKind.ExportKeyword);
+}
+
+async function resolveRelativeModuleToFile(
+  projectPath: string,
+  fromRelPath: string,
+  moduleSpecifier: string,
+  cache: Map<string, string | null>
+): Promise<string | null> {
+  const key = `${fromRelPath}::${moduleSpecifier}`;
+  if (cache.has(key)) return cache.get(key)!;
+
+  const fromDir = path.dirname(fromRelPath);
+  const base = path.normalize(path.join(fromDir, moduleSpecifier));
+
+  const candidates = [
+    base,
+    `${base}.ts`,
+    `${base}.tsx`,
+    `${base}.js`,
+    `${base}.jsx`,
+    path.join(base, 'index.ts'),
+    path.join(base, 'index.tsx'),
+    path.join(base, 'index.js'),
+    path.join(base, 'index.jsx'),
+  ].map(p => p.replace(/\\/g, '/'));
+
+  for (const rel of candidates) {
+    const abs = path.join(projectPath, rel);
+    const ok = await fs.stat(abs).then(s => s.isFile()).catch(() => false);
+    if (ok) {
+      cache.set(key, rel);
+      return rel;
+    }
+  }
+
+  cache.set(key, null);
+  return null;
+}
+
+
+type ResolvedCallee = { relPath: string; sf: ts.SourceFile; fn: ts.FunctionLikeDeclaration };
+
+async function prewarmRelativeImports(
+  projectPath: string,
+  fromRelPath: string,
+  imports: ImportIndex,
+  caches: {
+    sfCache: Map<string, ts.SourceFile>;
+    functionIndexCache: Map<string, FunctionIndex>;
+    exportsCache: Map<string, Set<string>>;
+    importIndexCache: Map<string, ImportIndex>;
+    moduleResolveCache: Map<string, string | null>;
+  }
+): Promise<void> {
+  const moduleSpecifiers = new Set<string>();
+  for (const v of imports.relativeNamedImports.values()) moduleSpecifiers.add(v.module);
+  for (const v of imports.relativeDefaultImports.values()) moduleSpecifiers.add(v.module);
+
+  for (const mod of moduleSpecifiers) {
+    const key = `${fromRelPath}::${mod}`;
+    if (!caches.moduleResolveCache.has(key)) {
+      const resolved = await resolveRelativeModuleToFile(projectPath, fromRelPath, mod, caches.moduleResolveCache);
+      // resolveRelativeModuleToFile already cached the key
+      if (!resolved) continue;
+
+      // Ensure target file is parsed and indexed so call-through can deterministically inline.
+      if (!caches.sfCache.has(resolved)) {
+        const abs = path.join(projectPath, resolved);
+        const content = await fs.readFile(abs, 'utf-8').catch(() => null);
+        if (!content) continue;
+        const ext = path.extname(resolved);
+        const sf = ts.createSourceFile(
+          resolved,
+          content,
+          ts.ScriptTarget.Latest,
+          true,
+          ext === '.tsx' || ext === '.jsx' ? ts.ScriptKind.TSX : ts.ScriptKind.TS
+        );
+        caches.sfCache.set(resolved, sf);
+        caches.importIndexCache.set(resolved, collectImports(sf));
+        caches.functionIndexCache.set(resolved, indexFunctions(sf));
+        caches.exportsCache.set(resolved, collectExportedNames(sf));
+      }
+    }
+  }
+}
+
+function resolveOneHopCallee(call: ts.CallExpression, fromRelPath: string, ctx: InlineContext): ResolvedCallee | null {
+  // One-hop only. Only supports call expressions where callee is an identifier: foo(...)
+  if (!ts.isIdentifier(call.expression)) return null;
+  const name = call.expression.text;
+
+  // 1) Local function in same file
+  const localIdx = ctx.functionIndexCache.get(fromRelPath);
+  const localFn = localIdx?.byName.get(name) || null;
+  if (localFn) {
+    const sf = ctx.sfCache.get(fromRelPath);
+    if (!sf) return null;
+    return { relPath: fromRelPath, sf, fn: localFn };
+  }
+
+  // 2) Relative import (named or default)
+  const imports = ctx.importIndexCache.get(fromRelPath);
+  if (!imports) return null;
+
+  const named = imports.relativeNamedImports.get(name);
+  const def = imports.relativeDefaultImports.get(name);
+
+  const resolveCachedTarget = (moduleSpecifier: string): string | null => {
+    const key = `${fromRelPath}::${moduleSpecifier}`;
+    const existing = ctx.moduleResolveCache.get(key);
+    return existing === undefined ? null : existing;
+  };
+
+  if (named) {
+    const targetRel = resolveCachedTarget(named.module);
+    if (!targetRel) return null;
+    const targetSf = ctx.sfCache.get(targetRel);
+    if (!targetSf) return null;
+    const targetIdx = ctx.functionIndexCache.get(targetRel);
+    const exports = ctx.exportsCache.get(targetRel);
+    if (!targetIdx || !exports) return null;
+    if (!exports.has(named.imported)) return null;
+    const fn = targetIdx.byName.get(named.imported) || null;
+    if (!fn) return null;
+    return { relPath: targetRel, sf: targetSf, fn };
+  }
+
+  if (def) {
+    const targetRel = resolveCachedTarget(def.module);
+    if (!targetRel) return null;
+    const targetSf = ctx.sfCache.get(targetRel);
+    if (!targetSf) return null;
+
+    // Find export default
+    for (const st of targetSf.statements) {
+      if (ts.isExportAssignment(st) && !st.isExportEquals) {
+        const expr = st.expression;
+        if (ts.isIdentifier(expr)) {
+          const targetIdx = ctx.functionIndexCache.get(targetRel);
+          if (!targetIdx) return null;
+          const fn = targetIdx.byName.get(expr.text) || null;
+          if (fn) return { relPath: targetRel, sf: targetSf, fn };
+        }
+        if (ts.isArrowFunction(expr) || ts.isFunctionExpression(expr)) {
+          return { relPath: targetRel, sf: targetSf, fn: expr };
+        }
+      }
+      if (ts.isFunctionDeclaration(st) && hasExportModifier(st) && st.modifiers?.some(m => m.kind === ts.SyntaxKind.DefaultKeyword)) {
+        if (st.name) return { relPath: targetRel, sf: targetSf, fn: st };
+      }
+    }
   }
 
   return null;
