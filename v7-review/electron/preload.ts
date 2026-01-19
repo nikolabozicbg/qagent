@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // File system
   openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
   selectFolder: () => ipcRenderer.invoke('open-file-dialog'), // Alias for clarity
+  openJsonFileDialog: () => ipcRenderer.invoke('open-json-file-dialog'),
   saveTestFile: (filePath: string, contents: string) => 
     ipcRenderer.invoke('fs:saveTestFile', filePath, contents),
   readFile: (filePath: string) => 
@@ -72,6 +73,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // V7 Project scanning (Behavior Graph)
   scanProjectV7: (projectPath: string) =>
     ipcRenderer.invoke('project:scan-v7', projectPath),
+
+  // V8 runtime batch execution
+  runV8Batch: (options: { baseUrl: string; goalsPath: string; mappingPath: string }) =>
+    ipcRenderer.invoke('v8:run-batch', options),
+
+  // V8 auto-execution (no manual mapping)
+  runV8BatchAuto: (options: { baseUrl: string; behaviorGraphPayload: any; derivedUserGoals: any[] }) =>
+    ipcRenderer.invoke('v8:run-batch-auto', options),
   
   // Platform info
   platform: process.platform
@@ -182,6 +191,7 @@ export interface ElectronAPI {
   getAppVersion: () => Promise<string>;
   openFileDialog: () => Promise<{ canceled: boolean; filePaths: string[] }>;
   selectFolder: () => Promise<{ canceled: boolean; filePaths: string[] }>;
+  openJsonFileDialog: () => Promise<{ canceled: boolean; filePaths: string[] }>;
   saveTestFile: (filePath: string, contents: string) => Promise<{ ok: boolean; path?: string; error?: string }>;
   readFile: (filePath: string) => Promise<{ ok: boolean; contents?: string; error?: string }>;
   openInEditor: (filePath: string) => Promise<{ ok: boolean; error?: string }>;
@@ -190,6 +200,24 @@ export interface ElectronAPI {
   scanProject: (projectPath: string) => Promise<{ ok: boolean; payload?: AnalysisPayload; error?: string }>;
   scanProjectV5: (projectPath: string) => Promise<{ ok: boolean; payload?: V5ScannerPayload; error?: string }>;
   scanProjectV7: (projectPath: string) => Promise<{ ok: boolean; payload?: any; error?: string }>;
+
+  runV8Batch: (options: { baseUrl: string; goalsPath: string; mappingPath: string }) => Promise<{
+    ok: boolean;
+    exitCode?: number | null;
+    stdout?: string;
+    stderr?: string;
+    error?: string;
+    paths?: { uiReadyOut: string; reportOut: string; runDir: string };
+    uiReady?: any;
+    v8Report?: any;
+  }>;
+
+  runV8BatchAuto: (options: { baseUrl: string; behaviorGraphPayload: any; derivedUserGoals: any[] }) => Promise<{
+    ok: boolean;
+    error?: string;
+    paths?: { runDir: string };
+    uiReady?: any;
+  }>;
   
   // Playwright setup
   checkPlaywright: (projectPath: string) => Promise<{ ok: boolean; hasPlaywright: boolean; isInstalled: boolean; version?: string; error?: string }>;

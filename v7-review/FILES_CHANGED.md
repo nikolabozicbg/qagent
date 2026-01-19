@@ -84,6 +84,43 @@ Note:
 - Added: `v7-review/v8/*`
   - Minimal docs + example mapping/report for independent review.
 
+## Discover Auto-Execution Layer (new)
+This is the minimal integration that makes Desktop Discover a single entry point and returns VERIFIED suites only, without any manual mapping/config.
+
+### Backend (modified)
+- Modified: `apps/backend/src/modules/analysis/analysis.controller.ts`
+  - Added: `POST /analyze/v7/goals`
+    - Read-only endpoint that returns `{ payload, derivedUserGoals }` by calling the existing deterministic V7 processor.
+    - No changes to V7 graph, goal extraction, or V7 semantic discovery.
+
+### Electron (modified/new)
+- Modified: `apps/desktop/electron/main.ts`
+  - Added IPC: `v8:run-batch-auto`
+    - Auto-generates a V8 batch mapping deterministically using DOM inspection and ordered fallbacks.
+    - Executes V8 CLI per `startPath` and merges UI-ready outputs deterministically.
+- Modified: `apps/desktop/electron/preload.ts`
+  - Exposed `runV8BatchAuto()` to renderer.
+- Added: `apps/desktop/electron/v8-auto-mapping.ts`
+  - Deterministic mapping generator:
+    - ordered fallback: href → button text → data-testid → form submit
+    - discard goal if selector cannot be resolved deterministically.
+
+### Desktop / Renderer (modified/new)
+- Modified: `apps/desktop/src/screens/SmartDiscovery.tsx`
+  - Discover is now a single entry point:
+    - runs V7 scan
+    - calls backend `/analyze/v7/goals`
+    - runs V8 auto-execution via IPC
+    - renders ONLY VERIFIED suites (ui-ready output)
+  - Removed manual mapping selection and any version selection.
+  - If `suites[]` is empty: UI shows "No verified goals. Check execution mapping or runtime errors."
+- Modified: `apps/desktop/src/services/api.ts`
+  - Added: `getV7GoalsFromBehaviorGraph(payload)` (calls `/analyze/v7/goals`).
+- Added: `apps/desktop/src/types/v8-ui.types.ts`
+  - Render-only types for ui-ready output.
+- Added: `apps/desktop/src/electron-api.d.ts`
+  - Renderer typing shim for `window.electronAPI`.
+
 ## Review snapshots included in this folder
 - Backend snapshots under `v7-review/backend/`
 - Electron snapshots under `v7-review/electron/`

@@ -60,6 +60,15 @@ See `v8/promotion-example.testcase.json`.
 
 ## Where Electron UI displays this (read-only)
 Electron UI must only read and display the promoted `ExecutableTestCase` JSON and/or the grouped `ui-ready.suites.json` output.
+
+## Auto-Execution (no manual mapping)
+Electron Desktop adds an auto-execution layer (above V7, using V8 runtime) that:
+- calls `POST /analyze/v7/goals` to obtain deterministic `derivedUserGoals`
+- auto-builds a V8 batch mapping deterministically by inspecting the DOM on each goal's startPath
+- uses ordered fallback (href → button text → data-testid → form submit)
+- discards goals that cannot be mapped deterministically
+- runs V8 batch per startPath and merges UI-ready outputs
+- UI shows only VERIFIED suites
 UI MUST NOT:
 - infer selectors
 - invent steps

@@ -51,6 +51,21 @@ V6 remains legacy/fallback.
 - Review notes + reproduction commands are included under:
   - `v8/README.md`
 
+## Discover Auto-Execution (Electron Desktop)
+Discover is now a single entry point that returns VERIFIED suites only:
+1) Electron scans V7 Behavior Graph (static, deterministic)
+2) Backend exposes deterministic V7 goals via `POST /analyze/v7/goals` (read-only)
+3) Electron auto-generates V8 execution mapping deterministically from the live DOM using ordered fallbacks:
+   - href → button text → data-testid → form submit
+4) Electron runs V8 batch per startPath and merges UI-ready outputs deterministically
+5) UI renders only the final `ui-ready` suites/cases/steps/assertions/provenance (read-only)
+
+Rules:
+- no manual mapping
+- no user configuration
+- no heuristics
+- goals that cannot be mapped or fail to verify are discarded and never shown in UI
+
 ## V7 Behavior Graph model (fixed universal model)
 ### Node types
 - Page
@@ -85,6 +100,15 @@ AI must not complete UNKNOWN.
 ## API contract (transport)
 V7 uses the existing endpoint:
 - `POST /analyze/discover?version=v7`
+
+### Additional V7 helper endpoint (read-only)
+To enable deterministic runtime auto-execution without changing V7 logic, Desktop uses:
+- `POST /analyze/v7/goals`
+
+This endpoint:
+- runs the existing deterministic V7 processor (validate → normalize → goal-extract)
+- returns `{ payload, derivedUserGoals }`
+- does not invoke AI and does not change the V7 discovery endpoint.
 
 Request body MUST be `BehaviorGraphPayload`.
 See `backend/behavior-graph.types.ts` for the canonical contract.

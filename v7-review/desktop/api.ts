@@ -211,6 +211,12 @@ class ApiService {
     return this.discoverFromPayload(scanResult.payload, 'v6');
   }
 
+  // V7: goals-only endpoint (read-only deterministic goal extraction)
+  async getV7GoalsFromBehaviorGraph(payload: any): Promise<any> {
+    const response = await this.client.post('/analyze/v7/goals', payload, { timeout: 600000 });
+    return response.data;
+  }
+
   // V7 Combined: scan locally + send Behavior Graph to V7 backend (Behavior-Driven)
   async discoverSuitesCloudV7(projectPath: string): Promise<SuiteDiscoveryResult> {
     if (!window.electronAPI?.scanProjectV7) {

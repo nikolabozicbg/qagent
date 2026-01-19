@@ -3,7 +3,10 @@ import { join } from 'path';
 import { promises as fs } from 'fs';
 import { dirname } from 'path';
 import { spawn } from 'child_process';
+import { chromium } from 'playwright';
 import { scanProject, scanProjectV5, AnalysisPayload, V5ScannerPayload } from './scanner';
+import type { BehaviorGraphPayload, V7UserGoal } from './v8-auto-mapping';
+import { autoMapGoalOnPage, computeStartPathForGoal } from './v8-auto-mapping';
 
 // Disable security warnings for development
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
@@ -91,6 +94,19 @@ ipcMain.handle('get-app-version', () => {
   return app.getVersion();
 });
 
+// Open JSON file dialog (used for V8 mapping/goals selection)
+ipcMain.handle('open-json-file-dialog', async () => {
+  const { dialog } = require('electron');
+  const result = await dialog.showOpenDialog(mainWindow!, {
+    properties: ['openFile'],
+    filters: [
+      { name: 'JSON', extensions: ['json'] },
+      { name: 'All Files', extensions: ['*'] }
+    ]
+  });
+  return result;
+});
+
 ipcMain.handle('minimize-window', () => {
   mainWindow?.minimize();
 });
@@ -107,13 +123,13 @@ ipcMain.handle('close-window', () => {
   mainWindow?.close();
 });
 
-// Handle file open dialog
+// Handle folder open dialog
 ipcMain.handle('open-file-dialog', async () => {
   const { dialog } = require('electron');
   const result = await dialog.showOpenDialog(mainWindow!, {
     properties: ['openDirectory']
   });
-  
+
   return result;
 });
 
@@ -615,4 +631,265 @@ ipcMain.handle('test:run-playwright', async (event, options: {
       });
     });
   });
+});
+
+function mergeUiReadyOutputs(outputs: any[]): any {
+  const suiteMap = new Map<string, any[]>();
+  const verifiedGoals: any[] = [];
+  const unverifiedGoals: any[] = [];
+
+  for (const out of outputs) {
+    if (!out || out.success !== true) continue;
+    if (out.v8Report?.verifiedGoals) verifiedGoals.push(...out.v8Report.verifiedGoals);
+    if (out.v8Report?.unverifiedGoals) unverifiedGoals.push(...out.v8Report.unverifiedGoals);
+
+    for (const s of out.suites || []) {
+      const existing = suiteMap.get(s.name) || [];
+      existing.push(...(s.cases || []));
+      suiteMap.set(s.name, existing);
+    }
+  }
+
+  const suiteNames = Array.from(suiteMap.keys()).sort((a, b) => {
+    const aIsUn = a === 'UNCLUSTERED';
+    const bIsUn = b === 'UNCLUSTERED';
+    if (aIsUn && !bIsUn) return 1;
+    if (!aIsUn && bIsUn) return -1;
+    return a.localeCompare(b);
+  });
+
+  const suites = suiteNames.map(name => {
+    const cases = (suiteMap.get(name) || []).slice().sort((c1, c2) => {
+      const g1 = String(c1.goalId || '');
+      const g2 = String(c2.goalId || '');
+      return g1.localeCompare(g2);
+    });
+    return { name, cases };
+  });
+
+  return {
+    success: true,
+    suites,
+    v8Report: {
+      verifiedGoals,
+      unverifiedGoals,
+    },
+  };
+}
+
+async function runV8CliOnce(params: {
+  baseUrl: string;
+  goalsPath: string;
+  mappingPath: string;
+  uiReadyOut: string;
+  reportOut: string;
+}) {
+  const cliPath = join(process.cwd(), 'packages', 'v8-runtime', 'dist', 'cli.js');
+
+  return await new Promise((resolve) => {
+    const child = spawn('node', [
+      cliPath,
+      '--baseUrl',
+      params.baseUrl,
+      '--goals',
+      params.goalsPath,
+      '--mapping',
+      params.mappingPath,
+      '--out',
+      params.uiReadyOut,
+      '--reportOut',
+      params.reportOut
+    ], {
+      cwd: process.cwd(),
+      shell: false,
+      env: { ...process.env, FORCE_COLOR: '0' },
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    child.stdout.on('data', (d: Buffer) => { stdout += d.toString(); });
+    child.stderr.on('data', (d: Buffer) => { stderr += d.toString(); });
+
+    child.on('close', async (code) => {
+      try {
+        const uiReadyRaw = await fs.readFile(params.uiReadyOut, 'utf-8');
+        const reportRaw = await fs.readFile(params.reportOut, 'utf-8');
+        resolve({
+          ok: code === 0,
+          exitCode: code,
+          stdout,
+          stderr,
+          uiReady: JSON.parse(uiReadyRaw),
+          v8Report: JSON.parse(reportRaw),
+        });
+      } catch (err: any) {
+        resolve({ ok: false, exitCode: code, stdout, stderr, error: err?.message || 'Failed to read V8 outputs' });
+      }
+    });
+
+    child.on('error', (err) => {
+      resolve({ ok: false, exitCode: null, error: err.message });
+    });
+  });
+}
+
+// V8 runtime batch execution (spawns packages/v8-runtime CLI and returns UI-ready suites JSON)
+ipcMain.handle('v8:run-batch', async (_event, options: {
+  baseUrl: string;
+  goalsPath: string;
+  mappingPath: string;
+}) => {
+  try {
+    const { baseUrl, goalsPath, mappingPath } = options;
+
+    // Write outputs into Electron userData so renderer can load them deterministically
+    const userDataDir = app.getPath('userData');
+    const runDir = join(userDataDir, 'v8-runs', String(Date.now()));
+    await fs.mkdir(runDir, { recursive: true });
+
+    const uiReadyOut = join(runDir, 'ui-ready.suites.json');
+    const reportOut = join(runDir, 'v8-report.batch.json');
+
+    const result: any = await runV8CliOnce({
+      baseUrl,
+      goalsPath,
+      mappingPath,
+      uiReadyOut,
+      reportOut,
+    });
+
+    return {
+      ok: !!result.ok,
+      exitCode: result.exitCode,
+      stdout: result.stdout,
+      stderr: result.stderr,
+      error: result.error,
+      paths: { uiReadyOut, reportOut, runDir },
+      uiReady: result.uiReady,
+      v8Report: result.v8Report,
+    };
+  } catch (error: any) {
+    return { ok: false, error: error.message };
+  }
+});
+
+// V8 auto-execution: build mapping deterministically from DOM + run per startPath; return merged UI-ready output
+ipcMain.handle('v8:run-batch-auto', async (_event, options: {
+  baseUrl: string;
+  behaviorGraphPayload: BehaviorGraphPayload;
+  derivedUserGoals: V7UserGoal[];
+}) => {
+  const { baseUrl, behaviorGraphPayload, derivedUserGoals } = options;
+
+  // Candidates: only deterministic goals (terminalNodeId !== UNKNOWN)
+  const deterministicGoals = (derivedUserGoals || []).filter(g => g.terminalNodeId !== 'UNKNOWN');
+
+  const userDataDir = app.getPath('userData');
+  const runDir = join(userDataDir, 'v8-runs', String(Date.now()));
+  await fs.mkdir(runDir, { recursive: true });
+
+  // Group goals by startPath
+  const goalsByStartPath = new Map<string, V7UserGoal[]>();
+  for (const g of deterministicGoals) {
+    const startPath = computeStartPathForGoal({ payload: behaviorGraphPayload as any, goal: g as any });
+    if (!startPath) continue; // discard
+    const existing = goalsByStartPath.get(startPath) || [];
+    existing.push(g);
+    goalsByStartPath.set(startPath, existing);
+  }
+
+  // Build per-startPath mapping by inspecting DOM deterministically
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const uiReadyOutputs: any[] = [];
+
+    const startPaths = Array.from(goalsByStartPath.keys()).sort();
+    for (const startPath of startPaths) {
+      const goalsForPath = goalsByStartPath.get(startPath) || [];
+      if (goalsForPath.length === 0) continue;
+
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      const startUrl = new URL(startPath, baseUrl).toString();
+
+      try {
+        await page.goto(startUrl, { waitUntil: 'domcontentloaded', timeout: 10_000 });
+
+        const actions: Record<string, any> = {};
+        const goalIds: string[] = [];
+
+        // deterministic ordering
+        const sortedGoals = goalsForPath.slice().sort((a, b) => a.id.localeCompare(b.id));
+
+        for (const g of sortedGoals) {
+          const mapped = await autoMapGoalOnPage({ page, payload: behaviorGraphPayload as any, goal: g as any });
+          if (!mapped) continue; // discard goal
+
+          actions[mapped.startUserActionId] = mapped.action;
+          goalIds.push(mapped.goalId);
+        }
+
+        if (goalIds.length === 0) {
+          continue;
+        }
+
+        const goalsFile = join(runDir, `goals.${encodeURIComponent(startPath)}.json`);
+        const mappingFile = join(runDir, `mapping.${encodeURIComponent(startPath)}.json`);
+        const uiReadyOut = join(runDir, `ui-ready.${encodeURIComponent(startPath)}.json`);
+        const reportOut = join(runDir, `v8-report.${encodeURIComponent(startPath)}.json`);
+
+        // V8 input file
+        const v8Goals = {
+          derivedUserGoals: sortedGoals.map(g => ({
+            id: g.id,
+            startUserActionId: g.startUserActionId,
+            terminalNodeId: g.terminalNodeId,
+            pageRouteHint: startPath,
+          })),
+        };
+        await fs.writeFile(goalsFile, JSON.stringify(v8Goals, null, 2), 'utf-8');
+
+        // V8 batch mapping
+        const v8Mapping = {
+          version: 'v8-mapping-1',
+          startPath,
+          actions,
+          batch: {
+            goalIds,
+            mode: 'isolated',
+            timeoutMs: 10_000,
+          },
+        };
+        await fs.writeFile(mappingFile, JSON.stringify(v8Mapping, null, 2), 'utf-8');
+
+        const result: any = await runV8CliOnce({
+          baseUrl,
+          goalsPath: goalsFile,
+          mappingPath: mappingFile,
+          uiReadyOut,
+          reportOut,
+        });
+
+        if (result?.uiReady?.success) {
+          uiReadyOutputs.push(result.uiReady);
+        }
+      } finally {
+        await context.close().catch(() => undefined);
+      }
+    }
+
+    const merged = mergeUiReadyOutputs(uiReadyOutputs);
+
+    return {
+      ok: true,
+      paths: { runDir },
+      uiReady: merged,
+    };
+  } catch (err: any) {
+    return { ok: false, error: err?.message || String(err) };
+  } finally {
+    await browser.close().catch(() => undefined);
+  }
 });
