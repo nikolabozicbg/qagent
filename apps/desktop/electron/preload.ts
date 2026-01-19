@@ -81,6 +81,27 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // V8 auto-execution (no manual mapping)
   runV8BatchAuto: (options: { baseUrl: string; behaviorGraphPayload: any; derivedUserGoals: any[] }) =>
     ipcRenderer.invoke('v8:run-batch-auto', options),
+
+  // V9 Discovery Pipeline
+  runDiscoveryV9: (config: { projectPath: string; baseUrl: string; maxPages?: number; backendUrl?: string }) =>
+    ipcRenderer.invoke('discovery:v9:run', config),
+  
+  listDiscoveryRuns: () =>
+    ipcRenderer.invoke('discovery:v9:list-runs'),
+  
+  loadDiscoveryResult: (artifactsPath: string) =>
+    ipcRenderer.invoke('discovery:v9:load-result', artifactsPath),
+
+  onDiscoveryV9Progress: (callback: (progress: {
+    stage: string;
+    message: string;
+    percent: number;
+    details?: { filesScanned?: number; pagesExplored?: number; elementsFound?: number };
+  }) => void) => {
+    const subscription = (_event: any, data: any) => callback(data);
+    ipcRenderer.on('discovery:v9:progress', subscription);
+    return () => ipcRenderer.removeListener('discovery:v9:progress', subscription);
+  },
   
   // Platform info
   platform: process.platform
@@ -218,6 +239,22 @@ export interface ElectronAPI {
     paths?: { runDir: string };
     uiReady?: any;
   }>;
+
+  // V9 Discovery Pipeline
+  runDiscoveryV9: (config: { projectPath: string; baseUrl: string; maxPages?: number; backendUrl?: string }) => Promise<{
+    ok: boolean;
+    result?: any;
+    artifactsPath?: string;
+    error?: string;
+  }>;
+  listDiscoveryRuns: () => Promise<{ ok: boolean; runs: Array<{ timestamp: string; path: string }>; error?: string }>;
+  loadDiscoveryResult: (artifactsPath: string) => Promise<{ ok: boolean; result?: any; error?: string }>;
+  onDiscoveryV9Progress: (callback: (progress: {
+    stage: string;
+    message: string;
+    percent: number;
+    details?: { filesScanned?: number; pagesExplored?: number; elementsFound?: number };
+  }) => void) => () => void;
   
   // Playwright setup
   checkPlaywright: (projectPath: string) => Promise<{ ok: boolean; hasPlaywright: boolean; isInstalled: boolean; version?: string; error?: string }>;

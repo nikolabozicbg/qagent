@@ -1,0 +1,228 @@
+{
+  "success": true,
+  "suites": [
+    {
+      "id": "suite:/signin",
+      "name": "Signin Tests",
+      "description": "Tests for /signin route covering form-submission, data-entry",
+      "tags": ["signin", "form-submission", "data-entry"],
+      "cases": [
+        {
+          "id": "case:form:signin:1",
+          "name": "Submit form on /signin",
+          "intent": "Verified: submit action on /signin",
+          "priority": "high",
+          "confidence": 0.85,
+          "preconditions": ["User is on /signin"],
+          "steps": [
+            {
+              "index": 1,
+              "action": "Navigate to /signin",
+              "expected": "Page loads successfully",
+              "provenance": {
+                "from": "SBG",
+                "refs": ["sbg:page:app_signin_page_tsx:1"],
+                "filePath": "app/signin/page.tsx",
+                "lineNumber": 1,
+                "runtimeObservationId": null
+              }
+            },
+            {
+              "index": 2,
+              "action": "Fill [name=\"username\"] with \"{{text:username}}\"",
+              "expected": "Field accepts input",
+              "provenance": {
+                "from": "MERGED",
+                "refs": ["sbg:input:username", "rog:/signin:input:0"],
+                "filePath": "app/signin/page.tsx",
+                "lineNumber": 12,
+                "runtimeObservationId": "rog:/signin:input:0"
+              }
+            },
+            {
+              "index": 3,
+              "action": "Fill [name=\"password\"] with \"{{password:password}}\"",
+              "expected": "Field accepts input",
+              "provenance": {
+                "from": "MERGED",
+                "refs": ["sbg:input:password", "rog:/signin:input:1"],
+                "filePath": "app/signin/page.tsx",
+                "lineNumber": 18,
+                "runtimeObservationId": "rog:/signin:input:1"
+              }
+            },
+            {
+              "index": 4,
+              "action": "Submit form",
+              "expected": "Form submission processed",
+              "provenance": {
+                "from": "MERGED",
+                "refs": ["sbg:form:signin:1", "rog:/signin:form:0"],
+                "filePath": "app/signin/page.tsx",
+                "lineNumber": 8,
+                "runtimeObservationId": "rog:/signin:form:0"
+              }
+            }
+          ],
+          "successCriteria": [
+            "Form submission succeeds without errors",
+            "Success feedback displayed to user"
+          ],
+          "failureScenarios": [
+            "Validation error for invalid input",
+            "Server error during submission",
+            "Network timeout"
+          ],
+          "provenance": {
+            "from": "MERGED",
+            "refs": ["sbg:form:signin:1", "rog:/signin:form:0"]
+          }
+        }
+      ],
+      "coverage": {
+        "routes": ["/signin"],
+        "components": ["sbg:page:app_signin_page_tsx:1", "sbg:form:signin:1"],
+        "actions": ["navigate", "fill", "submit"]
+      }
+    },
+    {
+      "id": "suite:/signup",
+      "name": "Signup Tests",
+      "description": "Tests for /signup route covering form-submission, data-entry",
+      "tags": ["signup", "form-submission", "data-entry"],
+      "cases": [
+        {
+          "id": "case:form:signup:1",
+          "name": "Submit form on /signup",
+          "intent": "Verified: submit action on /signup",
+          "priority": "high",
+          "confidence": 0.9,
+          "preconditions": ["User is on /signup"],
+          "steps": [
+            {
+              "index": 1,
+              "action": "Navigate to /signup",
+              "expected": "Page loads successfully",
+              "provenance": {
+                "from": "SBG",
+                "refs": ["sbg:page:app_signup_page_tsx:1"],
+                "filePath": "app/signup/page.tsx",
+                "lineNumber": 1,
+                "runtimeObservationId": null
+              }
+            },
+            {
+              "index": 2,
+              "action": "Fill [name=\"firstName\"] with \"{{text:firstName}}\"",
+              "expected": "Field accepts input",
+              "provenance": {
+                "from": "MERGED",
+                "refs": ["sbg:input:firstName", "rog:/signup:input:0"],
+                "filePath": "app/signup/page.tsx",
+                "lineNumber": 15,
+                "runtimeObservationId": "rog:/signup:input:0"
+              }
+            },
+            {
+              "index": 3,
+              "action": "Fill [name=\"lastName\"] with \"{{text:lastName}}\"",
+              "expected": "Field accepts input",
+              "provenance": {
+                "from": "MERGED",
+                "refs": ["sbg:input:lastName", "rog:/signup:input:1"],
+                "filePath": "app/signup/page.tsx",
+                "lineNumber": 20,
+                "runtimeObservationId": "rog:/signup:input:1"
+              }
+            },
+            {
+              "index": 4,
+              "action": "Fill [name=\"email\"] with \"{{email:email}}\"",
+              "expected": "Field accepts input",
+              "provenance": {
+                "from": "MERGED",
+                "refs": ["sbg:input:email", "rog:/signup:input:2"],
+                "filePath": "app/signup/page.tsx",
+                "lineNumber": 25,
+                "runtimeObservationId": "rog:/signup:input:2"
+              }
+            },
+            {
+              "index": 5,
+              "action": "Fill [name=\"password\"] with \"{{password:password}}\"",
+              "expected": "Field accepts input",
+              "provenance": {
+                "from": "MERGED",
+                "refs": ["sbg:input:password", "rog:/signup:input:3"],
+                "filePath": "app/signup/page.tsx",
+                "lineNumber": 30,
+                "runtimeObservationId": "rog:/signup:input:3"
+              }
+            },
+            {
+              "index": 6,
+              "action": "Submit form",
+              "expected": "Form submission processed",
+              "provenance": {
+                "from": "MERGED",
+                "refs": ["sbg:form:signup:1", "rog:/signup:form:0"],
+                "filePath": "app/signup/page.tsx",
+                "lineNumber": 10,
+                "runtimeObservationId": "rog:/signup:form:0"
+              }
+            }
+          ],
+          "successCriteria": [
+            "Form submission succeeds without errors",
+            "Success feedback displayed to user"
+          ],
+          "failureScenarios": [
+            "Validation error for invalid input",
+            "Server error during submission",
+            "Network timeout"
+          ],
+          "provenance": {
+            "from": "MERGED",
+            "refs": ["sbg:form:signup:1", "rog:/signup:form:0"]
+          }
+        }
+      ],
+      "coverage": {
+        "routes": ["/signup"],
+        "components": ["sbg:page:app_signup_page_tsx:1", "sbg:form:signup:1"],
+        "actions": ["navigate", "fill", "submit"]
+      }
+    }
+  ],
+  "summary": {
+    "totalSuites": 2,
+    "totalCases": 2,
+    "totalSteps": 10,
+    "averageConfidence": 0.875,
+    "provenanceBreakdown": {
+      "pureStatic": 2,
+      "pureRuntime": 0,
+      "merged": 8
+    },
+    "qualityIndicators": {
+      "hasHighConfidenceCases": true,
+      "hasCriticalPathCoverage": true,
+      "hasFormInteractionCoverage": true,
+      "completenessScore": 1.0
+    }
+  },
+  "diagnostics": {
+    "processingTimeMs": 245,
+    "inputStats": {
+      "sbgNodes": 12,
+      "rogPages": 2
+    },
+    "mergeStats": {
+      "matchedNodes": 8,
+      "unmatchedStatic": 2,
+      "unmatchedRuntime": 0
+    }
+  },
+  "timestamp": "2026-01-19T12:00:00.000Z",
+  "version": "v9"
+}

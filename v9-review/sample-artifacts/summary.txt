@@ -1,0 +1,30 @@
+Discovery V9 Summary
+====================
+Timestamp: 2026-01-19T12:00:00.000Z
+Duration: 245ms
+
+Input Stats:
+- SBG Nodes: 12
+- ROG Pages: 2
+
+Output Stats:
+- Suites: 2
+- Cases: 2
+- Steps: 10
+- Avg Confidence: 87.5%
+
+Provenance Breakdown:
+- Pure Static: 2
+- Pure Runtime: 0
+- Merged: 8
+
+Quality Indicators:
+- Has High Confidence Cases: true
+- Has Critical Path Coverage: true
+- Has Form Interaction Coverage: true
+- Completeness Score: 100.0%
+
+Merge Stats:
+- Matched Nodes: 8
+- Unmatched Static: 2
+- Unmatched Runtime: 0

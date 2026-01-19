@@ -7,6 +7,8 @@ import { chromium } from 'playwright';
 import { scanProject, scanProjectV5, AnalysisPayload, V5ScannerPayload } from './scanner';
 import type { BehaviorGraphPayload, V7UserGoal } from './v8-auto-mapping';
 import { autoMapGoalOnPage, computeStartPathForGoal } from './v8-auto-mapping';
+import { runDiscoveryV9, listDiscoveryRuns, loadDiscoveryResult } from './discovery-v9';
+import type { DiscoveryV9Config, DiscoveryV9Progress, DiscoveryResultV9 } from './discovery-v9';
 
 // Disable security warnings for development
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
@@ -891,5 +893,62 @@ ipcMain.handle('v8:run-batch-auto', async (_event, options: {
     return { ok: false, error: err?.message || String(err) };
   } finally {
     await browser.close().catch(() => undefined);
+  }
+});
+
+// ============================================================================
+// V9 DISCOVERY PIPELINE
+// ============================================================================
+
+// Run V9 Discovery pipeline (scanning + exploration + backend call)
+ipcMain.handle('discovery:v9:run', async (_event, config: DiscoveryV9Config) => {
+  try {
+    console.log('[Discovery V9] Starting pipeline for:', config.projectPath);
+    
+    const result = await runDiscoveryV9(config, (progress: DiscoveryV9Progress) => {
+      // Send progress to renderer
+      mainWindow?.webContents.send('discovery:v9:progress', progress);
+    });
+
+    console.log('[Discovery V9] Pipeline complete:', {
+      suites: result.result.suites.length,
+      cases: result.result.summary.totalCases,
+      steps: result.result.summary.totalSteps,
+    });
+
+    return {
+      ok: true,
+      result: result.result,
+      artifactsPath: result.artifactsPath,
+    };
+  } catch (error: any) {
+    console.error('[Discovery V9] Pipeline failed:', error);
+    return {
+      ok: false,
+      error: error.message || 'Discovery pipeline failed',
+    };
+  }
+});
+
+// List previous discovery runs
+ipcMain.handle('discovery:v9:list-runs', async () => {
+  try {
+    const runs = await listDiscoveryRuns();
+    return { ok: true, runs };
+  } catch (error: any) {
+    return { ok: false, error: error.message, runs: [] };
+  }
+});
+
+// Load a previous discovery result
+ipcMain.handle('discovery:v9:load-result', async (_event, artifactsPath: string) => {
+  try {
+    const result = await loadDiscoveryResult(artifactsPath);
+    if (!result) {
+      return { ok: false, error: 'Result not found' };
+    }
+    return { ok: true, result };
+  } catch (error: any) {
+    return { ok: false, error: error.message };
   }
 });

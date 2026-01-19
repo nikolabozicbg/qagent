@@ -19,6 +19,7 @@ import { CloudDiscoveryService } from './cloud-discovery.service';
 import { AnalysisPayload, DiscoveryResponse } from './types/analysis-payload.types';
 import type { BehaviorGraphPayload } from './types/behavior-graph.types';
 import { processBehaviorGraph } from './v7-behavior-graph';
+import { runDiscoveryV9, DiscoveryV9Request, DiscoveryV9Result } from './v9-discovery';
 
 @Controller('analyze')
 export class AnalysisController {
@@ -312,6 +313,45 @@ export class AnalysisController {
       unknowns: processed.unknowns,
       stats: processed.stats,
     };
+  }
+
+  /**
+   * V9 DISCOVERY - NEW PIPELINE
+   * 
+   * Receives StaticBehaviorGraph (SBG) from code analysis
+   * and RuntimeObservationGraph (ROG) from Playwright exploration.
+   * 
+   * Returns DiscoveryResultV9 with suites/cases/steps structure,
+   * each step including provenance (SBG/ROG/MERGED).
+   * 
+   * POST /analyze/discovery/v9
+   */
+  @Post('discovery/v9')
+  async discoverV9(@Body() request: DiscoveryV9Request): Promise<DiscoveryV9Result> {
+    console.log(`🚀 API: Discovery V9 for ${request.project?.name || 'UNKNOWN'}`);
+    const startTime = Date.now();
+
+    try {
+      const result = await runDiscoveryV9(request, {
+        enableSemanticEnrichment: true,
+        // LLM client can be injected here when available
+      });
+
+      if (result.ok && result.result) {
+        console.log(`   ✅ V9 Discovery complete in ${Date.now() - startTime}ms`);
+        console.log(`   📊 ${result.result.suites.length} suites, ${result.result.summary.totalCases} cases`);
+      } else {
+        console.log(`   ❌ V9 Discovery failed: ${result.error}`);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('   ❌ V9 Discovery error:', error);
+      return {
+        ok: false,
+        error: error.message || 'UNKNOWN_ERROR',
+      };
+    }
   }
 
   @Post('discover')

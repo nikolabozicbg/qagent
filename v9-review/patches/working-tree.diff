@@ -1,0 +1,187 @@
+diff --git a/apps/backend/src/modules/analysis/analysis.controller.ts b/apps/backend/src/modules/analysis/analysis.controller.ts
+index e537802..61600f5 100644
+--- a/apps/backend/src/modules/analysis/analysis.controller.ts
++++ b/apps/backend/src/modules/analysis/analysis.controller.ts
+@@ -19,6 +19,7 @@ import { CloudDiscoveryService } from './cloud-discovery.service';
+ import { AnalysisPayload, DiscoveryResponse } from './types/analysis-payload.types';
+ import type { BehaviorGraphPayload } from './types/behavior-graph.types';
+ import { processBehaviorGraph } from './v7-behavior-graph';
++import { runDiscoveryV9, DiscoveryV9Request, DiscoveryV9Result } from './v9-discovery';
+ 
+ @Controller('analyze')
+ export class AnalysisController {
+@@ -314,6 +315,45 @@ export class AnalysisController {
+     };
+   }
+ 
++  /**
++   * V9 DISCOVERY - NEW PIPELINE
++   * 
++   * Receives StaticBehaviorGraph (SBG) from code analysis
++   * and RuntimeObservationGraph (ROG) from Playwright exploration.
++   * 
++   * Returns DiscoveryResultV9 with suites/cases/steps structure,
++   * each step including provenance (SBG/ROG/MERGED).
++   * 
++   * POST /analyze/discovery/v9
++   */
++  @Post('discovery/v9')
++  async discoverV9(@Body() request: DiscoveryV9Request): Promise<DiscoveryV9Result> {
++    console.log(`🚀 API: Discovery V9 for ${request.project?.name || 'UNKNOWN'}`);
++    const startTime = Date.now();
++
++    try {
++      const result = await runDiscoveryV9(request, {
++        enableSemanticEnrichment: true,
++        // LLM client can be injected here when available
++      });
++
++      if (result.ok && result.result) {
++        console.log(`   ✅ V9 Discovery complete in ${Date.now() - startTime}ms`);
++        console.log(`   📊 ${result.result.suites.length} suites, ${result.result.summary.totalCases} cases`);
++      } else {
++        console.log(`   ❌ V9 Discovery failed: ${result.error}`);
++      }
++
++      return result;
++    } catch (error) {
++      console.error('   ❌ V9 Discovery error:', error);
++      return {
++        ok: false,
++        error: error.message || 'UNKNOWN_ERROR',
++      };
++    }
++  }
++
+   @Post('discover')
+   async discoverFromPayload(
+     @Body() payload: any,
+diff --git a/apps/desktop/electron/main.ts b/apps/desktop/electron/main.ts
+index a7c32d6..d6c1f4e 100644
+--- a/apps/desktop/electron/main.ts
++++ b/apps/desktop/electron/main.ts
+@@ -7,6 +7,8 @@ import { chromium } from 'playwright';
+ import { scanProject, scanProjectV5, AnalysisPayload, V5ScannerPayload } from './scanner';
+ import type { BehaviorGraphPayload, V7UserGoal } from './v8-auto-mapping';
+ import { autoMapGoalOnPage, computeStartPathForGoal } from './v8-auto-mapping';
++import { runDiscoveryV9, listDiscoveryRuns, loadDiscoveryResult } from './discovery-v9';
++import type { DiscoveryV9Config, DiscoveryV9Progress, DiscoveryResultV9 } from './discovery-v9';
+ 
+ // Disable security warnings for development
+ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
+@@ -893,3 +895,60 @@ ipcMain.handle('v8:run-batch-auto', async (_event, options: {
+     await browser.close().catch(() => undefined);
+   }
+ });
++
++// ============================================================================
++// V9 DISCOVERY PIPELINE
++// ============================================================================
++
++// Run V9 Discovery pipeline (scanning + exploration + backend call)
++ipcMain.handle('discovery:v9:run', async (_event, config: DiscoveryV9Config) => {
++  try {
++    console.log('[Discovery V9] Starting pipeline for:', config.projectPath);
++    
++    const result = await runDiscoveryV9(config, (progress: DiscoveryV9Progress) => {
++      // Send progress to renderer
++      mainWindow?.webContents.send('discovery:v9:progress', progress);
++    });
++
++    console.log('[Discovery V9] Pipeline complete:', {
++      suites: result.result.suites.length,
++      cases: result.result.summary.totalCases,
++      steps: result.result.summary.totalSteps,
++    });
++
++    return {
++      ok: true,
++      result: result.result,
++      artifactsPath: result.artifactsPath,
++    };
++  } catch (error: any) {
++    console.error('[Discovery V9] Pipeline failed:', error);
++    return {
++      ok: false,
++      error: error.message || 'Discovery pipeline failed',
++    };
++  }
++});
++
++// List previous discovery runs
++ipcMain.handle('discovery:v9:list-runs', async () => {
++  try {
++    const runs = await listDiscoveryRuns();
++    return { ok: true, runs };
++  } catch (error: any) {
++    return { ok: false, error: error.message, runs: [] };
++  }
++});
++
++// Load a previous discovery result
++ipcMain.handle('discovery:v9:load-result', async (_event, artifactsPath: string) => {
++  try {
++    const result = await loadDiscoveryResult(artifactsPath);
++    if (!result) {
++      return { ok: false, error: 'Result not found' };
++    }
++    return { ok: true, result };
++  } catch (error: any) {
++    return { ok: false, error: error.message };
++  }
++});
+diff --git a/apps/desktop/electron/preload.ts b/apps/desktop/electron/preload.ts
+index 8890d38..a33ec75 100644
+--- a/apps/desktop/electron/preload.ts
++++ b/apps/desktop/electron/preload.ts
+@@ -81,6 +81,27 @@ contextBridge.exposeInMainWorld('electronAPI', {
+   // V8 auto-execution (no manual mapping)
+   runV8BatchAuto: (options: { baseUrl: string; behaviorGraphPayload: any; derivedUserGoals: any[] }) =>
+     ipcRenderer.invoke('v8:run-batch-auto', options),
++
++  // V9 Discovery Pipeline
++  runDiscoveryV9: (config: { projectPath: string; baseUrl: string; maxPages?: number; backendUrl?: string }) =>
++    ipcRenderer.invoke('discovery:v9:run', config),
++  
++  listDiscoveryRuns: () =>
++    ipcRenderer.invoke('discovery:v9:list-runs'),
++  
++  loadDiscoveryResult: (artifactsPath: string) =>
++    ipcRenderer.invoke('discovery:v9:load-result', artifactsPath),
++
++  onDiscoveryV9Progress: (callback: (progress: {
++    stage: string;
++    message: string;
++    percent: number;
++    details?: { filesScanned?: number; pagesExplored?: number; elementsFound?: number };
++  }) => void) => {
++    const subscription = (_event: any, data: any) => callback(data);
++    ipcRenderer.on('discovery:v9:progress', subscription);
++    return () => ipcRenderer.removeListener('discovery:v9:progress', subscription);
++  },
+   
+   // Platform info
+   platform: process.platform
+@@ -218,6 +239,22 @@ export interface ElectronAPI {
+     paths?: { runDir: string };
+     uiReady?: any;
+   }>;
++
++  // V9 Discovery Pipeline
++  runDiscoveryV9: (config: { projectPath: string; baseUrl: string; maxPages?: number; backendUrl?: string }) => Promise<{
++    ok: boolean;
++    result?: any;
++    artifactsPath?: string;
++    error?: string;
++  }>;
++  listDiscoveryRuns: () => Promise<{ ok: boolean; runs: Array<{ timestamp: string; path: string }>; error?: string }>;
++  loadDiscoveryResult: (artifactsPath: string) => Promise<{ ok: boolean; result?: any; error?: string }>;
++  onDiscoveryV9Progress: (callback: (progress: {
++    stage: string;
++    message: string;
++    percent: number;
++    details?: { filesScanned?: number; pagesExplored?: number; elementsFound?: number };
++  }) => void) => () => void;
+   
+   // Playwright setup
+   checkPlaywright: (projectPath: string) => Promise<{ ok: boolean; hasPlaywright: boolean; isInstalled: boolean; version?: string; error?: string }>;
