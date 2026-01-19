@@ -205,9 +205,9 @@ export async function runDiscoveryV9(
           quality: 'max',
           timeBudgetMs: 30000,
         },
-        // NEW: Include verified flows
-        verifiedFlows: verifiedFlows as any,
-        verificationStats: verificationStats as any,
+        // Runtime-verified flows
+        verifiedFlows,
+        verificationStats,
       };
 
       const response = await fetch(`${backendUrl}/analyze/discovery/v9`, {
@@ -335,7 +335,7 @@ function buildEmptyResult(
         candidatesVerified: stats.candidatesVerified,
         candidatesDiscarded: stats.candidatesDiscarded,
         discardReasons: stats.discardReasons,
-      } as any,
+      },
     },
     timestamp: new Date().toISOString(),
     version: 'v9',

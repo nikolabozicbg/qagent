@@ -48,18 +48,53 @@ export async function executeAndObserveCandidates(
   const cfg = { ...DEFAULT_CONFIG, ...config };
   const observations: ActionObservation[] = [];
 
+  // Filter out candidates with dynamic routes (can't navigate to :id, [slug], etc.)
+  const executableCandidates = candidates.filter(c => isExecutableRoute(c.sourceUrl));
+  
+  console.log(`[Runtime Executor] ${candidates.length} total candidates, ${executableCandidates.length} executable (after filtering dynamic routes)`);
+
+  // Create failure observations for filtered candidates
+  for (const candidate of candidates) {
+    if (!isExecutableRoute(candidate.sourceUrl)) {
+      observations.push({
+        candidateId: candidate.id,
+        executed: false,
+        executionError: `Dynamic route cannot be executed: ${candidate.sourceUrl}`,
+        urlBefore: '',
+        urlAfter: null,
+        networkCalls: [],
+        domMutations: [],
+        storageChanges: [],
+        screenshotPath: null,
+      });
+    }
+  }
+
+  if (executableCandidates.length === 0) {
+    console.log('[Runtime Executor] No executable candidates after filtering');
+    return observations;
+  }
+
   // Group candidates by source URL for efficient execution
-  const candidatesBySourceUrl = groupBySourceUrl(candidates);
+  const candidatesBySourceUrl = groupBySourceUrl(executableCandidates);
 
   let browser: Browser | null = null;
 
   try {
-    browser = await chromium.launch({ headless: cfg.headless });
+    console.log('[Runtime Executor] Launching browser...');
+    browser = await chromium.launch({ 
+      headless: cfg.headless,
+      // Additional options for better Electron compatibility
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+    console.log('[Runtime Executor] Browser launched successfully');
 
     let candidatesExecuted = 0;
-    const totalCandidates = candidates.length;
+    const totalCandidates = executableCandidates.length;
 
     for (const [sourceUrl, sourceCandidates] of candidatesBySourceUrl) {
+      console.log(`[Runtime Executor] Processing ${sourceCandidates.length} candidates for ${sourceUrl}`);
+      
       onProgress?.(
         `Executing actions on ${sourceUrl}`,
         candidatesExecuted,
@@ -68,12 +103,34 @@ export async function executeAndObserveCandidates(
 
       // Execute each candidate on this page
       for (const candidate of sourceCandidates) {
-        const observation = await executeCandidate(
-          browser,
-          candidate,
-          cfg
-        );
-        observations.push(observation);
+        try {
+          const observation = await executeCandidate(
+            browser,
+            candidate,
+            cfg
+          );
+          observations.push(observation);
+          
+          if (observation.executed) {
+            console.log(`[Runtime Executor] ✓ Executed: ${candidate.type} "${candidate.text || candidate.href || 'unknown'}"`);
+          } else {
+            console.log(`[Runtime Executor] ✗ Failed: ${candidate.type} - ${observation.executionError}`);
+          }
+        } catch (error) {
+          console.error(`[Runtime Executor] Exception executing candidate:`, error);
+          observations.push({
+            candidateId: candidate.id,
+            executed: false,
+            executionError: (error as Error).message,
+            urlBefore: '',
+            urlAfter: null,
+            networkCalls: [],
+            domMutations: [],
+            storageChanges: [],
+            screenshotPath: null,
+          });
+        }
+        
         candidatesExecuted++;
 
         onProgress?.(
@@ -87,14 +144,71 @@ export async function executeAndObserveCandidates(
     onProgress?.('Execution complete', totalCandidates, totalCandidates);
 
   } catch (error) {
-    console.error('Runtime execution failed:', error);
+    console.error('[Runtime Executor] Runtime execution failed:', error);
+    // Create failure observations for all remaining candidates
+    for (const candidate of executableCandidates) {
+      if (!observations.find(o => o.candidateId === candidate.id)) {
+        observations.push({
+          candidateId: candidate.id,
+          executed: false,
+          executionError: `Browser launch failed: ${(error as Error).message}`,
+          urlBefore: '',
+          urlAfter: null,
+          networkCalls: [],
+          domMutations: [],
+          storageChanges: [],
+          screenshotPath: null,
+        });
+      }
+    }
   } finally {
     if (browser) {
       await browser.close().catch(() => {});
+      console.log('[Runtime Executor] Browser closed');
     }
   }
 
   return observations;
+}
+
+/**
+ * Check if a route is executable (a valid page route, not a component path).
+ */
+function isExecutableRoute(route: string): boolean {
+  // Skip dynamic route segments
+  if (route.includes(':')) return false;  // Next.js/Express style :id
+  if (route.includes('[')) return false;  // Next.js style [id]
+  if (route.includes('*')) return false;  // Wildcard routes
+  
+  // Skip component paths (not actual routes)
+  if (route.includes('components/')) return false;
+  if (route.includes('Components/')) return false;
+  if (route.includes('hooks/')) return false;
+  if (route.includes('utils/')) return false;
+  if (route.includes('lib/')) return false;
+  if (route.includes('services/')) return false;
+  if (route.includes('context/')) return false;
+  if (route.includes('Context')) return false;  // e.g., LogContext, CartContext
+  
+  // Skip paths that look like component names (PascalCase at end)
+  const lastSegment = route.split('/').pop() || '';
+  // If it contains uppercase letters after first char, it's likely a component
+  if (lastSegment.length > 1 && /[A-Z]/.test(lastSegment.slice(1))) {
+    // Exception: allow common page names like Dashboard, Profile, etc.
+    const allowedPages = ['Dashboard', 'Profile', 'Settings', 'Admin', 'Login', 'Register', 'Checkout'];
+    if (!allowedPages.some(p => lastSegment.startsWith(p) && lastSegment.length <= p.length + 3)) {
+      return false;
+    }
+  }
+  
+  // Must start with / and be a reasonable route
+  const normalized = route.startsWith('/') ? route : `/${route}`;
+  
+  // Skip very long paths (likely component paths, not routes)
+  const segments = normalized.split('/').filter(Boolean);
+  if (segments.length > 4) return false;
+  
+  return true;
 }
 
 /**
@@ -154,7 +268,10 @@ async function executeCandidate(
     });
 
     // Navigate to source page
-    const sourceUrl = `${config.baseUrl}${candidate.sourceUrl}`;
+    const normalizedSourceUrl = candidate.sourceUrl.startsWith('/') 
+      ? candidate.sourceUrl 
+      : `/${candidate.sourceUrl}`;
+    const sourceUrl = `${config.baseUrl}${normalizedSourceUrl}`;
     await page.goto(sourceUrl, {
       waitUntil: 'networkidle',
       timeout: config.timeoutMs,
@@ -202,7 +319,7 @@ async function executeCandidate(
     });
 
     // Execute the action based on type
-    await executeAction(page, candidate, config.timeoutMs);
+    await executeAction(page, candidate, config.timeoutMs, config.baseUrl);
     observation.executed = true;
 
     // Wait for effects to settle
@@ -242,14 +359,14 @@ async function executeCandidate(
 async function executeAction(
   page: Page,
   candidate: CandidateAction,
-  timeoutMs: number
+  timeoutMs: number,
+  baseUrl: string
 ): Promise<void> {
   const timeout = timeoutMs / 2;
 
   if (candidate.type === 'link') {
-    // For links, prefer href-based navigation if available
+    // For links, prefer clicking the actual link element
     if (candidate.href) {
-      // Try to find and click the link
       const selector = buildSelector(candidate);
       if (selector) {
         try {
@@ -257,11 +374,13 @@ async function executeAction(
           await page.waitForLoadState('networkidle', { timeout });
           return;
         } catch {
-          // Fallback: navigate directly
+          // Fallback: navigate directly with full URL
         }
       }
-      // Direct navigation as fallback
-      await page.goto(candidate.href, { waitUntil: 'networkidle', timeout });
+      // Direct navigation as fallback - build full URL
+      const href = candidate.href.startsWith('/') ? candidate.href : `/${candidate.href}`;
+      const fullUrl = `${baseUrl}${href}`;
+      await page.goto(fullUrl, { waitUntil: 'networkidle', timeout });
     }
     return;
   }

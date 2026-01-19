@@ -2,22 +2,147 @@
 /**
  * V9 Static Behavior Graph Scanner
  *
- * Converts existing behavior graph v7 output to V9 SBG format.
- * Leverages the existing scanner.ts for heavy lifting.
+ * Extracts CANDIDATE ACTIONS from static code analysis.
+ * These are NOT steps yet - they must be verified at runtime.
+ *
+ * Only extracts:
+ * - Links with href (deterministic navigation)
+ * - Buttons with data-testid or unique text
+ * - Form submits
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.extractCandidateActions = extractCandidateActions;
 exports.buildStaticBehaviorGraph = buildStaticBehaviorGraph;
 exports.expandFormInputs = expandFormInputs;
 const scanner_1 = require("../behavior-graph/scanner");
 /**
+ * Extract candidate actions from static code analysis.
+ * These candidates must be verified at runtime before becoming steps.
+ */
+async function extractCandidateActions(projectPath, onProgress) {
+    onProgress?.('Scanning code for candidate actions...', 0);
+    // Use existing v7 scanner
+    const v7Payload = await (0, scanner_1.scanProjectV7)(projectPath);
+    onProgress?.(`Found ${v7Payload.graph.nodes.length} nodes`, v7Payload.graph.nodes.length);
+    const project = {
+        name: v7Payload.project.name,
+        framework: v7Payload.project.framework.name,
+        frameworkVersion: v7Payload.project.framework.version || null,
+        router: v7Payload.project.framework.router || null,
+    };
+    // Extract only actionable candidates (links, buttons, form submits)
+    const candidates = [];
+    for (const node of v7Payload.graph.nodes) {
+        const candidate = extractCandidate(node);
+        if (candidate) {
+            candidates.push(candidate);
+        }
+    }
+    onProgress?.(`Extracted ${candidates.length} candidate actions`, candidates.length);
+    return { project, candidates };
+}
+/**
+ * Extract a candidate action from a v7 node if it's actionable.
+ * Returns null if the node is not a valid candidate.
+ */
+function extractCandidate(node) {
+    // Extract source URL from node route or file path
+    const sourceUrl = node.route || deriveRouteFromFilePath(node.filePath) || '/';
+    // LINKS: Must have href to be a candidate
+    if (node.type === 'Navigation' || (node.type === 'UserAction' && node.to)) {
+        const href = node.to || node.metadata?.href;
+        if (!href || typeof href !== 'string') {
+            return null; // No href = not a deterministic link
+        }
+        // Skip external links
+        if (href.startsWith('http') || href.startsWith('mailto:')) {
+            return null;
+        }
+        return {
+            id: `candidate:link:${node.id}`,
+            type: 'link',
+            sourceUrl,
+            selector: node.selector || null,
+            href,
+            text: node.label || node.metadata?.label || null,
+            testId: extractTestId(node),
+            filePath: node.filePath || '',
+            lineNumber: node.line || null,
+        };
+    }
+    // BUTTONS: Must have data-testid or unique text
+    if (node.type === 'UserAction' && node.actionType === 'click') {
+        const testId = extractTestId(node);
+        const text = node.label || node.metadata?.label;
+        // Must have either testId or meaningful text
+        if (!testId && !text) {
+            return null; // Can't deterministically identify this button
+        }
+        return {
+            id: `candidate:button:${node.id}`,
+            type: 'button',
+            sourceUrl,
+            selector: testId ? `[data-testid="${testId}"]` : node.selector || null,
+            href: null,
+            text: text || null,
+            testId,
+            filePath: node.filePath || '',
+            lineNumber: node.line || null,
+        };
+    }
+    // FORM SUBMITS: Forms with submit action
+    if (node.type === 'Form') {
+        const testId = extractTestId(node);
+        return {
+            id: `candidate:form:${node.id}`,
+            type: 'form-submit',
+            sourceUrl,
+            selector: testId ? `[data-testid="${testId}"]` : node.selector || 'form',
+            href: null,
+            text: node.label || 'Submit',
+            testId,
+            filePath: node.filePath || '',
+            lineNumber: node.line || null,
+        };
+    }
+    return null; // Not an actionable candidate
+}
+function extractTestId(node) {
+    if (node.metadata?.['data-testid'])
+        return node.metadata['data-testid'];
+    if (node.metadata?.testId)
+        return node.metadata.testId;
+    if (node.selector?.includes('data-testid')) {
+        const match = node.selector.match(/data-testid="([^"]+)"/);
+        if (match)
+            return match[1];
+    }
+    return null;
+}
+function deriveRouteFromFilePath(filePath) {
+    if (!filePath)
+        return '/';
+    let route = filePath
+        .replace(/^app\//, '/')
+        .replace(/^pages\//, '/')
+        .replace(/\/page\.(tsx?|jsx?)$/, '')
+        .replace(/\.(tsx?|jsx?)$/, '')
+        .replace(/\/index$/, '')
+        .replace(/\([^)]+\)\//g, ''); // Remove route groups like (auth)
+    route = route.replace(/\[([^\]]+)\]/g, ':$1');
+    return route || '/';
+}
+// =============================================================================
+// Legacy SBG functions (kept for backward compatibility during migration)
+// =============================================================================
+/**
+ * @deprecated Use extractCandidateActions instead
  * Scan project and build Static Behavior Graph V9
  */
 async function buildStaticBehaviorGraph(projectPath, onProgress) {
     onProgress?.('Starting code scan...', 0);
-    // Use existing v7 scanner
     const v7Payload = await (0, scanner_1.scanProjectV7)(projectPath);
     onProgress?.(`Scanned ${v7Payload.graph.nodes.length} nodes`, v7Payload.graph.nodes.length);
-    // Convert to V9 format
     const nodes = v7Payload.graph.nodes.map(n => convertNodeToV9(n));
     const edges = v7Payload.graph.edges.map(e => convertEdgeToV9(e));
     const project = {

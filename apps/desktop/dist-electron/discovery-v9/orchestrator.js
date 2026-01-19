@@ -3,7 +3,13 @@
  * V9 Discovery Orchestrator
  *
  * Main entry point for the Discovery V9 pipeline in Electron.
- * Coordinates: SBG scanning → ROG exploration → Backend call → Artifact persistence
+ *
+ * RUNTIME-FIRST FLOW:
+ * 1. Extract candidate actions from static code (SBG)
+ * 2. Execute candidates at runtime and observe effects
+ * 3. Filter to only verified actions (with observable effects)
+ * 4. Build flows and send to backend
+ * 5. Persist artifacts
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -47,34 +53,45 @@ const fs = __importStar(require("fs/promises"));
 const electron_1 = require("electron");
 const sbg_scanner_1 = require("./sbg-scanner");
 const rog_explorer_1 = require("./rog-explorer");
+const runtime_executor_1 = require("./runtime-executor");
+const verifier_1 = require("./verifier");
 const DEFAULT_BACKEND_URL = 'http://localhost:3001';
 /**
- * Run the complete V9 Discovery pipeline
+ * Run the complete V9 Discovery pipeline with RUNTIME-FIRST verification.
+ *
+ * Only runtime-verified actions become steps.
+ * Static-only nodes are NEVER converted to steps directly.
  */
 async function runDiscoveryV9(config, onProgress) {
     const startTime = Date.now();
-    // Stage 1: Build Static Behavior Graph
+    // ==========================================================================
+    // Stage 1: Extract Candidate Actions from Static Code
+    // ==========================================================================
     onProgress?.({
         stage: 'scanning',
-        message: 'Scanning project code...',
+        message: 'Extracting candidate actions from code...',
         percent: 5,
     });
+    let candidates;
     let sbg;
     try {
-        sbg = await (0, sbg_scanner_1.buildStaticBehaviorGraph)(config.projectPath, (msg, filesScanned) => {
+        // Extract candidates (new runtime-first approach)
+        const extracted = await (0, sbg_scanner_1.extractCandidateActions)(config.projectPath, (msg, count) => {
             onProgress?.({
                 stage: 'scanning',
                 message: msg,
-                percent: Math.min(25, 5 + (filesScanned / 10)),
-                details: { filesScanned },
+                percent: Math.min(20, 5 + (count / 20)),
+                details: { filesScanned: count },
             });
         });
-        // Expand form inputs for more granular model
+        candidates = extracted.candidates;
+        // Also build legacy SBG for backward compatibility
+        sbg = await (0, sbg_scanner_1.buildStaticBehaviorGraph)(config.projectPath);
         sbg = (0, sbg_scanner_1.expandFormInputs)(sbg);
         onProgress?.({
             stage: 'scanning',
-            message: `Code scan complete: ${sbg.nodes.length} nodes`,
-            percent: 30,
+            message: `Found ${candidates.length} candidate actions`,
+            percent: 25,
             details: { filesScanned: sbg.nodes.length },
         });
     }
@@ -82,86 +99,125 @@ async function runDiscoveryV9(config, onProgress) {
         onProgress?.({
             stage: 'error',
             message: `Code scan failed: ${error.message}`,
-            percent: 30,
+            percent: 25,
         });
         throw error;
     }
-    // Stage 2: Build Runtime Observation Graph
+    // ==========================================================================
+    // Stage 2: Execute Candidates at Runtime and Observe Effects
+    // ==========================================================================
     onProgress?.({
         stage: 'exploring',
-        message: 'Launching browser for runtime exploration...',
-        percent: 35,
+        message: 'Executing candidates and observing effects...',
+        percent: 30,
     });
+    let verifiedSteps;
+    let verificationStats;
     let rog;
     try {
+        // Execute candidates and capture observations
+        const observations = await (0, runtime_executor_1.executeAndObserveCandidates)(candidates, {
+            baseUrl: config.baseUrl,
+            timeoutMs: config.explorationTimeoutMs || 60000,
+            headless: true,
+        }, (msg, executed, total) => {
+            onProgress?.({
+                stage: 'exploring',
+                message: msg,
+                percent: Math.min(60, 30 + ((executed / Math.max(total, 1)) * 30)),
+                details: {
+                    pagesExplored: executed,
+                    elementsFound: total
+                },
+            });
+        });
+        // Verify and filter - CRITICAL: only verified actions become steps
+        const verified = (0, verifier_1.verifyAndFilter)(candidates, observations);
+        verifiedSteps = verified.verifiedSteps;
+        verificationStats = verified.stats;
+        // Build legacy ROG for backward compatibility
         rog = await (0, rog_explorer_1.buildRuntimeObservationGraph)(sbg.project, sbg, {
             baseUrl: config.baseUrl,
             maxPages: config.maxPages || 20,
             maxInteractionsPerPage: config.maxInteractionsPerPage || 10,
             timeoutMs: config.explorationTimeoutMs || 60000,
             headless: true,
-        }, (msg, pagesExplored, elementsFound) => {
-            onProgress?.({
-                stage: 'exploring',
-                message: msg,
-                percent: Math.min(65, 35 + (pagesExplored * 2)),
-                details: { pagesExplored, elementsFound },
-            });
         });
         onProgress?.({
             stage: 'exploring',
-            message: `Exploration complete: ${rog.pages.length} pages, ${rog.pages.reduce((s, p) => s + p.elements.length, 0)} elements`,
-            percent: 70,
+            message: `Verified ${verifiedSteps.length} actions (${verificationStats.candidatesDiscarded} discarded)`,
+            percent: 65,
             details: {
-                pagesExplored: rog.pages.length,
-                elementsFound: rog.pages.reduce((s, p) => s + p.elements.length, 0),
+                pagesExplored: verificationStats.candidatesExecuted,
+                elementsFound: verifiedSteps.length,
             },
         });
+        console.log('[Discovery V9] Verification stats:', verificationStats);
     }
     catch (error) {
         onProgress?.({
             stage: 'error',
-            message: `Runtime exploration failed: ${error.message}`,
-            percent: 70,
+            message: `Runtime verification failed: ${error.message}`,
+            percent: 65,
         });
         throw error;
     }
-    // Stage 3: Call Backend
+    // ==========================================================================
+    // Stage 3: Build Verified Flows and Call Backend
+    // ==========================================================================
     onProgress?.({
         stage: 'calling-backend',
-        message: 'Sending data to backend for analysis...',
-        percent: 75,
+        message: 'Building verified flows...',
+        percent: 70,
     });
     const backendUrl = config.backendUrl || DEFAULT_BACKEND_URL;
     let result;
     try {
-        const request = {
-            project: sbg.project,
-            staticGraph: sbg,
-            runtimeGraph: rog,
-            options: {
-                quality: 'max',
-                timeBudgetMs: 30000,
-            },
-        };
-        const response = await fetch(`${backendUrl}/analyze/discovery/v9`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(request),
-        });
-        if (!response.ok) {
-            throw new Error(`Backend returned ${response.status}: ${response.statusText}`);
+        // Build verified flows from verified steps
+        const verifiedFlows = (0, verifier_1.buildVerifiedFlows)(verifiedSteps);
+        console.log('[Discovery V9] Built', verifiedFlows.length, 'verified flows');
+        // If no verified flows, return empty result
+        if (verifiedFlows.length === 0) {
+            result = buildEmptyResult(verificationStats, sbg, rog, Date.now() - startTime);
+            onProgress?.({
+                stage: 'calling-backend',
+                message: 'No verified user flows found',
+                percent: 90,
+            });
         }
-        const backendResult = await response.json();
-        if (!backendResult.ok) {
-            throw new Error(backendResult.error || 'Backend processing failed');
+        else {
+            // Send verified flows to backend for final processing
+            const request = {
+                project: sbg.project,
+                staticGraph: sbg,
+                runtimeGraph: rog,
+                options: {
+                    quality: 'max',
+                    timeBudgetMs: 30000,
+                },
+                // Runtime-verified flows
+                verifiedFlows,
+                verificationStats,
+            };
+            const response = await fetch(`${backendUrl}/analyze/discovery/v9`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(request),
+            });
+            if (!response.ok) {
+                throw new Error(`Backend returned ${response.status}: ${response.statusText}`);
+            }
+            const backendResult = await response.json();
+            if (!backendResult.ok) {
+                throw new Error(backendResult.error || 'Backend processing failed');
+            }
+            result = backendResult.result;
+            onProgress?.({
+                stage: 'calling-backend',
+                message: `Analysis complete: ${result.suites.length} suites, ${result.summary.totalCases} cases`,
+                percent: 90,
+            });
         }
-        result = backendResult.result;
-        onProgress?.({
-            stage: 'calling-backend',
-            message: `Analysis complete: ${result.suites.length} suites, ${result.summary.totalCases} cases`,
-            percent: 90,
-        });
     }
     catch (error) {
         onProgress?.({
@@ -208,6 +264,55 @@ async function runDiscoveryV9(config, onProgress) {
         rog,
         result,
         artifactsPath,
+    };
+}
+/**
+ * Build an empty result when no flows are verified.
+ * This is the correct empty state for runtime-first discovery.
+ */
+function buildEmptyResult(stats, sbg, rog, durationMs) {
+    return {
+        success: true,
+        suites: [],
+        summary: {
+            totalSuites: 0,
+            totalCases: 0,
+            totalSteps: 0,
+            averageConfidence: 0,
+            provenanceBreakdown: {
+                pureStatic: 0,
+                pureRuntime: 0,
+                merged: 0,
+            },
+            qualityIndicators: {
+                hasHighConfidenceCases: false,
+                hasCriticalPathCoverage: false,
+                hasFormInteractionCoverage: false,
+                completenessScore: 0,
+            },
+        },
+        diagnostics: {
+            processingTimeMs: durationMs,
+            inputStats: {
+                sbgNodes: sbg.nodes.length,
+                rogPages: rog.pages.length,
+            },
+            mergeStats: {
+                matchedNodes: 0,
+                unmatchedStatic: stats.candidatesDiscarded,
+                unmatchedRuntime: 0,
+            },
+            // Include verification stats in diagnostics
+            verificationStats: {
+                totalCandidates: stats.totalCandidates,
+                candidatesExecuted: stats.candidatesExecuted,
+                candidatesVerified: stats.candidatesVerified,
+                candidatesDiscarded: stats.candidatesDiscarded,
+                discardReasons: stats.discardReasons,
+            },
+        },
+        timestamp: new Date().toISOString(),
+        version: 'v9',
     };
 }
 /**

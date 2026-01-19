@@ -94,6 +94,10 @@ export interface DiscoveryV9Request {
     quality: 'max' | 'fast';
     timeBudgetMs?: number;
   };
+  /** Runtime-verified flows (if available, these override static-to-step conversion) */
+  verifiedFlows?: VerifiedFlow[];
+  /** Verification statistics */
+  verificationStats?: VerificationStats;
 }
 
 // ============================================================================
@@ -166,6 +170,7 @@ export interface DiscoveryResultV9 {
     processingTimeMs: number;
     inputStats: { sbgNodes: number; rogPages: number };
     mergeStats: { matchedNodes: number; unmatchedStatic: number; unmatchedRuntime: number };
+    verificationStats?: VerificationStats;
   };
   timestamp: string;
   version: 'v9';
