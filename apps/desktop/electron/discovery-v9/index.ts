@@ -2,12 +2,24 @@
  * V9 Discovery Module
  * 
  * Exports the main orchestrator and types for use in Electron main process.
+ * 
+ * RUNTIME-FIRST VERIFICATION:
+ * - extractCandidateActions: Get candidates from static code
+ * - executeAndObserveCandidates: Run at runtime and observe effects
+ * - verifyAndFilter: Filter to only verified actions
+ * - buildVerifiedFlows: Create meaningful test flows
  */
 
 export { runDiscoveryV9, listDiscoveryRuns, loadDiscoveryResult } from './orchestrator';
 export type { ProgressCallback } from './orchestrator';
 
-export { buildStaticBehaviorGraph, expandFormInputs } from './sbg-scanner';
+// New runtime-first exports
+export { extractCandidateActions, buildStaticBehaviorGraph, expandFormInputs } from './sbg-scanner';
+export { executeAndObserveCandidates } from './runtime-executor';
+export type { ExecutionConfig, ProgressCallback as ExecutionProgressCallback } from './runtime-executor';
+export { verifyAndFilter, buildVerifiedFlows } from './verifier';
+
+// Legacy exports (kept for backward compatibility)
 export { buildRuntimeObservationGraph } from './rog-explorer';
 export type { ExplorationConfig } from './rog-explorer';
 

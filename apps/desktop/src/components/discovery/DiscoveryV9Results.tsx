@@ -12,9 +12,6 @@ import {
   Layers,
   TestTube2,
   ListChecks,
-  AlertCircle,
-  TrendingUp,
-  Minus,
   CheckCircle2,
   FileCode2,
   Globe,
@@ -23,35 +20,56 @@ import {
   Filter,
 } from 'lucide-react';
 
-export interface DiscoveryV9ResultsProps {
-  result: {
-    success: boolean;
-    suites: SuiteV9[];
-    summary: {
-      totalSuites: number;
-      totalCases: number;
-      totalSteps: number;
-      averageConfidence: number;
-      provenanceBreakdown: {
-        pureStatic: number;
-        pureRuntime: number;
-        merged: number;
-      };
-      qualityIndicators: {
-        hasHighConfidenceCases: boolean;
-        hasCriticalPathCoverage: boolean;
-        hasFormInteractionCoverage: boolean;
-        completenessScore: number;
-      };
-    };
-    diagnostics: {
-      processingTimeMs: number;
-      inputStats: { sbgNodes: number; rogPages: number };
-      mergeStats: { matchedNodes: number; unmatchedStatic: number; unmatchedRuntime: number };
-    };
-    timestamp: string;
-    version: 'v9';
+// V9 Discovery Result types - aligned with canonical shared-discovery-types
+// Accepts either shape: backend canonical or simplified UI shape
+type ProvenanceSource = 'SBG' | 'ROG' | 'MERGED';
+type CasePriority = 'critical' | 'high' | 'medium' | 'low';
+
+interface StepV9 {
+  index: number;
+  // Can be string (simplified) or StepAction object (canonical)
+  action: string | { type: string; selector: string | null; value: string | null };
+  expected: string | { description: string } | null;
+  provenance: {
+    from: ProvenanceSource;
+    refs: string[];
+    filePath: string | null;
+    lineNumber: number | null;
+    runtimeObservationId?: string | null;
   };
+  description?: string;
+}
+
+interface CaseProvenance {
+  // Simplified shape
+  from?: ProvenanceSource;
+  refs?: string[];
+  // Canonical shape
+  staticGraphRefs?: string[];
+  runtimeRunRefs?: string[];
+}
+
+interface CaseV9 {
+  id: string;
+  name: string;
+  intent: string;
+  priority: CasePriority;
+  confidence: number;
+  preconditions: string[];
+  steps: StepV9[];
+  successCriteria: string[];
+  failureScenarios: string[];
+  provenance: CaseProvenance;
+  tags?: string[];
+}
+
+interface SuiteCoverage {
+  routes: string[];
+  // Optional fields for different shapes
+  components?: string[];
+  actions?: string[];
+  forms?: string[];
+  apiEndpoints?: string[];
 }
 
 interface SuiteV9 {
@@ -60,38 +78,52 @@ interface SuiteV9 {
   description: string;
   tags: string[];
   cases: CaseV9[];
-  coverage: {
-    routes: string[];
-    components: string[];
-    actions: string[];
+  coverage: SuiteCoverage;
+}
+
+// Summary can have different shapes depending on source
+interface DiscoverySummary {
+  totalSuites: number;
+  totalCases: number;
+  totalSteps: number;
+  // Optional fields - may or may not be present
+  averageConfidence?: number;
+  verifiedCaseRate?: number;
+  selectorStabilityScore?: number;
+  runtimeEvidenceRate?: number;
+  provenanceBreakdown?: {
+    pureStatic: number;
+    pureRuntime: number;
+    merged: number;
+  };
+  qualityIndicators?: {
+    hasHighConfidenceCases: boolean;
+    hasCriticalPathCoverage: boolean;
+    hasFormInteractionCoverage: boolean;
+    completenessScore: number;
   };
 }
 
-interface CaseV9 {
-  id: string;
-  name: string;
-  intent: string;
-  priority: 'critical' | 'high' | 'medium' | 'low';
-  confidence: number;
-  preconditions: string[];
-  steps: StepV9[];
-  successCriteria: string[];
-  failureScenarios: string[];
-  provenance: { from: 'SBG' | 'ROG' | 'MERGED'; refs: string[] };
+interface DiscoveryDiagnostics {
+  // Canonical shape
+  errors?: Array<{ code: string; message: string; filePath: string | null; details: unknown }>;
+  warnings?: Array<{ code: string; message: string; filePath: string | null; details: unknown }>;
+  artifactsPath?: string | null;
+  // Simplified shape
+  processingTimeMs?: number;
+  inputStats?: { sbgNodes: number; rogPages: number };
+  mergeStats?: { matchedNodes: number; unmatchedStatic: number; unmatchedRuntime: number };
 }
 
-interface StepV9 {
-  index: number;
-  action: string;
-  expected: string | null;
-  provenance: {
-    from: 'SBG' | 'ROG' | 'MERGED';
-    refs: string[];
-    filePath: string | null;
-    lineNumber: number | null;
-    runtimeObservationId: string | null;
+export interface DiscoveryV9ResultsProps {
+  result: {
+    success: boolean;
+    suites: SuiteV9[];
+    summary: DiscoverySummary;
+    diagnostics: DiscoveryDiagnostics;
+    timestamp: string;
+    version: 'v9';
   };
-  description?: string;
 }
 
 const priorityColors = {
@@ -188,33 +220,39 @@ export function DiscoveryV9Results({ result }: DiscoveryV9ResultsProps) {
         />
         <SummaryCard
           icon={CheckCircle2}
-          label="Avg. Confidence"
-          value={`${Math.round(result.summary.averageConfidence * 100)}%`}
+          label="Confidence"
+          value={result.summary.averageConfidence != null 
+            ? `${Math.round(result.summary.averageConfidence * 100)}%`
+            : result.summary.verifiedCaseRate != null
+              ? `${result.summary.verifiedCaseRate}%`
+              : 'N/A'}
           color="warning"
         />
       </div>
 
-      {/* Provenance Breakdown */}
-      <div className="card p-4">
-        <h3 className="text-sm font-medium text-text-primary mb-3">Provenance Breakdown</h3>
-        <div className="flex gap-4">
-          <ProvenanceBadge
-            type="SBG"
-            label="Static (Code)"
-            count={result.summary.provenanceBreakdown.pureStatic}
-          />
-          <ProvenanceBadge
-            type="ROG"
-            label="Runtime (Explored)"
-            count={result.summary.provenanceBreakdown.pureRuntime}
-          />
-          <ProvenanceBadge
-            type="MERGED"
-            label="Merged (Both)"
-            count={result.summary.provenanceBreakdown.merged}
-          />
+      {/* Provenance Breakdown - only show if available */}
+      {result.summary.provenanceBreakdown && (
+        <div className="card p-4">
+          <h3 className="text-sm font-medium text-text-primary mb-3">Provenance Breakdown</h3>
+          <div className="flex gap-4">
+            <ProvenanceBadge
+              type="SBG"
+              label="Static (Code)"
+              count={result.summary.provenanceBreakdown.pureStatic}
+            />
+            <ProvenanceBadge
+              type="ROG"
+              label="Runtime (Explored)"
+              count={result.summary.provenanceBreakdown.pureRuntime}
+            />
+            <ProvenanceBadge
+              type="MERGED"
+              label="Merged (Both)"
+              count={result.summary.provenanceBreakdown.merged}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Search and Filter */}
       <div className="flex items-center gap-4">
@@ -266,10 +304,18 @@ export function DiscoveryV9Results({ result }: DiscoveryV9ResultsProps) {
 
       {/* Diagnostics Footer */}
       <div className="text-xs text-text-tertiary text-center">
-        Processed in {result.diagnostics.processingTimeMs}ms | 
-        {result.diagnostics.inputStats.sbgNodes} static nodes | 
-        {result.diagnostics.inputStats.rogPages} runtime pages | 
-        {result.diagnostics.mergeStats.matchedNodes} merged
+        {result.diagnostics.processingTimeMs != null && (
+          <>Processed in {result.diagnostics.processingTimeMs}ms</>  
+        )}
+        {result.diagnostics.inputStats && (
+          <> | {result.diagnostics.inputStats.sbgNodes} static nodes | {result.diagnostics.inputStats.rogPages} runtime pages</>
+        )}
+        {result.diagnostics.mergeStats && (
+          <> | {result.diagnostics.mergeStats.matchedNodes} merged</>
+        )}
+        {result.diagnostics.errors && result.diagnostics.errors.length > 0 && (
+          <> | {result.diagnostics.errors.length} errors</>
+        )}
       </div>
     </div>
   );
@@ -385,7 +431,12 @@ function CaseItem({ caseItem, isExpanded, onToggle }: {
   isExpanded: boolean;
   onToggle: () => void;
 }) {
-  const ProvenanceIcon = provenanceIcons[caseItem.provenance.from];
+  // Handle both simplified (from) and canonical (staticGraphRefs) provenance shapes
+  const provenanceType: ProvenanceSource = caseItem.provenance.from 
+    || (caseItem.provenance.staticGraphRefs?.length && caseItem.provenance.runtimeRunRefs?.length ? 'MERGED' 
+        : caseItem.provenance.staticGraphRefs?.length ? 'SBG' 
+        : 'ROG');
+  const ProvenanceIcon = provenanceIcons[provenanceType];
 
   return (
     <div>
@@ -412,9 +463,9 @@ function CaseItem({ caseItem, isExpanded, onToggle }: {
           <span className="text-xs text-text-tertiary">
             {Math.round(caseItem.confidence * 100)}% conf
           </span>
-          <div className={`flex items-center gap-1 px-2 py-0.5 rounded border ${provenanceColors[caseItem.provenance.from]}`}>
+          <div className={`flex items-center gap-1 px-2 py-0.5 rounded border ${provenanceColors[provenanceType]}`}>
             <ProvenanceIcon size={12} />
-            <span className="text-xs">{caseItem.provenance.from}</span>
+            <span className="text-xs">{provenanceType}</span>
           </div>
         </div>
       </button>
@@ -460,6 +511,16 @@ function CaseItem({ caseItem, isExpanded, onToggle }: {
 
 function StepItem({ step }: { step: StepV9 }) {
   const ProvenanceIcon = provenanceIcons[step.provenance.from];
+  
+  // Handle both string and object action formats
+  const actionText = typeof step.action === 'string' 
+    ? step.action 
+    : `${step.action.type}${step.action.selector ? ` on ${step.action.selector}` : ''}${step.action.value ? ` with "${step.action.value}"` : ''}`;
+  
+  // Handle both string and object expected formats
+  const expectedText = step.expected 
+    ? (typeof step.expected === 'string' ? step.expected : step.expected.description)
+    : null;
 
   return (
     <div className="flex items-start gap-3 p-3 bg-surface-elevated/30 rounded-lg">
@@ -467,9 +528,9 @@ function StepItem({ step }: { step: StepV9 }) {
         {step.index}
       </span>
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-text-primary">{step.action}</p>
-        {step.expected && (
-          <p className="text-xs text-text-tertiary mt-1">Expected: {step.expected}</p>
+        <p className="text-sm text-text-primary">{actionText}</p>
+        {expectedText && (
+          <p className="text-xs text-text-tertiary mt-1">Expected: {expectedText}</p>
         )}
         {step.provenance.filePath && (
           <p className="text-xs text-text-tertiary font-mono mt-1">

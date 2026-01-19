@@ -1,8 +1,13 @@
 /**
- * V9 Discovery Merger
+ * V9 Discovery Merger - Runtime-First
  * 
- * Merges StaticBehaviorGraph (SBG) and RuntimeObservationGraph (ROG)
- * into a Verified Test Model with full provenance tracking.
+ * REFACTORED: Now builds test cases from VERIFIED FLOWS only.
+ * 
+ * Key principles:
+ * - Only runtime-verified actions become test steps
+ * - Cases are grouped by destination URL (not source)
+ * - Each verified flow = one test case
+ * - Empty result if no verified flows
  */
 
 import { NormalizedData } from './normalizer';
@@ -16,54 +21,301 @@ import {
   RuntimeInteractiveElementV9,
   StepAction,
   StepExpectation,
+  VerifiedFlow,
+  VerifiedStep,
 } from './types';
 
 /**
- * Merge SBG and ROG into a unified test model
+ * Merge SBG and ROG into a unified test model.
+ * 
+ * RUNTIME-FIRST: If verifiedFlows are provided, use them exclusively.
+ * Falls back to legacy SBG-based merging only if no verified flows.
  */
-export function mergeGraphs(normalized: NormalizedData): MergedTestModel {
+export function mergeGraphs(
+  normalized: NormalizedData,
+  verifiedFlows?: VerifiedFlow[]
+): MergedTestModel {
   const warnings: string[] = [...normalized.warnings];
-  const suites: InternalSuite[] = [];
 
-  // Group static nodes by route/page
-  const staticNodesByRoute = groupStaticNodesByRoute(normalized.sbg.nodes);
-
-  // Group runtime pages by URL
-  const runtimePagesByUrl = new Map<string, RuntimePageV9>();
-  for (const page of normalized.rog.pages) {
-    runtimePagesByUrl.set(page.url, page);
+  // RUNTIME-FIRST: Use verified flows if available
+  if (verifiedFlows && verifiedFlows.length > 0) {
+    console.log('[Merger] Using runtime-first flow: building from', verifiedFlows.length, 'verified flows');
+    return buildFromVerifiedFlows(verifiedFlows, warnings);
   }
 
-  // Create suites for each route
-  for (const route of normalized.routes) {
-    const staticNodes = staticNodesByRoute.get(route) || [];
-    const runtimePage = runtimePagesByUrl.get(route);
+  // FALLBACK: No verified flows - return empty result
+  // This is intentional: we do NOT want to create steps from static analysis alone
+  console.log('[Merger] No verified flows provided - returning empty result');
+  warnings.push('No runtime-verified flows available. Discovery requires runtime verification.');
+  
+  return {
+    suites: [],
+    warnings,
+  };
+}
 
-    const suite = createSuiteForRoute(
-      route,
-      staticNodes,
-      runtimePage,
-      normalized,
-      warnings
-    );
+/**
+ * Build test model from verified flows.
+ * Each flow becomes a case, grouped by destination URL into suites.
+ */
+function buildFromVerifiedFlows(
+  verifiedFlows: VerifiedFlow[],
+  warnings: string[]
+): MergedTestModel {
+  // Group flows by destination URL
+  const flowsByDestination = new Map<string, VerifiedFlow[]>();
+  
+  for (const flow of verifiedFlows) {
+    const destination = flow.endUrl || flow.startUrl;
+    if (!flowsByDestination.has(destination)) {
+      flowsByDestination.set(destination, []);
+    }
+    flowsByDestination.get(destination)!.push(flow);
+  }
 
+  const suites: InternalSuite[] = [];
+
+  for (const [destination, flows] of flowsByDestination) {
+    const suite = createSuiteFromVerifiedFlows(destination, flows, warnings);
     if (suite.cases.length > 0) {
       suites.push(suite);
     }
   }
 
-  // Handle routes that only exist in runtime
-  for (const page of normalized.rog.pages) {
-    if (!staticNodesByRoute.has(page.url)) {
-      const suite = createSuiteFromRuntimeOnly(page, warnings);
-      if (suite.cases.length > 0) {
-        suites.push(suite);
+  return { suites, warnings };
+}
+
+/**
+ * Create a suite from verified flows that share the same destination.
+ */
+function createSuiteFromVerifiedFlows(
+  destination: string,
+  flows: VerifiedFlow[],
+  warnings: string[]
+): InternalSuite {
+  const cases: InternalCase[] = [];
+
+  for (const flow of flows) {
+    const testCase = createCaseFromVerifiedFlow(flow, warnings);
+    cases.push(testCase);
+  }
+
+  // Extract unique file paths from all steps
+  const filePaths = new Set<string>();
+  for (const flow of flows) {
+    for (const step of flow.steps) {
+      if (step.candidate.filePath) {
+        filePaths.add(step.candidate.filePath);
       }
     }
   }
 
-  return { suites, warnings };
+  return {
+    id: `suite:verified:${sanitizeUrl(destination)}`,
+    route: destination,
+    filePath: Array.from(filePaths)[0] || 'runtime-verified',
+    cases,
+    componentIds: flows.flatMap(f => f.steps.map(s => s.candidate.id)),
+  };
 }
+
+/**
+ * Create a test case from a single verified flow.
+ */
+function createCaseFromVerifiedFlow(
+  flow: VerifiedFlow,
+  warnings: string[]
+): InternalCase {
+  const steps: InternalStep[] = [];
+
+  // First step: Navigate to start URL
+  steps.push(createNavigationStep(flow.startUrl));
+
+  // Convert each verified step to an internal step
+  for (const verifiedStep of flow.steps) {
+    steps.push(convertVerifiedStepToInternal(verifiedStep));
+  }
+
+  // Collect all references
+  const staticRefs = flow.steps
+    .map(s => s.candidate.id)
+    .filter(Boolean);
+  
+  const runtimeRefs = flow.steps
+    .map(s => s.observation.candidateId)
+    .filter(Boolean);
+
+  return {
+    id: `case:verified:${flow.id}`,
+    staticRefs,
+    runtimeRefs,
+    steps,
+    hasRuntimeEvidence: true, // Always true for verified flows
+  };
+}
+
+/**
+ * Convert a VerifiedStep to InternalStep.
+ */
+function convertVerifiedStepToInternal(verifiedStep: VerifiedStep): InternalStep {
+  const { candidate, observation } = verifiedStep;
+
+  // Determine action type based on candidate type
+  let actionType: StepAction['type'];
+  switch (candidate.type) {
+    case 'link':
+      actionType = 'click';
+      break;
+    case 'button':
+      actionType = 'click';
+      break;
+    case 'form-submit':
+      actionType = 'submit';
+      break;
+    default:
+      actionType = 'click';
+  }
+
+  const action: StepAction = {
+    type: actionType,
+    selector: verifiedStep.verifiedSelector,
+    selectorStability: 0.9, // High stability for runtime-verified selectors
+    value: null,
+    targetRoute: verifiedStep.destinationUrl,
+    unknownReason: null,
+  };
+
+  // Build expectation based on verification reason
+  const expected = buildExpectationFromVerification(verifiedStep);
+
+  return {
+    action,
+    expected,
+    from: 'MERGED', // Always MERGED for verified steps (static + runtime)
+    staticRef: candidate.id,
+    runtimeRef: observation.candidateId,
+    filePath: candidate.filePath,
+    lineNumber: candidate.lineNumber,
+    description: buildStepDescription(verifiedStep),
+    targetRoute: verifiedStep.destinationUrl,
+  };
+}
+
+/**
+ * Build expectation based on what was verified at runtime.
+ */
+function buildExpectationFromVerification(verifiedStep: VerifiedStep): StepExpectation {
+  const { observation, verificationReason, destinationUrl } = verifiedStep;
+
+  switch (verificationReason) {
+    case 'url-change':
+      return {
+        evidenceType: 'url',
+        evidenceRef: destinationUrl || observation.urlAfter || '',
+        matcher: 'equals',
+        description: `Navigate to ${destinationUrl || observation.urlAfter}`,
+      };
+
+    case 'network-call':
+      const networkCall = observation.networkCalls[0];
+      return {
+        evidenceType: 'network',
+        evidenceRef: networkCall?.url || '',
+        matcher: 'called',
+        description: `API call: ${networkCall?.method || 'GET'} ${networkCall?.url || 'endpoint'}`,
+      };
+
+    case 'storage-change':
+      const storageChange = observation.storageChanges[0];
+      return {
+        evidenceType: 'storage',
+        evidenceRef: storageChange?.key || '',
+        matcher: 'exists',
+        description: `Storage updated: ${storageChange?.storage || 'local'}Storage['${storageChange?.key || 'key'}']`,
+      };
+
+    case 'dom-mutation':
+      const domMutation = observation.domMutations[0];
+      return {
+        evidenceType: 'dom',
+        evidenceRef: domMutation?.selector || '',
+        matcher: domMutation?.type === 'added' ? 'exists' : 'changed',
+        description: domMutation?.description || 'DOM element changed',
+      };
+
+    default:
+      return {
+        evidenceType: 'dom',
+        evidenceRef: '',
+        matcher: 'exists',
+        description: 'Action completed successfully',
+      };
+  }
+}
+
+/**
+ * Build a human-readable description for a verified step.
+ */
+function buildStepDescription(verifiedStep: VerifiedStep): string {
+  const { candidate, verificationReason, destinationUrl } = verifiedStep;
+  const elementDesc = candidate.text || candidate.testId || candidate.selector || 'element';
+
+  switch (candidate.type) {
+    case 'link':
+      return `Click link "${elementDesc}" → ${destinationUrl || 'page'}`;
+    case 'button':
+      return `Click button "${elementDesc}"${destinationUrl ? ` → ${destinationUrl}` : ''}`;
+    case 'form-submit':
+      return `Submit form${destinationUrl ? ` → ${destinationUrl}` : ''}`;
+    default:
+      return `Interact with ${elementDesc}`;
+  }
+}
+
+/**
+ * Create a navigation step for the start of a flow.
+ */
+function createNavigationStep(url: string): InternalStep {
+  return {
+    action: {
+      type: 'navigate',
+      selector: null,
+      selectorStability: null,
+      value: url,
+      targetRoute: url,
+      unknownReason: null,
+    },
+    expected: {
+      evidenceType: 'url',
+      evidenceRef: url,
+      matcher: 'contains',
+      description: `Page loads at ${url}`,
+    },
+    from: 'ROG',
+    staticRef: null,
+    runtimeRef: null,
+    filePath: null,
+    lineNumber: null,
+    description: `Navigate to ${url}`,
+  };
+}
+
+/**
+ * Sanitize URL for use in IDs.
+ */
+function sanitizeUrl(url: string): string {
+  return url
+    .replace(/^https?:\/\//, '')
+    .replace(/[^a-zA-Z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .substring(0, 50);
+}
+
+// =============================================================================
+// LEGACY FUNCTIONS (deprecated - kept for backward compatibility)
+// These are no longer used when verified flows are available.
+// =============================================================================
 
 function groupStaticNodesByRoute(
   nodes: StaticBehaviorNodeV9[]

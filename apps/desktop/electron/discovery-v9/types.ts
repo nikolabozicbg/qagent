@@ -172,6 +172,109 @@ export interface DiscoveryResultV9 {
 }
 
 // ============================================================================
+// Runtime-First Verification Types
+// ============================================================================
+
+/**
+ * Candidate action extracted from static analysis.
+ * NOT a step yet - must be verified at runtime.
+ */
+export interface CandidateAction {
+  id: string;
+  type: 'link' | 'button' | 'form-submit';
+  /** Page where this action exists */
+  sourceUrl: string;
+  /** CSS selector or data-testid */
+  selector: string | null;
+  /** For links: the href destination */
+  href: string | null;
+  /** Visible text of the element */
+  text: string | null;
+  /** data-testid if available */
+  testId: string | null;
+  /** Source code location */
+  filePath: string;
+  lineNumber: number | null;
+}
+
+/**
+ * Observable effects from executing an action at runtime.
+ */
+export interface ActionObservation {
+  candidateId: string;
+  executed: boolean;
+  executionError: string | null;
+  /** URL before action */
+  urlBefore: string;
+  /** URL after action (null if unchanged) */
+  urlAfter: string | null;
+  /** Network requests triggered */
+  networkCalls: Array<{
+    url: string;
+    method: string;
+    status: number | null;
+  }>;
+  /** Significant DOM changes detected */
+  domMutations: Array<{
+    type: 'added' | 'removed' | 'changed';
+    selector: string;
+    description: string;
+  }>;
+  /** Storage changes (localStorage, sessionStorage) */
+  storageChanges: Array<{
+    storage: 'local' | 'session';
+    key: string;
+    action: 'set' | 'remove';
+  }>;
+  /** Screenshot path (optional) */
+  screenshotPath: string | null;
+}
+
+/**
+ * A step that has been verified at runtime.
+ * Only verified steps can become part of test cases.
+ */
+export interface VerifiedStep {
+  id: string;
+  /** The candidate that was verified */
+  candidate: CandidateAction;
+  /** The observation from runtime */
+  observation: ActionObservation;
+  /** Selector that was actually used at runtime */
+  verifiedSelector: string;
+  /** Destination URL if navigation occurred */
+  destinationUrl: string | null;
+  /** Why this step is considered verified */
+  verificationReason: 'url-change' | 'network-call' | 'dom-mutation' | 'storage-change';
+}
+
+/**
+ * A verified flow is a sequence of verified steps representing a user journey.
+ */
+export interface VerifiedFlow {
+  id: string;
+  /** Starting URL */
+  startUrl: string;
+  /** Ending URL */
+  endUrl: string;
+  /** Steps in order */
+  steps: VerifiedStep[];
+  /** Flow type based on destination */
+  flowType: 'navigation' | 'form-submission' | 'interaction';
+}
+
+/**
+ * Statistics from the verification process.
+ */
+export interface VerificationStats {
+  totalCandidates: number;
+  candidatesExecuted: number;
+  candidatesVerified: number;
+  candidatesDiscarded: number;
+  discardReasons: Record<string, number>;
+}
+
+// ============================================================================
 // Orchestrator Types
 // ============================================================================
 

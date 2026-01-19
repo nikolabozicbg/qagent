@@ -13,6 +13,7 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     // File system
     openFileDialog: () => electron_1.ipcRenderer.invoke('open-file-dialog'),
     selectFolder: () => electron_1.ipcRenderer.invoke('open-file-dialog'), // Alias for clarity
+    openJsonFileDialog: () => electron_1.ipcRenderer.invoke('open-json-file-dialog'),
     saveTestFile: (filePath, contents) => electron_1.ipcRenderer.invoke('fs:saveTestFile', filePath, contents),
     readFile: (filePath) => electron_1.ipcRenderer.invoke('fs:readFile', filePath),
     openInEditor: (filePath) => electron_1.ipcRenderer.invoke('fs:openInEditor', filePath),
@@ -51,6 +52,19 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     scanProjectV5: (projectPath) => electron_1.ipcRenderer.invoke('project:scan-v5', projectPath),
     // V7 Project scanning (Behavior Graph)
     scanProjectV7: (projectPath) => electron_1.ipcRenderer.invoke('project:scan-v7', projectPath),
+    // V8 runtime batch execution
+    runV8Batch: (options) => electron_1.ipcRenderer.invoke('v8:run-batch', options),
+    // V8 auto-execution (no manual mapping)
+    runV8BatchAuto: (options) => electron_1.ipcRenderer.invoke('v8:run-batch-auto', options),
+    // V9 Discovery Pipeline
+    runDiscoveryV9: (config) => electron_1.ipcRenderer.invoke('discovery:v9:run', config),
+    listDiscoveryRuns: () => electron_1.ipcRenderer.invoke('discovery:v9:list-runs'),
+    loadDiscoveryResult: (artifactsPath) => electron_1.ipcRenderer.invoke('discovery:v9:load-result', artifactsPath),
+    onDiscoveryV9Progress: (callback) => {
+        const subscription = (_event, data) => callback(data);
+        electron_1.ipcRenderer.on('discovery:v9:progress', subscription);
+        return () => electron_1.ipcRenderer.removeListener('discovery:v9:progress', subscription);
+    },
     // Platform info
     platform: process.platform
 });

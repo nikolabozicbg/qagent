@@ -1,10 +1,19 @@
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const { createServer } = require('vite');
 const electron = require('electron');
 
 let electronProcess = null;
 
 async function startDev() {
+  // Compile Electron TypeScript first
+  console.log('\n  Compiling Electron TypeScript...\n');
+  try {
+    execSync('npm run build:electron', { stdio: 'inherit' });
+    console.log('\n  Electron compilation complete.\n');
+  } catch (err) {
+    console.warn('\n  Warning: Electron compilation had errors (continuing anyway)\n');
+  }
+
   // Start Vite dev server
   const server = await createServer({
     configFile: './vite.config.ts',

@@ -38,7 +38,10 @@ const path_1 = require("path");
 const fs_1 = require("fs");
 const path_2 = require("path");
 const child_process_1 = require("child_process");
+const playwright_1 = require("playwright");
 const scanner_1 = require("./scanner");
+const v8_auto_mapping_1 = require("./v8-auto-mapping");
+const discovery_v9_1 = require("./discovery-v9");
 // Disable security warnings for development
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
 let mainWindow = null;
@@ -115,6 +118,18 @@ electron_1.app.on('window-all-closed', () => {
 electron_1.ipcMain.handle('get-app-version', () => {
     return electron_1.app.getVersion();
 });
+// Open JSON file dialog (used for V8 mapping/goals selection)
+electron_1.ipcMain.handle('open-json-file-dialog', async () => {
+    const { dialog } = require('electron');
+    const result = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openFile'],
+        filters: [
+            { name: 'JSON', extensions: ['json'] },
+            { name: 'All Files', extensions: ['*'] }
+        ]
+    });
+    return result;
+});
 electron_1.ipcMain.handle('minimize-window', () => {
     mainWindow?.minimize();
 });
@@ -129,7 +144,7 @@ electron_1.ipcMain.handle('maximize-window', () => {
 electron_1.ipcMain.handle('close-window', () => {
     mainWindow?.close();
 });
-// Handle file open dialog
+// Handle folder open dialog
 electron_1.ipcMain.handle('open-file-dialog', async () => {
     const { dialog } = require('electron');
     const result = await dialog.showOpenDialog(mainWindow, {
@@ -597,4 +612,280 @@ electron_1.ipcMain.handle('test:run-playwright', async (event, options) => {
             });
         });
     });
+});
+function mergeUiReadyOutputs(outputs) {
+    const suiteMap = new Map();
+    const verifiedGoals = [];
+    const unverifiedGoals = [];
+    for (const out of outputs) {
+        if (!out || out.success !== true)
+            continue;
+        if (out.v8Report?.verifiedGoals)
+            verifiedGoals.push(...out.v8Report.verifiedGoals);
+        if (out.v8Report?.unverifiedGoals)
+            unverifiedGoals.push(...out.v8Report.unverifiedGoals);
+        for (const s of out.suites || []) {
+            const existing = suiteMap.get(s.name) || [];
+            existing.push(...(s.cases || []));
+            suiteMap.set(s.name, existing);
+        }
+    }
+    const suiteNames = Array.from(suiteMap.keys()).sort((a, b) => {
+        const aIsUn = a === 'UNCLUSTERED';
+        const bIsUn = b === 'UNCLUSTERED';
+        if (aIsUn && !bIsUn)
+            return 1;
+        if (!aIsUn && bIsUn)
+            return -1;
+        return a.localeCompare(b);
+    });
+    const suites = suiteNames.map(name => {
+        const cases = (suiteMap.get(name) || []).slice().sort((c1, c2) => {
+            const g1 = String(c1.goalId || '');
+            const g2 = String(c2.goalId || '');
+            return g1.localeCompare(g2);
+        });
+        return { name, cases };
+    });
+    return {
+        success: true,
+        suites,
+        v8Report: {
+            verifiedGoals,
+            unverifiedGoals,
+        },
+    };
+}
+async function runV8CliOnce(params) {
+    const cliPath = (0, path_1.join)(process.cwd(), 'packages', 'v8-runtime', 'dist', 'cli.js');
+    return await new Promise((resolve) => {
+        const child = (0, child_process_1.spawn)('node', [
+            cliPath,
+            '--baseUrl',
+            params.baseUrl,
+            '--goals',
+            params.goalsPath,
+            '--mapping',
+            params.mappingPath,
+            '--out',
+            params.uiReadyOut,
+            '--reportOut',
+            params.reportOut
+        ], {
+            cwd: process.cwd(),
+            shell: false,
+            env: { ...process.env, FORCE_COLOR: '0' },
+            stdio: ['ignore', 'pipe', 'pipe']
+        });
+        let stdout = '';
+        let stderr = '';
+        child.stdout.on('data', (d) => { stdout += d.toString(); });
+        child.stderr.on('data', (d) => { stderr += d.toString(); });
+        child.on('close', async (code) => {
+            try {
+                const uiReadyRaw = await fs_1.promises.readFile(params.uiReadyOut, 'utf-8');
+                const reportRaw = await fs_1.promises.readFile(params.reportOut, 'utf-8');
+                resolve({
+                    ok: code === 0,
+                    exitCode: code,
+                    stdout,
+                    stderr,
+                    uiReady: JSON.parse(uiReadyRaw),
+                    v8Report: JSON.parse(reportRaw),
+                });
+            }
+            catch (err) {
+                resolve({ ok: false, exitCode: code, stdout, stderr, error: err?.message || 'Failed to read V8 outputs' });
+            }
+        });
+        child.on('error', (err) => {
+            resolve({ ok: false, exitCode: null, error: err.message });
+        });
+    });
+}
+// V8 runtime batch execution (spawns packages/v8-runtime CLI and returns UI-ready suites JSON)
+electron_1.ipcMain.handle('v8:run-batch', async (_event, options) => {
+    try {
+        const { baseUrl, goalsPath, mappingPath } = options;
+        // Write outputs into Electron userData so renderer can load them deterministically
+        const userDataDir = electron_1.app.getPath('userData');
+        const runDir = (0, path_1.join)(userDataDir, 'v8-runs', String(Date.now()));
+        await fs_1.promises.mkdir(runDir, { recursive: true });
+        const uiReadyOut = (0, path_1.join)(runDir, 'ui-ready.suites.json');
+        const reportOut = (0, path_1.join)(runDir, 'v8-report.batch.json');
+        const result = await runV8CliOnce({
+            baseUrl,
+            goalsPath,
+            mappingPath,
+            uiReadyOut,
+            reportOut,
+        });
+        return {
+            ok: !!result.ok,
+            exitCode: result.exitCode,
+            stdout: result.stdout,
+            stderr: result.stderr,
+            error: result.error,
+            paths: { uiReadyOut, reportOut, runDir },
+            uiReady: result.uiReady,
+            v8Report: result.v8Report,
+        };
+    }
+    catch (error) {
+        return { ok: false, error: error.message };
+    }
+});
+// V8 auto-execution: build mapping deterministically from DOM + run per startPath; return merged UI-ready output
+electron_1.ipcMain.handle('v8:run-batch-auto', async (_event, options) => {
+    const { baseUrl, behaviorGraphPayload, derivedUserGoals } = options;
+    // Candidates: only deterministic goals (terminalNodeId !== UNKNOWN)
+    const deterministicGoals = (derivedUserGoals || []).filter(g => g.terminalNodeId !== 'UNKNOWN');
+    const userDataDir = electron_1.app.getPath('userData');
+    const runDir = (0, path_1.join)(userDataDir, 'v8-runs', String(Date.now()));
+    await fs_1.promises.mkdir(runDir, { recursive: true });
+    // Group goals by startPath
+    const goalsByStartPath = new Map();
+    for (const g of deterministicGoals) {
+        const startPath = (0, v8_auto_mapping_1.computeStartPathForGoal)({ payload: behaviorGraphPayload, goal: g });
+        if (!startPath)
+            continue; // discard
+        const existing = goalsByStartPath.get(startPath) || [];
+        existing.push(g);
+        goalsByStartPath.set(startPath, existing);
+    }
+    // Build per-startPath mapping by inspecting DOM deterministically
+    const browser = await playwright_1.chromium.launch({ headless: true });
+    try {
+        const uiReadyOutputs = [];
+        const startPaths = Array.from(goalsByStartPath.keys()).sort();
+        for (const startPath of startPaths) {
+            const goalsForPath = goalsByStartPath.get(startPath) || [];
+            if (goalsForPath.length === 0)
+                continue;
+            const context = await browser.newContext();
+            const page = await context.newPage();
+            const startUrl = new URL(startPath, baseUrl).toString();
+            try {
+                await page.goto(startUrl, { waitUntil: 'domcontentloaded', timeout: 10000 });
+                const actions = {};
+                const goalIds = [];
+                // deterministic ordering
+                const sortedGoals = goalsForPath.slice().sort((a, b) => a.id.localeCompare(b.id));
+                for (const g of sortedGoals) {
+                    const mapped = await (0, v8_auto_mapping_1.autoMapGoalOnPage)({ page, payload: behaviorGraphPayload, goal: g });
+                    if (!mapped)
+                        continue; // discard goal
+                    actions[mapped.startUserActionId] = mapped.action;
+                    goalIds.push(mapped.goalId);
+                }
+                if (goalIds.length === 0) {
+                    continue;
+                }
+                const goalsFile = (0, path_1.join)(runDir, `goals.${encodeURIComponent(startPath)}.json`);
+                const mappingFile = (0, path_1.join)(runDir, `mapping.${encodeURIComponent(startPath)}.json`);
+                const uiReadyOut = (0, path_1.join)(runDir, `ui-ready.${encodeURIComponent(startPath)}.json`);
+                const reportOut = (0, path_1.join)(runDir, `v8-report.${encodeURIComponent(startPath)}.json`);
+                // V8 input file
+                const v8Goals = {
+                    derivedUserGoals: sortedGoals.map(g => ({
+                        id: g.id,
+                        startUserActionId: g.startUserActionId,
+                        terminalNodeId: g.terminalNodeId,
+                        pageRouteHint: startPath,
+                    })),
+                };
+                await fs_1.promises.writeFile(goalsFile, JSON.stringify(v8Goals, null, 2), 'utf-8');
+                // V8 batch mapping
+                const v8Mapping = {
+                    version: 'v8-mapping-1',
+                    startPath,
+                    actions,
+                    batch: {
+                        goalIds,
+                        mode: 'isolated',
+                        timeoutMs: 10000,
+                    },
+                };
+                await fs_1.promises.writeFile(mappingFile, JSON.stringify(v8Mapping, null, 2), 'utf-8');
+                const result = await runV8CliOnce({
+                    baseUrl,
+                    goalsPath: goalsFile,
+                    mappingPath: mappingFile,
+                    uiReadyOut,
+                    reportOut,
+                });
+                if (result?.uiReady?.success) {
+                    uiReadyOutputs.push(result.uiReady);
+                }
+            }
+            finally {
+                await context.close().catch(() => undefined);
+            }
+        }
+        const merged = mergeUiReadyOutputs(uiReadyOutputs);
+        return {
+            ok: true,
+            paths: { runDir },
+            uiReady: merged,
+        };
+    }
+    catch (err) {
+        return { ok: false, error: err?.message || String(err) };
+    }
+    finally {
+        await browser.close().catch(() => undefined);
+    }
+});
+// ============================================================================
+// V9 DISCOVERY PIPELINE
+// ============================================================================
+// Run V9 Discovery pipeline (scanning + exploration + backend call)
+electron_1.ipcMain.handle('discovery:v9:run', async (_event, config) => {
+    try {
+        console.log('[Discovery V9] Starting pipeline for:', config.projectPath);
+        const result = await (0, discovery_v9_1.runDiscoveryV9)(config, (progress) => {
+            // Send progress to renderer
+            mainWindow?.webContents.send('discovery:v9:progress', progress);
+        });
+        console.log('[Discovery V9] Pipeline complete:', {
+            suites: result.result.suites.length,
+            cases: result.result.summary.totalCases,
+            steps: result.result.summary.totalSteps,
+        });
+        return {
+            ok: true,
+            result: result.result,
+            artifactsPath: result.artifactsPath,
+        };
+    }
+    catch (error) {
+        console.error('[Discovery V9] Pipeline failed:', error);
+        return {
+            ok: false,
+            error: error.message || 'Discovery pipeline failed',
+        };
+    }
+});
+// List previous discovery runs
+electron_1.ipcMain.handle('discovery:v9:list-runs', async () => {
+    try {
+        const runs = await (0, discovery_v9_1.listDiscoveryRuns)();
+        return { ok: true, runs };
+    }
+    catch (error) {
+        return { ok: false, error: error.message, runs: [] };
+    }
+});
+// Load a previous discovery result
+electron_1.ipcMain.handle('discovery:v9:load-result', async (_event, artifactsPath) => {
+    try {
+        const result = await (0, discovery_v9_1.loadDiscoveryResult)(artifactsPath);
+        if (!result) {
+            return { ok: false, error: 'Result not found' };
+        }
+        return { ok: true, result };
+    }
+    catch (error) {
+        return { ok: false, error: error.message };
+    }
 });

@@ -203,6 +203,86 @@ export interface RuntimeObservationGraphV9 {
   };
 }
 
+// =============================================================================
+// Runtime-First Verification Types (sent from Electron)
+// =============================================================================
+
+/**
+ * Candidate action extracted from static analysis.
+ */
+export interface CandidateAction {
+  id: string;
+  type: 'link' | 'button' | 'form-submit';
+  sourceUrl: string;
+  selector: string | null;
+  href: string | null;
+  text: string | null;
+  testId: string | null;
+  filePath: string;
+  lineNumber: number | null;
+}
+
+/**
+ * Observable effects from executing an action at runtime.
+ */
+export interface ActionObservation {
+  candidateId: string;
+  executed: boolean;
+  executionError: string | null;
+  urlBefore: string;
+  urlAfter: string | null;
+  networkCalls: Array<{
+    url: string;
+    method: string;
+    status: number | null;
+  }>;
+  domMutations: Array<{
+    type: 'added' | 'removed' | 'changed';
+    selector: string;
+    description: string;
+  }>;
+  storageChanges: Array<{
+    storage: 'local' | 'session';
+    key: string;
+    action: 'set' | 'remove';
+  }>;
+  screenshotPath: string | null;
+}
+
+/**
+ * A step that has been verified at runtime.
+ */
+export interface VerifiedStep {
+  id: string;
+  candidate: CandidateAction;
+  observation: ActionObservation;
+  verifiedSelector: string;
+  destinationUrl: string | null;
+  verificationReason: 'url-change' | 'network-call' | 'dom-mutation' | 'storage-change';
+}
+
+/**
+ * A verified flow is a sequence of verified steps representing a user journey.
+ */
+export interface VerifiedFlow {
+  id: string;
+  startUrl: string;
+  endUrl: string;
+  steps: VerifiedStep[];
+  flowType: 'navigation' | 'form-submission' | 'interaction';
+}
+
+/**
+ * Statistics from the verification process.
+ */
+export interface VerificationStats {
+  totalCandidates: number;
+  candidatesExecuted: number;
+  candidatesVerified: number;
+  candidatesDiscarded: number;
+  discardReasons: Record<string, number>;
+}
+
 export interface DiscoveryV9Request {
   project: ProjectInfo;
   staticGraph: StaticBehaviorGraphV9;
@@ -211,6 +291,10 @@ export interface DiscoveryV9Request {
     quality: 'max' | 'fast';
     timeBudgetMs?: number;
   };
+  /** Runtime-verified flows (if available, these override static-to-step conversion) */
+  verifiedFlows?: VerifiedFlow[];
+  /** Verification statistics */
+  verificationStats?: VerificationStats;
 }
 
 // =============================================================================

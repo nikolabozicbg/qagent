@@ -15,6 +15,7 @@ import {
   MergedTestModel,
   InternalSuite,
   InternalCase,
+  VerifiedFlow,
 } from './types';
 
 import { validateDiscoveryV9Request, ValidationResult } from './validator';
@@ -72,7 +73,12 @@ export async function runDiscoveryV9(
 
   // Stage 3: Merge
   console.log('[V9 Discovery] Stage 3: Merging SBG + ROG...');
-  const merged = mergeGraphs(normalized);
+  // RUNTIME-FIRST: Pass verified flows to merger if available
+  const verifiedFlows: VerifiedFlow[] | undefined = request.verifiedFlows;
+  if (verifiedFlows?.length) {
+    console.log(`[V9 Discovery]   - Using ${verifiedFlows.length} verified flows from runtime`);
+  }
+  const merged = mergeGraphs(normalized, verifiedFlows);
   
   console.log(`[V9 Discovery]   - Created ${merged.suites.length} suites`);
   const totalCases = merged.suites.reduce((sum, s) => sum + s.cases.length, 0);

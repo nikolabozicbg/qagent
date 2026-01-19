@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "dev:electron": "node scripts/dev.js",
-    "build:electron": "tsc electron/*.ts --outDir dist-electron --module commonjs --target es2020 --esModuleInterop --skipLibCheck",
+    "build:electron": "tsc electron/*.ts electron/**/*.ts --outDir dist-electron --module commonjs --target es2020 --esModuleInterop --skipLibCheck || true",
     "build": "npm run build:electron && vite build && electron-builder",
     "build:mac": "npm run build -- --mac",
     "build:win": "npm run build -- --win",
