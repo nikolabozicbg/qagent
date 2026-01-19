@@ -17,6 +17,8 @@ import { SmartJourneyDiscoveryService, SuiteDiscoveryResult } from './smart-jour
 import { TechDetectionService, TechDetectionResult } from './tech-detection.service';
 import { CloudDiscoveryService } from './cloud-discovery.service';
 import { AnalysisPayload, DiscoveryResponse } from './types/analysis-payload.types';
+import type { BehaviorGraphPayload } from './types/behavior-graph.types';
+import { processBehaviorGraph } from './v7-behavior-graph';
 
 @Controller('analyze')
 export class AnalysisController {
@@ -292,6 +294,26 @@ export class AnalysisController {
    * - version=v3: Use Intelligent Discovery (semantic classification, domain clustering)
    * - version=v2 (default): Use Universal Builder
    */
+  /**
+   * V7: expose deterministic derivedUserGoals (read-only, no semantic AI)
+   * Used by Electron auto-execution layer to build V8 execution mappings.
+   */
+  @Post('v7/goals')
+  async getV7Goals(@Body() payload: BehaviorGraphPayload): Promise<any> {
+    const processed = processBehaviorGraph(payload);
+    if (!processed.ok || !processed.payload || !processed.goals) {
+      return { ok: false, reason: 'INVALID_BEHAVIOR_GRAPH', validationIssues: processed.validationIssues };
+    }
+
+    return {
+      ok: true,
+      payload: processed.payload,
+      derivedUserGoals: processed.goals,
+      unknowns: processed.unknowns,
+      stats: processed.stats,
+    };
+  }
+
   @Post('discover')
   async discoverFromPayload(
     @Body() payload: any,

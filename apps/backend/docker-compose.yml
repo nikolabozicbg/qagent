@@ -6,10 +6,10 @@ services:
     container_name: qagent-postgres
     environment:
       POSTGRES_USER: qagent
-      POSTGRES_PASSWORD: qagent_dev
+      POSTGRES_PASSWORD: ®
       POSTGRES_DB: qagent
     ports:
-      - '5433:5432'
+      - '5435:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
